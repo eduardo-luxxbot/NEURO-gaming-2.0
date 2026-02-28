@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEURO: VERSE 2.0 - Mundo Vivo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0a0a0f;
+            color: #e0e0ff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            display: flex;
+            height: 100vh;
+        }
+        #ui-lateral {
+            width: 350px;
+            background: linear-gradient(180deg, #0a0a12 0%, #1a1a2e 50%, #0f0f1a 100%);
+            border-right: 3px solid #00d4ff;
+            box-shadow: 0 0 30px rgba(0,212,255,0.2);
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 100;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #2a2a4a;
+        }
+        .logo h1 {
+            font-size: 28px;
+            background: linear-gradient(90deg, #00d4ff, #7b2cbf, #ff006e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+        }
+        .logo span {
+            font-size: 12px;
+            color: #7b2cbf;
+            letter-spacing: 8px;
+        }
+        .secao {
+            background: rgba(0,212,255,0.05);
+            border: 1px solid #2a2a4a;
+            border-radius: 12px;
+            padding: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+        .secao::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, #00d4ff, #7b2cbf);
+        }
+        .secao h3 {
+            color: #00d4ff;
+            font-size: 13px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .stat-card {
+            background: rgba(0,0,0,0.3);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #2a2a4a;
+            transition: all 0.3s;
+        }
+        .stat-card:hover {
+            border-color: #00d4ff;
+            transform: translateY(-2px);
+        }
+        .stat-icon { font-size: 20px; margin-bottom: 5px; }
+        .stat-label {
+            font-size: 9px;
+            color: #7b2cbf;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #00d4ff;
+        }
+        .barra-container { margin: 8px 0; }
+        .barra-label {
+            font-size: 10px;
+            color: #888;
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .barra-fundo {
+            background: #1a1a2e;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .barra-preenchimento {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s;
+        }
+        .barra-vida { background: linear-gradient(90deg, #ff4444, #ff6666); }
+        .barra-energia { background: linear-gradient(90deg, #ffaa00, #ffcc00); }
+        .barra-fome { background: linear-gradient(90deg, #44ff44, #66ff66); }
+        .acoes-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .btn-acao {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border: 2px solid #3a6bc9;
+            color: white;
+            padding: 12px 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+        .btn-acao:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,212,255,0.4);
+            border-color: #00d4ff;
+        }
+        .btn-acao.ativo {
+            background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+            color: #0a0a0f;
+            border-color: #00d4ff;
+        }
+        .btn-perigoso {
+            background: linear-gradient(135deg, #721e1e 0%, #982a2a 100%);
+            border-color: #c93a3a;
+        }
+        .info-mundo {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 11px;
+        }
+        .info-item {
+            background: rgba(0,0,0,0.2);
+            padding: 8px;
+            border-radius: 6px;
+            border-left: 3px solid #7b2cbf;
+        }
+        #log-eventos {
+            height: 180px;
+            overflow-y: auto;
+            font-size: 11px;
+            line-height: 1.5;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            padding: 10px;
+        }
+        .evento {
+            padding: 6px;
+            margin-bottom: 6px;
+            border-radius: 6px;
+            border-left: 3px solid;
+            animation: slideIn 0.4s ease-out;
+            background: rgba(255,255,255,0.03);
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .evento-guerra { border-left-color: #ff4444; background: rgba(255,0,0,0.1); }
+        .evento-religiao { border-left-color: #ffaa00; background: rgba(255,170,0,0.1); }
+        .evento-economia { border-left-color: #44ff44; background: rgba(0,255,0,0.1); }
+        .evento-social { border-left-color: #00d4ff; background: rgba(0,212,255,0.1); }
+        #area-jogo {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        #barra-superior {
+            height: 70px;
+            background: linear-gradient(90deg, #0f0f1a 0%, #1a1a2e 100%);
+            border-bottom: 2px solid #2a2a4a;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 0 30px;
+        }
+        .indicador {
+            text-align: center;
+            padding: 0 20px;
+            border-right: 1px solid #2a2a4a;
+        }
+        .indicador:last-child { border-right: none; }
+        .indicador-label {
+            font-size: 10px;
+            color: #7b2cbf;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .indicador-valor {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00d4ff;
+        }
+        #canvas-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: #050508;
+        }
+        canvas {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 50px rgba(0,212,255,0.1);
+        }
+        #tooltip {
+            position: absolute;
+            background: linear-gradient(135deg, rgba(10,10,15,0.98) 0%, rgba(26,26,46,0.98) 100%);
+            border: 2px solid #00d4ff;
+            border-radius: 12px;
+            padding: 15px;
+            font-size: 12px;
+            pointer-events: none;
+            display: none;
+            z-index: 1000;
+            max-width: 280px;
+        }
+        #painel-interacao {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, rgba(10,10,15,0.95) 0%, rgba(26,26,46,0.95) 100%);
+            border: 2px solid #7b2cbf;
+            border-radius: 16px;
+            padding: 20px;
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+            min-width: 350px;
+        }
+        #legendas {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            border: 1px solid #2a2a4a;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 11px;
+        }
+        .legenda-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 6px 0;
+        }
+        .legenda-cor {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a0f; }
+        ::-webkit-scrollbar-thumb { background: #2a2a4a; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00d4ff; }
+    </style>
+</head>
+<body>
+    <div id="ui-lateral">
+        <div class="logo">
+            <h1>NEURO: VERSE</h1>
+            <span>2.0</span>
+        </div>
+        <div class="secao">
+            <h3>👤 Seu Personagem</h3>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">❤️</div>
+                    <div class="stat-label">Saúde</div>
+                    <div class="stat-value" id="stat-saude">100%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⚡</div>
+                    <div class="stat-label">Energia</div>
+                    <div class="stat-value" id="stat-energia">100%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🍞</div>
+                    <div class="stat-label">Comida</div>
+                    <div class="stat-value" id="stat-comida">30</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-label">Ouro</div>
+                    <div class="stat-value" id="stat-ouro">50</div>
+                </div>
+            </div>
+            <div style="margin-top:15px;">
+                <div class="barra-container">
+                    <div class="barra-label"><span>Saúde</span><span id="barra-saude-texto">100%</span></div>
+                    <div class="barra-fundo">
+                        <div class="barra-preenchimento barra-vida" id="barra-saude" style="width:100%"></div>
+                    </div>
+                </div>
+                <div class="barra-container">
+                    <div class="barra-label"><span>Energia</span><span id="barra-energia-texto">100%</span></div>
+                    <div class="barra-fundo">
+                        <div class="barra-preenchimento barra-energia" id="barra-energia" style="width:100%"></div>
+                    </div>
+                </div>
+                <div class="barra-container">
+                    <div class="barra-label"><span>Fome</span><span id="barra-fome-texto">0%</span></div>
+                    <div class="barra-fundo">
+                        <div class="barra-preenchimento barra-fome" id="barra-fome" style="width:0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="secao">
+            <h3>🎮 Modo de Ação</h3>
+            <div class="acoes-grid">
+                <button class="btn-acao ativo" onclick="jogo.setModo('observar')" id="btn-observar">👁️ Observar</button>
+                <button class="btn-acao" onclick="jogo.setModo('mover')" id="btn-mover">🚶 Mover</button>
+                <button class="btn-acao" onclick="jogo.setModo('interagir')" id="btn-interagir">🤝 Interagir</button>
+                <button class="btn-acao btn-perigoso" onclick="jogo.setModo('atacar')" id="btn-atacar">⚔️ Atacar</button>
+            </div>
+        </div>
+        <div class="secao">
+            <h3>🌍 Estado do Mundo</h3>
+            <div class="info-mundo">
+                <div class="info-item">
+                    <div class="info-label">População</div>
+                    <div class="info-valor" id="info-pop">40</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Facções</div>
+                    <div class="info-valor" id="info-fac">0</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Religiões</div>
+                    <div class="info-valor" id="info-rel">0</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Guerras</div>
+                    <div class="info-valor" id="info-guer">0</div>
+                </div>
+            </div>
+            <div style="margin-top:15px; padding-top:15px; border-top:1px solid #2a2a4a;">
+                <div style="display:flex; justify-content:space-between; font-size:11px; margin:6px 0;">
+                    <span style="color:#888;">Turno:</span>
+                    <span style="color:#00d4ff; font-weight:bold;" id="info-turno">0</span>
+                </div>
+            </div>
+        </div>
+        <div class="secao">
+            <h3>⏱️ Controles</h3>
+            <div class="acoes-grid">
+                <button class="btn-acao" onclick="jogo.pausar()" id="btn-pausa">⏸️ Pausar</button>
+                <button class="btn-acao" onclick="jogo.umTurno()">⏭️ 1 Turno</button>
+            </div>
+        </div>
+        <div class="secao">
+            <h3>📜 Crônicas</h3>
+            <div id="log-eventos">
+                <div style="color:#666; font-style:italic; text-align:center; padding:20px;">O mundo desperta...</div>
+            </div>
+        </div>
+    </div>
+    <div id="area-jogo">
+        <div id="barra-superior">
+            <div class="indicador">
+                <div class="indicador-label">Turno</div>
+                <div class="indicador-valor" id="ind-turno">0</div>
+            </div>
+            <div class="indicador">
+                <div class="indicador-label">Sobreviventes</div>
+                <div class="indicador-valor" id="ind-pop">40</div>
+            </div>
+        </div>
+        <div id="canvas-container">
+            <canvas id="gameCanvas" width="700" height="700"></canvas>
+            <div id="tooltip"></div>
+            <div id="painel-interacao">
+                <h4 id="painel-titulo" style="color:#7b2cbf; text-align:center; margin-bottom:10px;">Agente</h4>
+                <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px;">
+                    <button class="btn-acao" onclick="jogo.acaoAgente('conversar')">💬 Conversar</button>
+                    <button class="btn-acao" onclick="jogo.acaoAgente('dar_comida')">🍞 Dar Comida</button>
+                    <button class="btn-acao btn-perigoso" onclick="jogo.acaoAgente('atacar')">⚔️ Atacar</button>
+                </div>
+                <button class="btn-acao" onclick="jogo.fecharPainel()" style="margin-top:10px;">❌ Fechar</button>
+            </div>
+            <div id="legendas">
+                <div style="font-weight:bold; margin-bottom:10px; color:#00d4ff;">Profissões</div>
+                <div class="legenda-item"><div class="legenda-cor" style="background:#44ff44; border-color:#44ff44;"></div> Agricultor</div>
+                <div class="legenda-item"><div class="legenda-cor" style="background:#ff4444; border-color:#ff4444;"></div> Guerreiro</div>
+                <div class="legenda-item"><div class="legenda-cor" style="background:#ffaa00; border-color:#ffaa00;"></div> Mercador</div>
+                <div class="legenda-item"><div class="legenda-cor" style="background:#4488ff; border-color:#4488ff;"></div> Artesão</div>
+                <div class="legenda-item"><div class="legenda-cor" style="background:#aa44ff; border-color:#aa44ff;"></div> Sábio</div>
+                <div class="legenda-item"><div class="legenda-cor" style="background:#888888; border-color:#888888;"></div> Ladrão</div>
+            </div>
+        </div>
+    </div>
+
+<script>
+class Bioma {
+    constructor(tipo, x, y) {
+        this.tipo = tipo;
+        this.x = x;
+        this.y = y;
+        this.cores = {
+            'floresta': { bg: '#1a2f1a', detalhe: '#2d5016', nome: 'Floresta' },
+            'deserto': { bg: '#2a2520', detalhe: '#c2b280', nome: 'Deserto' },
+            'montanha': { bg: '#1f1f24', detalhe: '#4a4a4a', nome: 'Montanha' },
+            'planicie': { bg: '#1a2a1a', detalhe: '#3d5c3d', nome: 'Planície' }
+        };
+    }
+    getCor() { return this.cores[this.tipo] || this.cores['planicie']; }
+}
+
+class Agente {
+    constructor(dados) {
+        this.id = dados.id;
+        this.nome = dados.nome;
+        this.x = dados.x;
+        this.y = dados.y;
+        this.profissao = dados.profissao;
+        this.bioma = dados.bioma;
+        this.vivo = dados.vivo;
+        this.saude = dados.saude;
+        this.energia = dados.energia;
+        this.fome = dados.fome || 0;
+        this.faccao = dados.faccao;
+        this.religiao = dados.religiao;
+        this.humor = dados.humor || 'neutro';
+        this.cores = {
+            'agricultor': '#44ff44', 'guerreiro': '#ff4444', 'mercador': '#ffaa00',
+            'artesao': '#4488ff', 'sabio': '#aa44ff', 'ladrao': '#888888', 'viajante': '#00d4ff'
+        };
+        this.icones = {
+            'agricultor': '🌾', 'guerreiro': '⚔️', 'mercador': '💰',
+            'artesao': '🔨', 'sabio': '📜', 'ladrao': '🗡️', 'viajante': '🧭'
+        };
+    }
+    
+    desenhar(ctx, tamanhoCell, selecionado) {
+        if (!this.vivo) return;
+        const px = this.x * tamanhoCell + tamanhoCell/2;
+        const py = this.y * tamanhoCell + tamanhoCell/2;
+        const raio = tamanhoCell * 0.35;
+        
+        if (selecionado) {
+            ctx.beginPath();
+            ctx.arc(px, py, raio + 8, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(0,212,255,0.3)';
+            ctx.fill();
+            ctx.strokeStyle = '#00d4ff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+        
+        const auras = {
+            'alegria': 'rgba(255,221,0,0.3)', 'raiva': 'rgba(255,0,0,0.3)',
+            'medo': 'rgba(136,0,255,0.3)', 'neutro': 'rgba(136,136,136,0.2)'
+        };
+        ctx.beginPath();
+        ctx.arc(px, py, raio + 5, 0, Math.PI * 2);
+        ctx.fillStyle = auras[this.humor] || auras['neutro'];
+        ctx.fill();
+        
+        ctx.beginPath();
+        ctx.arc(px, py, raio, 0, Math.PI * 2);
+        ctx.fillStyle = this.cores[this.profissao] || '#ffffff';
+        ctx.fill();
+        
+        ctx.strokeStyle = this.saude > 0.7 ? '#44ff44' : this.saude > 0.4 ? '#ffaa00' : '#ff4444';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        
+        if (this.faccao) {
+            ctx.beginPath();
+            ctx.arc(px + raio*0.6, py - raio*0.6, 4, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.fill();
+        }
+        
+        if (this.religiao) {
+            ctx.beginPath();
+            ctx.arc(px - raio*0.6, py - raio*0.6, 3, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffdd00';
+            ctx.fill();
+        }
+        
+        ctx.font = `${tamanhoCell * 0.4}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(this.icones[this.profissao] || '👤', px, py);
+        
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 11px Arial';
+        ctx.fillText(this.nome, px, py - raio - 12);
+    }
+}
+
+class Jogo {
+    constructor() {
+        this.canvas = document.getElementById('gameCanvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.tamanhoGrid = 20;
+        this.tamanhoCell = 35;
+        this.agentes = [];
+        this.jogador = null;
+        this.agenteSelecionado = null;
+        this.modo = 'observar';
+        this.turno = 0;
+        this.pausado = false;
+        this.faccoes = [];
+        this.religioes = [];
+        this.biomas = this.gerarBiomas();
+        this.gerarAgentes(35);
+        this.inicializar();
+    }
+    
+    gerarBiomas() {
+        const biomas = [];
+        for (let y = 0; y < this.tamanhoGrid; y++) {
+            for (let x = 0; x < this.tamanhoGrid; x++) {
+                let tipo = 'planicie';
+                if (x < 10 && y < 10) tipo = 'floresta';
+                else if (x >= 10 && y < 10) tipo = 'deserto';
+                else if (x < 10 && y >= 10) tipo = 'montanha';
+                biomas.push(new Bioma(tipo, x, y));
+            }
+        }
+        return biomas;
+    }
+    
+    gerarAgentes(quantidade) {
+        const nomes = ['Aria','Kael','Mira','Thorn','Luna','Sol','Nyx','Orion','Vesper','Dawn',
+                      'Ash','Ember','River','Stone','Sky','Flame','Shadow','Light','Storm','Calm',
+n                      'Zephyr','Frost','Iron','Gold','Silver','Copper','Lead','Mercury','Sulfur','Salt',
+                      'Echo','Silence','Noise','Music','Rhythm','Blues','Jazz','Rock','Pop','Folk'];
+        const profissoes = ['agricultor','guerreiro','mercador','artesao','sabio','ladrao'];
+        
+        for (let i = 0; i < quantidade; i++) {
+            const x = Math.floor(Math.random() * this.tamanhoGrid);
+            const y = Math.floor(Math.random() * this.tamanhoGrid);
+            const bioma = this.biomas.find(b => b.x === x && b.y === y);
+            
+            let prof = profissoes[Math.floor(Math.random() * profissoes.length)];
+            if (bioma.tipo === 'floresta' && Math.random() < 0.6) prof = 'agricultor';
+            else if (bioma.tipo === 'deserto' && Math.random() < 0.5) prof = Math.random() < 0.5 ? 'mercador' : 'guerreiro';
+            else if (bioma.tipo === 'montanha' && Math.random() < 0.5) prof = Math.random() < 0.5 ? 'artesao' : 'guerreiro';
+            
+            this.agentes.push(new Agente({
+                id: `NPC_${i}`,
+                nome: nomes[i % nomes.length],
+                x: x, y: y,
+                profissao: prof,
+                bioma: bioma.tipo,
+                vivo: true,
+                saude: 0.7 + Math.random() * 0.3,
+                energia: 0.6 + Math.random() * 0.4,
+                fome: Math.random() * 0.3,
+                faccao: null,
+                religiao: null,
+                humor: ['alegria','raiva','medo','neutro'][Math.floor(Math.random() * 4)]
+            }));
+        }
+        
+        this.jogador = new Agente({
+            id: 'JOGADOR',
+            nome: 'Você',
+            x: 10, y: 10,
+            profissao: 'viajante',
+            bioma: 'planicie',
+            vivo: true,
+            saude: 1.0,
+            energia: 1.0,
+            fome: 0,
+            faccao: null,
+            religiao: null,
+            humor: 'curiosidade'
+        });
+        this.agentes.push(this.jogador);
+        this.atualizarUI();
+    }
+    
+    desenhar() {
+        this.ctx.fillStyle = '#0a0a0f';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        for (let bioma of this.biomas) {
+            const cor = bioma.getCor();
+            this.ctx.fillStyle = cor.bg;
+            this.ctx.fillRect(bioma.x * this.tamanhoCell, bioma.y * this.tamanhoCell, this.tamanhoCell, this.tamanhoCell);
+            this.ctx.fillStyle = cor.detalhe;
+            this.ctx.globalAlpha = 0.3;
+            this.ctx.fillRect(bioma.x * this.tamanhoCell + 5, bioma.y * this.tamanhoCell + 5, this.tamanhoCell - 10, this.tamanhoCell - 10);
+        }
+        this.ctx.globalAlpha = 1;
+        
+        this.ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+        for (let i = 0; i <= this.tamanhoGrid; i++) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(i * this.tamanhoCell, 0);
+            this.ctx.lineTo(i * this.tamanhoCell, this.canvas.height);
+            this.ctx.stroke();
+            this.ctx.beginPath();
+            this.ctx.moveTo(0, i * this.tamanhoCell);
+            this.ctx.lineTo(this.canvas.width, i * this.tamanhoCell);
+            this.ctx.stroke();
+        }
+        
+        for (let agente of this.agentes) {
+            agente.desenhar(this.ctx, this.tamanhoCell, agente === this.jogador);
+        }
+    }
+    
+    simularTurno() {
+        if (this.pausado) return;
+        this.turno++;
+        let eventosTurno = 0;
+        
+        for (let agente of this.agentes) {
+            if (!agente.vivo || agente.id === 'JOGADOR') continue;
+            
+            if (Math.random() < 0.3) {
+                const dx = Math.floor(Math.random() * 3) - 1;
+                const dy = Math.floor(Math.random() * 3) - 1;
+                agente.x = Math.max(0, Math.min(this.tamanhoGrid-1, agente.x + dx));
+                agente.y = Math.max(0, Math.min(this.tamanhoGrid-1, agente.y + dy));
+                const novoBioma = this.biomas.find(b => b.x === agente.x && b.y === agente.y);
+                if (novoBioma) agente.bioma = novoBioma.tipo;
+            }
+            
+            if (Math.random() < 0.1) {
+                agente.humor = ['alegria','raiva','medo','neutro'][Math.floor(Math.random() * 4)];
+            }
+            
+            agente.fome += 0.02;
+            agente.energia -= 0.01;
+            if (agente.fome > 0.7) agente.saude -= 0.02;
+            
+            if (agente.saude <= 0) {
+                agente.vivo = false;
+                this.logEvento('morte', `${agente.nome} faleceu.`, '#888888');
+                eventosTurno++;
+            }
+            
+            if (!agente.faccao && Math.random() < 0.02) {
+                const aliado = this.agentes.find(a => 
+                    a.vivo && a.id !== agente.id && !a.faccao && 
+                    Math.abs(a.x - agente.x) <= 2 && Math.abs(a.y - agente.y) <= 2
+                );
+                if (aliado) {
+                    const nomeFaccao = `Ordem_${agente.nome}`;
+                    agente.faccao = nomeFaccao;
+                    aliado.faccao = nomeFaccao;
+                    this.faccoes.push(nomeFaccao);
+                    this.logEvento('social', `${nomeFaccao} fundada!`, '#00d4ff');
+                    eventosTurno++;
+                }
+            }
+            
+            if (Math.random() < 0.005 && !agente.religiao) {
+                const deuses = ['Sol','Lua','Terra','Fogo','Água'];
+                const deus = deuses[Math.floor(Math.random() * deuses.length)];
+                agente.religiao = deus;
+                if (!this.religioes.includes(deus)) {
+                    this.religioes.push(deus);
+                    this.logEvento('religiao', `${agente.nome} teve visão de ${deus}!`, '#ffaa00');
+                    eventosTurno++;
+                }
+            }
+        }
+        
+        if (Math.random() < 0.03) {
+            const eventos = ['Colheita abundante!', 'Seca no deserto!', 'Bandidos atacam!'];
+            this.logEvento('economia', eventos[Math.floor(Math.random() * eventos.length)], '#ffaa00');
+            eventosTurno++;
+        }
+        
+        this.atualizarUI();
+        this.desenhar();
+    }
+    
+    logEvento(tipo, mensagem, cor) {
+        const log = document.getElementById('log-eventos');
+        const div = document.createElement('div');
+        div.className = `evento evento-${tipo}`;
+        div.innerHTML = `<strong style="color:${cor}">[T${this.turno}]</strong> ${mensagem}`;
+        log.insertBefore(div, log.firstChild);
+        if (log.children.length > 15) log.removeChild(log.lastChild);
+    }
+    
+    atualizarUI() {
+        const vivos = this.agentes.filter(a => a.vivo).length;
+        document.getElementById('info-pop').textContent = vivos;
+        document.getElementById('info-fac').textContent = new Set(this.agentes.map(a => a.faccao).filter(f => f)).size;
+        document.getElementById('info-rel').textContent = this.religioes.length;
+        document.getElementById('info-turno').textContent = this.turno;
+        document.getElementById('ind-turno').textContent = this.turno;
+        document.getElementById('ind-pop').textContent = vivos;
+        
+        if (this.jogador) {
+            document.getElementById('stat-saude').textContent = Math.floor(this.jogador.saude * 100) + '%';
+            document.getElementById('stat-energia').textContent = Math.floor(this.jogador.energia * 100) + '%';
+            document.getElementById('barra-saude').style.width = (this.jogador.saude * 100) + '%';
+            document.getElementById('barra-energia').style.width = (this.jogador.energia * 100) + '%';
+            document.getElementById('barra-fome').style.width = (this.jogador.fome * 100) + '%';
+        }
+    }
+    
+    inicializar() {
+        this.desenhar();
+        setInterval(() => this.simularTurno(), 1000);
+        
+        this.canvas.addEventListener('click', (e) => {
+            const rect = this.canvas.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left) / this.tamanhoCell);
+            const y = Math.floor((e.clientY - rect.top) / this.tamanhoCell);
+            
+            if (this.modo === 'mover') {
+                this.jogador.x = x;
+                this.jogador.y = y;
+                this.desenhar();
+                return;
+            }
+            
+            const agente = this.agentes.find(a => a.vivo && a.x === x && a.y === y);
+            if (agente && agente.id !== 'JOGADOR') {
+                if (this.modo === 'atacar') {
+                    this.atacarAgente(agente);
+                } else {
+                    this.selecionarAgente(agente);
+                }
+            }
+        });
+        
+        this.canvas.addEventListener('mousemove', (e) => {
+            const rect = this.canvas.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left) / this.tamanhoCell);
+            const y = Math.floor((e.clientY - rect.top) / this.tamanhoCell);
+            
+            const agente = this.agentes.find(a => a.vivo && a.x === x && a.y === y);
+            const tooltip = document.getElementById('tooltip');
+            
+            if (agente) {
+                tooltip.style.display = 'block';
+                tooltip.style.left = (e.clientX + 15) + 'px';
+                tooltip.style.top = (e.clientY + 15) + 'px';
+n                const biomaNome = this.biomas.find(b => b.x === agente.x && b.y === agente.y)?.getCor().nome || 'Desconhecido';
+                
+                tooltip.innerHTML = `
+                    <h4 style="color:#00d4ff; margin-bottom:10px; border-bottom:1px solid #2a2a4a; padding-bottom:5px;">
+                        ${agente.icones[agente.profissao] || '👤'} ${agente.nome}
+                    </h4>
+                    <div style="font-size:11px; line-height:1.6;">
+                        <div style="display:flex; justify-content:space-between; margin:3px 0;">
+                            <span style="color:#888;">Profissão:</span>
+                            <span style="color:${agente.cores[agente.profissao]}; text-transform:capitalize;">${agente.profissao}</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin:3px 0;">
+                            <span style="color:#888;">Bioma:</span>
+                            <span>${biomaNome}</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin:3px 0;">
+                            <span style="color:#888;">Saúde:</span>
+                            <span style="color:${agente.saude > 0.7 ? '#44ff44' : agente.saude > 0.4 ? '#ffaa00' : '#ff4444'};">${Math.floor(agente.saude * 100)}%</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin:3px 0;">
+                            <span style="color:#888;">Humor:</span>
+                            <span style="text-transform:capitalize;">${agente.humor}</span>
+                        </div>
+                        ${agente.faccao ? `<div style="display:flex; justify-content:space-between; margin:3px 0;"><span style="color:#888;">Facção:</span><span style="color:#fff;">${agente.faccao}</span></div>` : ''}
+                        ${agente.religiao ? `<div style="display:flex; justify-content:space-between; margin:3px 0;"><span style="color:#888;">Religião:</span><span style="color:#ffdd00;">${agente.religiao}</span></div>` : ''}
+                    </div>
+                `;
+            } else {
+                tooltip.style.display = 'none';
+            }
+        });
+    }
+    
+    setModo(modo) {
+        this.modo = modo;
+        document.querySelectorAll('.btn-acao').forEach(btn => btn.classList.remove('ativo'));
+        document.getElementById(`btn-${modo}`).classList.add('ativo');
+    }
+    
+    pausar() {
+        this.pausado = !this.pausado;
+        document.getElementById('btn-pausa').innerHTML = this.pausado ? '▶️ Continuar' : '⏸️ Pausar';
+    }
+    
+    umTurno() {
+        const eraPausado = this.pausado;
+        this.pausado = false;
+        this.simularTurno();
+        this.pausado = eraPausado;
+    }
+    
+    selecionarAgente(agente) {
+        this.agenteSelecionado = agente;
+        document.getElementById('painel-titulo').textContent = `${agente.icones[agente.profissao]} ${agente.nome}`;
+        document.getElementById('painel-interacao').style.display = 'flex';
+    }
+    
+    fecharPainel() {
+        document.getElementById('painel-interacao').style.display = 'none';
+n        this.agenteSelecionado = null;
+    }
+    
+    acaoAgente(acao) {
+        if (!this.agenteSelecionado) return;
+        const alvo = this.agenteSelecionado;
+        
+        switch(acao) {
+            case 'conversar':
+                alvo.humor = 'alegria';
+                this.logEvento('social', `Você conversou com ${alvo.nome}.`, '#00d4ff');
+                break;
+            case 'dar_comida':
+                alvo.fome = Math.max(0, alvo.fome - 0.3);
+                alvo.humor = 'alegria';
+                this.logEvento('social', `Você deu comida para ${alvo.nome}.`, '#44ff44');
+                break;
+            case 'atacar':
+                this.atacarAgente(alvo);
+                return;
+        }
+        
+        this.fecharPainel();
+        this.atualizarUI();
+        this.desenhar();
+    }
+    
+    atacarAgente(alvo) {
+        alvo.saude -= 0.4;
+        alvo.humor = 'raiva';
+        this.logEvento('guerra', `Você atacou ${alvo.nome}!`, '#ff4444');
+        
+        if (alvo.saude <= 0) {
+            alvo.vivo = false;
+            this.logEvento('morte', `${alvo.nome} foi morto por você!`, '#ff0000');
+            
+            const amigos = this.agentes.filter(a => 
+                a.vivo && a.faccao === alvo.faccao && a.id !== alvo.id
+            );
+            for (let amigo of amigos) {
+                amigo.humor = 'raiva';
+            }
+            if (amigos.length > 0) {
+                this.logEvento('guerra', `Aliados de ${alvo.nome} estão furiosos!`, '#ff6666');
+            }
+        }
+        
+        this.fecharPainel();
+        this.atualizarUI();
+        this.desenhar();
+    }
+}
+
+const jogo = new Jogo();
+</script>
+</body>
+</html>
