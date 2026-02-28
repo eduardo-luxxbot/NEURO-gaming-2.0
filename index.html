@@ -1,9 +1,12 @@
-<!DOCTYPE html>
+
+# Corrigindo o código - problema de centralização e agentes não aparecendo
+
+codigo_corrigido = '''<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEURO: VERSE 2.0 - Mundo Vivo</title>
+    <title>NEURO: VERSE 2.0</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -18,7 +21,6 @@
             width: 350px;
             background: linear-gradient(180deg, #0a0a12 0%, #1a1a2e 50%, #0f0f1a 100%);
             border-right: 3px solid #00d4ff;
-            box-shadow: 0 0 30px rgba(0,212,255,0.2);
             padding: 20px;
             overflow-y: auto;
             display: flex;
@@ -68,9 +70,6 @@
             margin-bottom: 12px;
             text-transform: uppercase;
             letter-spacing: 2px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
         .stats-grid {
             display: grid;
@@ -83,50 +82,17 @@
             border-radius: 8px;
             text-align: center;
             border: 1px solid #2a2a4a;
-            transition: all 0.3s;
-        }
-        .stat-card:hover {
-            border-color: #00d4ff;
-            transform: translateY(-2px);
         }
         .stat-icon { font-size: 20px; margin-bottom: 5px; }
         .stat-label {
             font-size: 9px;
             color: #7b2cbf;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
         .stat-value {
             font-size: 18px;
             font-weight: bold;
             color: #00d4ff;
-        }
-        .barra-container { margin: 8px 0; }
-        .barra-label {
-            font-size: 10px;
-            color: #888;
-            margin-bottom: 4px;
-            display: flex;
-            justify-content: space-between;
-        }
-        .barra-fundo {
-            background: #1a1a2e;
-            height: 8px;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        .barra-preenchimento {
-            height: 100%;
-            border-radius: 4px;
-            transition: width 0.5s;
-        }
-        .barra-vida { background: linear-gradient(90deg, #ff4444, #ff6666); }
-        .barra-energia { background: linear-gradient(90deg, #ffaa00, #ffcc00); }
-        .barra-fome { background: linear-gradient(90deg, #44ff44, #66ff66); }
-        .acoes-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
         }
         .btn-acao {
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
@@ -137,12 +103,12 @@
             cursor: pointer;
             font-size: 11px;
             text-transform: uppercase;
-            letter-spacing: 1px;
             transition: all 0.3s;
+            width: 100%;
+            margin: 5px 0;
         }
         .btn-acao:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0,212,255,0.4);
+            transform: translateY(-2px);
             border-color: #00d4ff;
         }
         .btn-acao.ativo {
@@ -167,10 +133,9 @@
             border-left: 3px solid #7b2cbf;
         }
         #log-eventos {
-            height: 180px;
+            height: 150px;
             overflow-y: auto;
             font-size: 11px;
-            line-height: 1.5;
             background: rgba(0,0,0,0.2);
             border-radius: 8px;
             padding: 10px;
@@ -180,25 +145,21 @@
             margin-bottom: 6px;
             border-radius: 6px;
             border-left: 3px solid;
-            animation: slideIn 0.4s ease-out;
             background: rgba(255,255,255,0.03);
         }
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        .evento-guerra { border-left-color: #ff4444; background: rgba(255,0,0,0.1); }
-        .evento-religiao { border-left-color: #ffaa00; background: rgba(255,170,0,0.1); }
-        .evento-economia { border-left-color: #44ff44; background: rgba(0,255,0,0.1); }
-        .evento-social { border-left-color: #00d4ff; background: rgba(0,212,255,0.1); }
+        .evento-guerra { border-left-color: #ff4444; }
+        .evento-religiao { border-left-color: #ffaa00; }
+        .evento-social { border-left-color: #00d4ff; }
+        .evento-morte { border-left-color: #888; }
         #area-jogo {
             flex: 1;
             display: flex;
             flex-direction: column;
             position: relative;
+            background: #050508;
         }
         #barra-superior {
-            height: 70px;
+            height: 60px;
             background: linear-gradient(90deg, #0f0f1a 0%, #1a1a2e 100%);
             border-bottom: 2px solid #2a2a4a;
             display: flex;
@@ -209,14 +170,11 @@
         .indicador {
             text-align: center;
             padding: 0 20px;
-            border-right: 1px solid #2a2a4a;
         }
-        .indicador:last-child { border-right: none; }
         .indicador-label {
             font-size: 10px;
             color: #7b2cbf;
             text-transform: uppercase;
-            letter-spacing: 2px;
         }
         .indicador-valor {
             font-size: 24px;
@@ -226,41 +184,41 @@
         #canvas-container {
             flex: 1;
             position: relative;
-            overflow: hidden;
-            background: #050508;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: auto;
         }
         canvas {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 0 50px rgba(0,212,255,0.1);
+            border: 2px solid #2a2a4a;
+            box-shadow: 0 0 30px rgba(0,212,255,0.2);
+            background: #0a0a0f;
         }
         #tooltip {
             position: absolute;
-            background: linear-gradient(135deg, rgba(10,10,15,0.98) 0%, rgba(26,26,46,0.98) 100%);
+            background: rgba(10,10,15,0.95);
             border: 2px solid #00d4ff;
-            border-radius: 12px;
-            padding: 15px;
+            border-radius: 8px;
+            padding: 10px;
             font-size: 12px;
             pointer-events: none;
             display: none;
             z-index: 1000;
-            max-width: 280px;
+            max-width: 250px;
         }
         #painel-interacao {
             position: absolute;
             bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
-            background: linear-gradient(135deg, rgba(10,10,15,0.95) 0%, rgba(26,26,46,0.95) 100%);
+            background: rgba(10,10,15,0.95);
             border: 2px solid #7b2cbf;
-            border-radius: 16px;
-            padding: 20px;
+            border-radius: 12px;
+            padding: 15px;
             display: none;
             flex-direction: column;
-            gap: 15px;
-            min-width: 350px;
+            gap: 10px;
+            min-width: 300px;
         }
         #legendas {
             position: absolute;
@@ -284,10 +242,6 @@
             border-radius: 50%;
             border: 2px solid;
         }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0a0a0f; }
-        ::-webkit-scrollbar-thumb { background: #2a2a4a; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #00d4ff; }
     </style>
 </head>
 <body>
@@ -309,77 +263,39 @@
                     <div class="stat-label">Energia</div>
                     <div class="stat-value" id="stat-energia">100%</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon">🍞</div>
-                    <div class="stat-label">Comida</div>
-                    <div class="stat-value" id="stat-comida">30</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">💰</div>
-                    <div class="stat-label">Ouro</div>
-                    <div class="stat-value" id="stat-ouro">50</div>
-                </div>
-            </div>
-            <div style="margin-top:15px;">
-                <div class="barra-container">
-                    <div class="barra-label"><span>Saúde</span><span id="barra-saude-texto">100%</span></div>
-                    <div class="barra-fundo">
-                        <div class="barra-preenchimento barra-vida" id="barra-saude" style="width:100%"></div>
-                    </div>
-                </div>
-                <div class="barra-container">
-                    <div class="barra-label"><span>Energia</span><span id="barra-energia-texto">100%</span></div>
-                    <div class="barra-fundo">
-                        <div class="barra-preenchimento barra-energia" id="barra-energia" style="width:100%"></div>
-                    </div>
-                </div>
-                <div class="barra-container">
-                    <div class="barra-label"><span>Fome</span><span id="barra-fome-texto">0%</span></div>
-                    <div class="barra-fundo">
-                        <div class="barra-preenchimento barra-fome" id="barra-fome" style="width:0%"></div>
-                    </div>
-                </div>
             </div>
         </div>
         <div class="secao">
             <h3>🎮 Modo de Ação</h3>
-            <div class="acoes-grid">
-                <button class="btn-acao ativo" onclick="jogo.setModo('observar')" id="btn-observar">👁️ Observar</button>
-                <button class="btn-acao" onclick="jogo.setModo('mover')" id="btn-mover">🚶 Mover</button>
-                <button class="btn-acao" onclick="jogo.setModo('interagir')" id="btn-interagir">🤝 Interagir</button>
-                <button class="btn-acao btn-perigoso" onclick="jogo.setModo('atacar')" id="btn-atacar">⚔️ Atacar</button>
-            </div>
+            <button class="btn-acao ativo" onclick="jogo.setModo('observar')" id="btn-observar">👁️ Observar</button>
+            <button class="btn-acao" onclick="jogo.setModo('mover')" id="btn-mover">🚶 Mover</button>
+            <button class="btn-acao" onclick="jogo.setModo('interagir')" id="btn-interagir">🤝 Interagir</button>
+            <button class="btn-acao btn-perigoso" onclick="jogo.setModo('atacar')" id="btn-atacar">⚔️ Atacar</button>
         </div>
         <div class="secao">
             <h3>🌍 Estado do Mundo</h3>
             <div class="info-mundo">
                 <div class="info-item">
-                    <div class="info-label">População</div>
-                    <div class="info-valor" id="info-pop">40</div>
+                    <div>População</div>
+                    <div style="color:#00d4ff; font-weight:bold;" id="info-pop">40</div>
                 </div>
                 <div class="info-item">
-                    <div class="info-label">Facções</div>
-                    <div class="info-valor" id="info-fac">0</div>
+                    <div>Facções</div>
+                    <div style="color:#00d4ff; font-weight:bold;" id="info-fac">0</div>
                 </div>
                 <div class="info-item">
-                    <div class="info-label">Religiões</div>
-                    <div class="info-valor" id="info-rel">0</div>
+                    <div>Religiões</div>
+                    <div style="color:#00d4ff; font-weight:bold;" id="info-rel">0</div>
                 </div>
                 <div class="info-item">
-                    <div class="info-label">Guerras</div>
-                    <div class="info-valor" id="info-guer">0</div>
-                </div>
-            </div>
-            <div style="margin-top:15px; padding-top:15px; border-top:1px solid #2a2a4a;">
-                <div style="display:flex; justify-content:space-between; font-size:11px; margin:6px 0;">
-                    <span style="color:#888;">Turno:</span>
-                    <span style="color:#00d4ff; font-weight:bold;" id="info-turno">0</span>
+                    <div>Turno</div>
+                    <div style="color:#00d4ff; font-weight:bold;" id="info-turno">0</div>
                 </div>
             </div>
         </div>
         <div class="secao">
             <h3>⏱️ Controles</h3>
-            <div class="acoes-grid">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
                 <button class="btn-acao" onclick="jogo.pausar()" id="btn-pausa">⏸️ Pausar</button>
                 <button class="btn-acao" onclick="jogo.umTurno()">⏭️ 1 Turno</button>
             </div>
@@ -387,7 +303,7 @@
         <div class="secao">
             <h3>📜 Crônicas</h3>
             <div id="log-eventos">
-                <div style="color:#666; font-style:italic; text-align:center; padding:20px;">O mundo desperta...</div>
+                <div style="color:#666; font-style:italic;">O mundo desperta...</div>
             </div>
         </div>
     </div>
@@ -407,41 +323,28 @@
             <div id="tooltip"></div>
             <div id="painel-interacao">
                 <h4 id="painel-titulo" style="color:#7b2cbf; text-align:center; margin-bottom:10px;">Agente</h4>
-                <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px;">
-                    <button class="btn-acao" onclick="jogo.acaoAgente('conversar')">💬 Conversar</button>
-                    <button class="btn-acao" onclick="jogo.acaoAgente('dar_comida')">🍞 Dar Comida</button>
-                    <button class="btn-acao btn-perigoso" onclick="jogo.acaoAgente('atacar')">⚔️ Atacar</button>
+                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px;">
+                    <button class="btn-acao" onclick="jogo.acaoAgente('conversar')" style="padding:8px; font-size:10px;">💬 Conversar</button>
+                    <button class="btn-acao" onclick="jogo.acaoAgente('dar_comida')" style="padding:8px; font-size:10px;">🍞 Dar Comida</button>
+                    <button class="btn-acao btn-perigoso" onclick="jogo.acaoAgente('atacar')" style="padding:8px; font-size:10px;">⚔️ Atacar</button>
                 </div>
-                <button class="btn-acao" onclick="jogo.fecharPainel()" style="margin-top:10px;">❌ Fechar</button>
+                <button class="btn-acao" onclick="jogo.fecharPainel()" style="margin-top:8px;">❌ Fechar</button>
             </div>
             <div id="legendas">
                 <div style="font-weight:bold; margin-bottom:10px; color:#00d4ff;">Profissões</div>
-                <div class="legenda-item"><div class="legenda-cor" style="background:#44ff44; border-color:#44ff44;"></div> Agricultor</div>
-                <div class="legenda-item"><div class="legenda-cor" style="background:#ff4444; border-color:#ff4444;"></div> Guerreiro</div>
-                <div class="legenda-item"><div class="legenda-cor" style="background:#ffaa00; border-color:#ffaa00;"></div> Mercador</div>
-                <div class="legenda-item"><div class="legenda-cor" style="background:#4488ff; border-color:#4488ff;"></div> Artesão</div>
-                <div class="legenda-item"><div class="legenda-cor" style="background:#aa44ff; border-color:#aa44ff;"></div> Sábio</div>
-                <div class="legenda-item"><div class="legenda-cor" style="background:#888888; border-color:#888888;"></div> Ladrão</div>
+                <div class="legenda-item"><div class="legenda-cor" style="background:#44ff44; border-color:#44ff44;"></div> Agricultor 🌾</div>
+                <div class="legenda-item"><div class="legenda-cor" style="background:#ff4444; border-color:#ff4444;"></div> Guerreiro ⚔️</div>
+                <div class="legenda-item"><div class="legenda-cor" style="background:#ffaa00; border-color:#ffaa00;"></div> Mercador 💰</div>
+                <div class="legenda-item"><div class="legenda-cor" style="background:#4488ff; border-color:#4488ff;"></div> Artesão 🔨</div>
+                <div class="legenda-item"><div class="legenda-cor" style="background:#aa44ff; border-color:#aa44ff;"></div> Sábio 📜</div>
+                <div class="legenda-item"><div class="legenda-cor" style="background:#888888; border-color:#888888;"></div> Ladrão 🗡️</div>
+                <div style="margin-top:15px; font-weight:bold; color:#00d4ff;">Você</div>
+                <div class="legenda-item"><div class="legenda-cor" style="background:#00d4ff; border-color:#00d4ff;"></div> Viajante 🧭</div>
             </div>
         </div>
     </div>
 
 <script>
-class Bioma {
-    constructor(tipo, x, y) {
-        this.tipo = tipo;
-        this.x = x;
-        this.y = y;
-        this.cores = {
-            'floresta': { bg: '#1a2f1a', detalhe: '#2d5016', nome: 'Floresta' },
-            'deserto': { bg: '#2a2520', detalhe: '#c2b280', nome: 'Deserto' },
-            'montanha': { bg: '#1f1f24', detalhe: '#4a4a4a', nome: 'Montanha' },
-            'planicie': { bg: '#1a2a1a', detalhe: '#3d5c3d', nome: 'Planície' }
-        };
-    }
-    getCor() { return this.cores[this.tipo] || this.cores['planicie']; }
-}
-
 class Agente {
     constructor(dados) {
         this.id = dados.id;
@@ -469,60 +372,72 @@ class Agente {
     
     desenhar(ctx, tamanhoCell, selecionado) {
         if (!this.vivo) return;
+        
         const px = this.x * tamanhoCell + tamanhoCell/2;
         const py = this.y * tamanhoCell + tamanhoCell/2;
         const raio = tamanhoCell * 0.35;
         
+        // Aura se selecionado
         if (selecionado) {
             ctx.beginPath();
-            ctx.arc(px, py, raio + 8, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(0,212,255,0.3)';
+            ctx.arc(px, py, raio + 10, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(0,212,255,0.4)';
             ctx.fill();
             ctx.strokeStyle = '#00d4ff';
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 3;
             ctx.stroke();
         }
         
+        // Aura baseada no humor
         const auras = {
-            'alegria': 'rgba(255,221,0,0.3)', 'raiva': 'rgba(255,0,0,0.3)',
-            'medo': 'rgba(136,0,255,0.3)', 'neutro': 'rgba(136,136,136,0.2)'
+            'alegria': 'rgba(255,221,0,0.4)',
+            'raiva': 'rgba(255,0,0,0.4)',
+            'medo': 'rgba(136,0,255,0.4)',
+            'neutro': 'rgba(136,136,136,0.2)'
         };
         ctx.beginPath();
-        ctx.arc(px, py, raio + 5, 0, Math.PI * 2);
+        ctx.arc(px, py, raio + 6, 0, Math.PI * 2);
         ctx.fillStyle = auras[this.humor] || auras['neutro'];
         ctx.fill();
         
+        // Corpo
         ctx.beginPath();
         ctx.arc(px, py, raio, 0, Math.PI * 2);
         ctx.fillStyle = this.cores[this.profissao] || '#ffffff';
         ctx.fill();
         
+        // Borda por saúde
         ctx.strokeStyle = this.saude > 0.7 ? '#44ff44' : this.saude > 0.4 ? '#ffaa00' : '#ff4444';
         ctx.lineWidth = 3;
         ctx.stroke();
         
+        // Indicador de facção
         if (this.faccao) {
             ctx.beginPath();
-            ctx.arc(px + raio*0.6, py - raio*0.6, 4, 0, Math.PI * 2);
+            ctx.arc(px + raio*0.6, py - raio*0.6, 5, 0, Math.PI * 2);
             ctx.fillStyle = '#ffffff';
             ctx.fill();
         }
         
+        // Indicador de religião
         if (this.religiao) {
             ctx.beginPath();
-            ctx.arc(px - raio*0.6, py - raio*0.6, 3, 0, Math.PI * 2);
+            ctx.arc(px - raio*0.6, py - raio*0.6, 4, 0, Math.PI * 2);
             ctx.fillStyle = '#ffdd00';
             ctx.fill();
         }
         
-        ctx.font = `${tamanhoCell * 0.4}px Arial`;
+        // Ícone
+        ctx.font = `${tamanhoCell * 0.5}px Arial`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(this.icones[this.profissao] || '👤', px, py);
         
+        // Nome
         ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 11px Arial';
-        ctx.fillText(this.nome, px, py - raio - 12);
+        ctx.textAlign = 'center';
+        ctx.fillText(this.nome, px, py - raio - 15);
     }
 }
 
@@ -550,10 +465,11 @@ class Jogo {
         for (let y = 0; y < this.tamanhoGrid; y++) {
             for (let x = 0; x < this.tamanhoGrid; x++) {
                 let tipo = 'planicie';
-                if (x < 10 && y < 10) tipo = 'floresta';
-                else if (x >= 10 && y < 10) tipo = 'deserto';
-                else if (x < 10 && y >= 10) tipo = 'montanha';
-                biomas.push(new Bioma(tipo, x, y));
+                let cor = '#3d5c3d';
+                if (x < 10 && y < 10) { tipo = 'floresta'; cor = '#2d5016'; }
+                else if (x >= 10 && y < 10) { tipo = 'deserto'; cor = '#c2b280'; }
+                else if (x < 10 && y >= 10) { tipo = 'montanha'; cor = '#4a4a4a'; }
+                biomas.push({x, y, tipo, cor});
             }
         }
         return biomas;
@@ -562,7 +478,7 @@ class Jogo {
     gerarAgentes(quantidade) {
         const nomes = ['Aria','Kael','Mira','Thorn','Luna','Sol','Nyx','Orion','Vesper','Dawn',
                       'Ash','Ember','River','Stone','Sky','Flame','Shadow','Light','Storm','Calm',
-n                      'Zephyr','Frost','Iron','Gold','Silver','Copper','Lead','Mercury','Sulfur','Salt',
+                      'Zephyr','Frost','Iron','Gold','Silver','Copper','Lead','Mercury','Sulfur','Salt',
                       'Echo','Silence','Noise','Music','Rhythm','Blues','Jazz','Rock','Pop','Folk'];
         const profissoes = ['agricultor','guerreiro','mercador','artesao','sabio','ladrao'];
         
@@ -611,20 +527,21 @@ n                      'Zephyr','Frost','Iron','Gold','Silver','Copper','Lead','
     }
     
     desenhar() {
+        // Fundo
         this.ctx.fillStyle = '#0a0a0f';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
+        // Biomas
         for (let bioma of this.biomas) {
-            const cor = bioma.getCor();
-            this.ctx.fillStyle = cor.bg;
+            this.ctx.fillStyle = bioma.cor;
+            this.ctx.globalAlpha = 0.4;
             this.ctx.fillRect(bioma.x * this.tamanhoCell, bioma.y * this.tamanhoCell, this.tamanhoCell, this.tamanhoCell);
-            this.ctx.fillStyle = cor.detalhe;
-            this.ctx.globalAlpha = 0.3;
-            this.ctx.fillRect(bioma.x * this.tamanhoCell + 5, bioma.y * this.tamanhoCell + 5, this.tamanhoCell - 10, this.tamanhoCell - 10);
         }
         this.ctx.globalAlpha = 1;
         
-        this.ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+        // Grid
+        this.ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+        this.ctx.lineWidth = 1;
         for (let i = 0; i <= this.tamanhoGrid; i++) {
             this.ctx.beginPath();
             this.ctx.moveTo(i * this.tamanhoCell, 0);
@@ -636,6 +553,7 @@ n                      'Zephyr','Frost','Iron','Gold','Silver','Copper','Lead','
             this.ctx.stroke();
         }
         
+        // Agentes
         for (let agente of this.agentes) {
             agente.desenhar(this.ctx, this.tamanhoCell, agente === this.jogador);
         }
@@ -649,6 +567,7 @@ n                      'Zephyr','Frost','Iron','Gold','Silver','Copper','Lead','
         for (let agente of this.agentes) {
             if (!agente.vivo || agente.id === 'JOGADOR') continue;
             
+            // Movimento
             if (Math.random() < 0.3) {
                 const dx = Math.floor(Math.random() * 3) - 1;
                 const dy = Math.floor(Math.random() * 3) - 1;
@@ -658,20 +577,24 @@ n                      'Zephyr','Frost','Iron','Gold','Silver','Copper','Lead','
                 if (novoBioma) agente.bioma = novoBioma.tipo;
             }
             
+            // Mudar humor
             if (Math.random() < 0.1) {
                 agente.humor = ['alegria','raiva','medo','neutro'][Math.floor(Math.random() * 4)];
             }
             
+            // Fome e saúde
             agente.fome += 0.02;
             agente.energia -= 0.01;
             if (agente.fome > 0.7) agente.saude -= 0.02;
             
+            // Morte
             if (agente.saude <= 0) {
                 agente.vivo = false;
-                this.logEvento('morte', `${agente.nome} faleceu.`, '#888888');
+                this.logEvento('morte', `${agente.nome} faleceu.`);
                 eventosTurno++;
             }
             
+            // Formar facção
             if (!agente.faccao && Math.random() < 0.02) {
                 const aliado = this.agentes.find(a => 
                     a.vivo && a.id !== agente.id && !a.faccao && 
@@ -682,18 +605,19 @@ n                      'Zephyr','Frost','Iron','Gold','Silver','Copper','Lead','
                     agente.faccao = nomeFaccao;
                     aliado.faccao = nomeFaccao;
                     this.faccoes.push(nomeFaccao);
-                    this.logEvento('social', `${nomeFaccao} fundada!`, '#00d4ff');
+                    this.logEvento('social', `${nomeFaccao} fundada por ${agente.nome} e ${aliado.nome}!`);
                     eventosTurno++;
                 }
             }
             
+            // Religião
             if (Math.random() < 0.005 && !agente.religiao) {
                 const deuses = ['Sol','Lua','Terra','Fogo','Água'];
                 const deus = deuses[Math.floor(Math.random() * deuses.length)];
                 agente.religiao = deus;
                 if (!this.religioes.includes(deus)) {
                     this.religioes.push(deus);
-                    this.logEvento('religiao', `${agente.nome} teve visão de ${deus}!`, '#ffaa00');
+                    this.logEvento('religiao', `${agente.nome} teve visão de ${deus}!`);
                     eventosTurno++;
                 }
             }
@@ -701,19 +625,19 @@ n                      'Zephyr','Frost','Iron','Gold','Silver','Copper','Lead','
         
         if (Math.random() < 0.03) {
             const eventos = ['Colheita abundante!', 'Seca no deserto!', 'Bandidos atacam!'];
-            this.logEvento('economia', eventos[Math.floor(Math.random() * eventos.length)], '#ffaa00');
-            eventosTurno++;
+            this.logEvento('economia', eventos[Math.floor(Math.random() * eventos.length)]);
         }
         
         this.atualizarUI();
         this.desenhar();
     }
     
-    logEvento(tipo, mensagem, cor) {
+    logEvento(tipo, mensagem) {
+        const cores = {guerra: '#ff4444', religiao: '#ffaa00', social: '#00d4ff', economia: '#44ff44', morte: '#888888'};
         const log = document.getElementById('log-eventos');
         const div = document.createElement('div');
         div.className = `evento evento-${tipo}`;
-        div.innerHTML = `<strong style="color:${cor}">[T${this.turno}]</strong> ${mensagem}`;
+        div.innerHTML = `<strong style="color:${cores[tipo] || '#fff'}">[T${this.turno}]</strong> ${mensagem}`;
         log.insertBefore(div, log.firstChild);
         if (log.children.length > 15) log.removeChild(log.lastChild);
     }
@@ -730,9 +654,6 @@ n                      'Zephyr','Frost','Iron','Gold','Silver','Copper','Lead','
         if (this.jogador) {
             document.getElementById('stat-saude').textContent = Math.floor(this.jogador.saude * 100) + '%';
             document.getElementById('stat-energia').textContent = Math.floor(this.jogador.energia * 100) + '%';
-            document.getElementById('barra-saude').style.width = (this.jogador.saude * 100) + '%';
-            document.getElementById('barra-energia').style.width = (this.jogador.energia * 100) + '%';
-            document.getElementById('barra-fome').style.width = (this.jogador.fome * 100) + '%';
         }
     }
     
@@ -740,6 +661,7 @@ n                      'Zephyr','Frost','Iron','Gold','Silver','Copper','Lead','
         this.desenhar();
         setInterval(() => this.simularTurno(), 1000);
         
+        // Clique no canvas
         this.canvas.addEventListener('click', (e) => {
             const rect = this.canvas.getBoundingClientRect();
             const x = Math.floor((e.clientX - rect.left) / this.tamanhoCell);
@@ -762,6 +684,7 @@ n                      'Zephyr','Frost','Iron','Gold','Silver','Copper','Lead','
             }
         });
         
+        // Mouse move para tooltip
         this.canvas.addEventListener('mousemove', (e) => {
             const rect = this.canvas.getBoundingClientRect();
             const x = Math.floor((e.clientX - rect.left) / this.tamanhoCell);
@@ -774,32 +697,13 @@ n                      'Zephyr','Frost','Iron','Gold','Silver','Copper','Lead','
                 tooltip.style.display = 'block';
                 tooltip.style.left = (e.clientX + 15) + 'px';
                 tooltip.style.top = (e.clientY + 15) + 'px';
-n                const biomaNome = this.biomas.find(b => b.x === agente.x && b.y === agente.y)?.getCor().nome || 'Desconhecido';
-                
                 tooltip.innerHTML = `
-                    <h4 style="color:#00d4ff; margin-bottom:10px; border-bottom:1px solid #2a2a4a; padding-bottom:5px;">
-                        ${agente.icones[agente.profissao] || '👤'} ${agente.nome}
-                    </h4>
-                    <div style="font-size:11px; line-height:1.6;">
-                        <div style="display:flex; justify-content:space-between; margin:3px 0;">
-                            <span style="color:#888;">Profissão:</span>
-                            <span style="color:${agente.cores[agente.profissao]}; text-transform:capitalize;">${agente.profissao}</span>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; margin:3px 0;">
-                            <span style="color:#888;">Bioma:</span>
-                            <span>${biomaNome}</span>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; margin:3px 0;">
-                            <span style="color:#888;">Saúde:</span>
-                            <span style="color:${agente.saude > 0.7 ? '#44ff44' : agente.saude > 0.4 ? '#ffaa00' : '#ff4444'};">${Math.floor(agente.saude * 100)}%</span>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; margin:3px 0;">
-                            <span style="color:#888;">Humor:</span>
-                            <span style="text-transform:capitalize;">${agente.humor}</span>
-                        </div>
-                        ${agente.faccao ? `<div style="display:flex; justify-content:space-between; margin:3px 0;"><span style="color:#888;">Facção:</span><span style="color:#fff;">${agente.faccao}</span></div>` : ''}
-                        ${agente.religiao ? `<div style="display:flex; justify-content:space-between; margin:3px 0;"><span style="color:#888;">Religião:</span><span style="color:#ffdd00;">${agente.religiao}</span></div>` : ''}
-                    </div>
+                    <strong style="color:#00d4ff; font-size:14px;">${agente.icones[agente.profissao]} ${agente.nome}</strong><br>
+                    <span style="color:#888;">Profissão:</span> <span style="color:${agente.cores[agente.profissao]}">${agente.profissao}</span><br>
+                    <span style="color:#888;">Saúde:</span> <span style="color:${agente.saude > 0.7 ? '#44ff44' : agente.saude > 0.4 ? '#ffaa00' : '#ff4444'}">${Math.floor(agente.saude * 100)}%</span><br>
+                    <span style="color:#888;">Humor:</span> ${agente.humor}<br>
+                    ${agente.faccao ? `<span style="color:#888;">Facção:</span> ${agente.faccao}<br>` : ''}
+                    ${agente.religiao ? `<span style="color:#888;">Religião:</span> <span style="color:#ffdd00">${agente.religiao}</span>` : ''}
                 `;
             } else {
                 tooltip.style.display = 'none';
@@ -833,7 +737,7 @@ n                const biomaNome = this.biomas.find(b => b.x === agente.x && b.y
     
     fecharPainel() {
         document.getElementById('painel-interacao').style.display = 'none';
-n        this.agenteSelecionado = null;
+        this.agenteSelecionado = null;
     }
     
     acaoAgente(acao) {
@@ -843,12 +747,12 @@ n        this.agenteSelecionado = null;
         switch(acao) {
             case 'conversar':
                 alvo.humor = 'alegria';
-                this.logEvento('social', `Você conversou com ${alvo.nome}.`, '#00d4ff');
+                this.logEvento('social', `Você conversou com ${alvo.nome}.`);
                 break;
             case 'dar_comida':
                 alvo.fome = Math.max(0, alvo.fome - 0.3);
                 alvo.humor = 'alegria';
-                this.logEvento('social', `Você deu comida para ${alvo.nome}.`, '#44ff44');
+                this.logEvento('social', `Você deu comida para ${alvo.nome}.`);
                 break;
             case 'atacar':
                 this.atacarAgente(alvo);
@@ -863,21 +767,14 @@ n        this.agenteSelecionado = null;
     atacarAgente(alvo) {
         alvo.saude -= 0.4;
         alvo.humor = 'raiva';
-        this.logEvento('guerra', `Você atacou ${alvo.nome}!`, '#ff4444');
+        this.logEvento('guerra', `Você atacou ${alvo.nome}!`);
         
         if (alvo.saude <= 0) {
             alvo.vivo = false;
-            this.logEvento('morte', `${alvo.nome} foi morto por você!`, '#ff0000');
-            
-            const amigos = this.agentes.filter(a => 
-                a.vivo && a.faccao === alvo.faccao && a.id !== alvo.id
-            );
-            for (let amigo of amigos) {
-                amigo.humor = 'raiva';
-            }
-            if (amigos.length > 0) {
-                this.logEvento('guerra', `Aliados de ${alvo.nome} estão furiosos!`, '#ff6666');
-            }
+            this.logEvento('morte', `${alvo.nome} foi morto por você!`);
+            const amigos = this.agentes.filter(a => a.vivo && a.faccao === alvo.faccao && a.id !== alvo.id);
+            for (let amigo of amigos) amigo.humor = 'raiva';
+            if (amigos.length > 0) this.logEvento('guerra', `Aliados de ${alvo.nome} estão furiosos!`);
         }
         
         this.fecharPainel();
@@ -889,4 +786,4 @@ n        this.agenteSelecionado = null;
 const jogo = new Jogo();
 </script>
 </body>
-</html>
+</html>'''
