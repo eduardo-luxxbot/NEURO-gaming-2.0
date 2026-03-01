@@ -3,1323 +3,1059 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CHRONOS: O Fragmento do Tempo</title>
+    <title>CHRONOS ECHO - Parte 1: O Despertar</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            image-rendering: pixelated;
-            image-rendering: -moz-crisp-edges;
-            image-rendering: crisp-edges;
-        }
-        
+
         :root {
-            --pixel-size: 4px;
-            --bg-color: #0f0f1a;
-            --ui-bg: #1a1a2e;
-            --accent: #00d4ff;
-            --danger: #ff006e;
-            --success: #00ff88;
-            --warning: #ffbe0b;
+            --valthoria-blue: #1a237e;
+            --valthoria-silver: #c0c0c0;
+            --eco-blue: #00bfff;
+            --eco-gray: #a0a0a0;
+            --fissure-black: #0a0a0f;
         }
-        
+
+        * { margin: 0; padding: 0; box-sizing: border-box; image-rendering: pixelated; }
+
         body {
-            background: var(--bg-color);
-            color: #fff;
+            background: #000;
+            color: #e0e0e0;
             font-family: 'Press Start 2P', cursive;
             overflow: hidden;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
         }
-        
+
         #game-container {
-            position: relative;
-            width: 800px;
-            height: 600px;
+            width: 1024px;
+            height: 576px;
             background: #000;
-            border: 4px solid #333;
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
-        }
-        
-        #game-canvas {
-            display: block;
-            background: linear-gradient(180deg, #1a1a2e 0%, #0f0f1a 100%);
-        }
-        
-        /* UI Overlay */
-        #ui-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-        }
-        
-        .ui-panel {
-            position: absolute;
-            background: rgba(26, 26, 46, 0.95);
-            border: 2px solid var(--accent);
-            padding: 10px;
-            pointer-events: auto;
-        }
-        
-        #hud-top {
-            top: 10px;
-            left: 10px;
-            right: 10px;
-            height: 60px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .stat-bar {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 10px;
-        }
-        
-        .bar-container {
-            width: 120px;
-            height: 12px;
-            background: #333;
-            border: 1px solid #555;
             position: relative;
+            box-shadow: 0 0 50px rgba(0, 191, 255, 0.3);
+            border: 4px solid var(--valthoria-silver);
         }
-        
-        .bar-fill {
-            height: 100%;
-            transition: width 0.3s;
-        }
-        
-        .hp-fill { background: linear-gradient(90deg, #ff006e, #ff4d6d); }
-        .mp-fill { background: linear-gradient(90deg, #00d4ff, #0096c7); }
-        .xp-fill { background: linear-gradient(90deg, #00ff88, #00cc6a); }
-        
-        #minimap {
-            width: 100px;
-            height: 80px;
-            background: rgba(0,0,0,0.7);
-            border: 1px solid var(--accent);
-        }
-        
-        /* Menu Principal */
-        #main-menu {
+
+        /* TELA DE TÍTULO */
+        #title-screen {
             position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+            background: linear-gradient(180deg, var(--fissure-black) 0%, #1a1a2e 50%, var(--valthoria-blue) 100%);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            z-index: 1000;
+            transition: opacity 1s;
+        }
+
+        #title-screen.hidden { opacity: 0; pointer-events: none; }
+
+        .game-title {
+            font-size: 48px;
+            color: var(--eco-blue);
+            text-shadow: 0 0 20px var(--eco-blue);
+            margin-bottom: 20px;
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .subtitle { font-size: 14px; color: var(--valthoria-silver); margin-bottom: 40px; }
+
+        .menu-option {
+            font-size: 12px;
+            color: #888;
+            margin: 12px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 10px 20px;
+            border: 2px solid transparent;
+        }
+
+        .menu-option:hover, .menu-option.selected {
+            color: var(--eco-blue);
+            border-color: var(--eco-blue);
+            text-shadow: 0 0 10px var(--eco-blue);
+            transform: translateX(10px);
+        }
+
+        /* ÁREA DO JOGO */
+        #game-area {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+
+        #game-area.active { display: block; }
+
+        /* CENÁRIOS */
+        #scene {
+            width: 100%;
+            height: 70%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .background {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transition: opacity 0.5s;
+        }
+
+        .bg-valthoria {
+            background: linear-gradient(180deg, #2a2a4a 0%, #1a1a3e 50%, #0f0f1f 100%);
+        }
+
+        .bg-valthoria::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(90deg, transparent 0px, transparent 80px, rgba(192,192,192,0.1) 80px, rgba(192,192,192,0.1) 100px);
+        }
+
+        .throne {
+            position: absolute;
+            bottom: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 160px;
+            background: radial-gradient(circle at 20% 20%, #4a4a4a 0%, #2a2a2a 30%, transparent 31%),
+                        radial-gradient(circle at 80% 20%, #4a4a4a 0%, #2a2a2a 30%, transparent 31%),
+                        radial-gradient(circle at 50% 80%, #3a3a3a 0%, #1a1a1a 40%, transparent 41%);
+            border: 3px solid #5a5a5a;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+        }
+
+        .throne::after {
+            content: '👑';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 30px;
+            filter: grayscale(100%) brightness(0.7);
+        }
+
+        .bg-fissure {
+            background: var(--fissure-black);
+            position: relative;
+        }
+
+        .bg-fissure::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3, #ff0000);
+            opacity: 0.1;
+            animation: rotate 15s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: translate(-25%, -25%) rotate(0deg); }
+            100% { transform: translate(-25%, -25%) rotate(360deg); }
+        }
+
+        .clock-pile {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 40%;
+            background: repeating-radial-gradient(circle at 30% 80%, #4a3a2a 0px, #2a1a0a 15px, transparent 16px);
+            opacity: 0.6;
+        }
+
+        /* PERSONAGENS */
+        .character {
+            position: absolute;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .character:hover { filter: brightness(1.2); }
+
+        /* ECO-ZERO */
+        .eco-zero {
+            width: 60px;
+            height: 100px;
+            bottom: 25%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .eco-zero-body {
+            width: 100%;
+            height: 100%;
+            background: var(--eco-gray);
+            border-radius: 10px 10px 20px 20px;
+            position: relative;
+            box-shadow: inset -10px 0 20px rgba(0,0,0,0.5), 0 0 20px rgba(0,191,255,0.3);
+            animation: glitch 4s infinite;
+        }
+
+        @keyframes glitch {
+            0%, 90%, 100% { transform: translate(0); }
+            91% { transform: translate(-2px, 1px); }
+            92% { transform: translate(2px, -1px); }
+            93% { transform: translate(0); }
+        }
+
+        .eco-zero-head {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 40px;
+            background: var(--eco-gray);
+            border-radius: 50%;
+        }
+
+        .eco-zero-eyes {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            padding: 0 5px;
+        }
+
+        .eco-eye {
+            width: 10px;
+            height: 10px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #fff;
+            animation: blink 5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 48%, 52%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(0.1); }
+        }
+
+        .eco-zero-hair {
+            position: absolute;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 30px;
+            background: #f0f0f0;
+            border-radius: 50% 50% 0 0;
+            clip-path: polygon(20% 100%, 0% 50%, 10% 0%, 30% 30%, 50% 0%, 70% 30%, 90% 0%, 100% 50%, 80% 100%);
+        }
+
+        .eco-tears {
+            position: absolute;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            padding: 0 8px;
+        }
+
+        .eco-tear {
+            width: 3px;
+            height: 8px;
+            background: #1a1a1a;
+            border-radius: 0 0 50% 50%;
+            animation: drop 3s infinite;
+        }
+
+        @keyframes drop {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(5px); }
+        }
+
+        .eco-clock {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 20px;
+            background: #4a3a2a;
+            border: 2px solid #ffd700;
+            border-radius: 50%;
+        }
+
+        /* REI ALDRIC */
+        .aldrich {
+            width: 70px;
+            height: 110px;
+            bottom: 25%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .aldrich-body {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #1a237e 0%, #0f0f3e 100%);
+            border-radius: 15px;
+            position: relative;
+            box-shadow: 0 0 30px rgba(26,35,126,0.5);
+        }
+
+        .aldrich-head {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 45px;
+            height: 50px;
+            background: linear-gradient(180deg, #d4a574 0%, #c49464 50%, #8b7355 100%);
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .aldrich-crown {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 25px;
+            filter: brightness(1.5);
+        }
+
+        .aldrich-eyes {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            padding: 0 8px;
+        }
+
+        .aldrich-eye {
+            width: 8px;
+            height: 8px;
+            background: #4a90e2;
+            border-radius: 50%;
+            box-shadow: 0 0 5px #4a90e2;
+        }
+
+        /* PRÍNCIPE KAEL */
+        .kael {
+            width: 55px;
+            height: 95px;
+            bottom: 20%;
+            right: 25%;
+        }
+
+        .kael-body {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .kael-head {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 35px;
+            height: 40px;
+            background: #d4a574;
+            border-radius: 50%;
+        }
+
+        .kael-hair {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 25px;
+            background: #f0f0f0;
+            border-radius: 50% 50% 0 0;
+            clip-path: polygon(10% 100%, 0% 30%, 20% 0%, 40% 40%, 60% 0%, 80% 30%, 100% 100%);
+        }
+
+        .kael-scar {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 15px;
+            height: 20px;
+            background: #8b0000;
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+            opacity: 0.8;
+        }
+
+        /* JOGADOR */
+        .player {
+            width: 50px;
+            height: 80px;
+            bottom: 20%;
+            left: 20%;
             z-index: 100;
         }
-        
-        .game-title {
-            font-size: 32px;
-            color: var(--accent);
-            text-shadow: 4px 4px 0px #ff006e, 8px 8px 0px rgba(0,0,0,0.5);
-            margin-bottom: 20px;
-            animation: glow 2s ease-in-out infinite alternate;
+
+        .player-body {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #4a5568 0%, #2d3748 100%);
+            border-radius: 10px;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,191,255,0.5);
         }
-        
-        @keyframes glow {
-            from { text-shadow: 4px 4px 0px #ff006e, 0 0 10px var(--accent); }
-            to { text-shadow: 4px 4px 0px #ff006e, 0 0 20px var(--accent), 0 0 30px var(--accent); }
+
+        .player-head {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 35px;
+            height: 35px;
+            background: #d4a574;
+            border-radius: 50%;
         }
-        
-        .menu-btn {
-            background: transparent;
-            border: 2px solid var(--accent);
-            color: var(--accent);
-            padding: 15px 30px;
-            margin: 10px;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-transform: uppercase;
+
+        .player-hair {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 20px;
+            background: #2d3748;
+            border-radius: 50% 50% 0 0;
         }
-        
-        .menu-btn:hover {
-            background: var(--accent);
-            color: #000;
-            box-shadow: 0 0 20px var(--accent);
-        }
-        
-        /* Sistema de Diálogo */
+
+        /* DIÁLOGO */
         #dialogue-box {
             position: absolute;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            min-height: 100px;
+            bottom: 0;
+            width: 100%;
+            height: 30%;
+            background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(10,10,15,0.95) 100%);
+            border-top: 3px solid var(--valthoria-silver);
+            padding: 15px;
             display: none;
-            background: rgba(0,0,0,0.9);
-            border: 3px solid #fff;
+            z-index: 500;
         }
-        
-        .dialogue-portrait {
-            width: 80px;
-            height: 80px;
-            background: #333;
-            border: 2px solid var(--accent);
-            float: left;
-            margin-right: 15px;
-            image-rendering: pixelated;
+
+        #dialogue-box.active { display: block; }
+
+        .speaker-name {
+            color: var(--eco-blue);
+            font-size: 10px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
-        
+
         .dialogue-text {
+            color: #e0e0e0;
             font-size: 10px;
             line-height: 1.6;
-            color: #fff;
-            padding: 10px;
+            margin-bottom: 12px;
+            min-height: 50px;
         }
-        
-        .dialogue-name {
-            color: var(--warning);
-            font-size: 12px;
-            margin-bottom: 5px;
+
+        .dialogue-choices {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
-        
-        /* Inventário */
-        #inventory {
+
+        .choice-btn {
+            background: transparent;
+            border: 2px solid #444;
+            color: #888;
+            padding: 6px 12px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 9px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+
+        .choice-btn:hover, .choice-btn.selected {
+            border-color: var(--eco-blue);
+            color: var(--eco-blue);
+            text-shadow: 0 0 10px var(--eco-blue);
+            transform: translateX(10px);
+        }
+
+        /* HUD */
+        #hud {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            display: flex;
+            gap: 15px;
+            z-index: 200;
+        }
+
+        .hud-item {
+            background: rgba(0,0,0,0.7);
+            border: 2px solid var(--valthoria-silver);
+            padding: 6px 10px;
+            font-size: 9px;
+            color: var(--eco-blue);
+        }
+
+        .hud-label {
+            color: #666;
+            font-size: 7px;
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        /* BOTÃO REWIND */
+        #time-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            border: 2px solid var(--eco-blue);
+            color: var(--eco-blue);
+            padding: 8px 12px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 9px;
+            cursor: pointer;
+            z-index: 200;
+        }
+
+        #time-btn:hover {
+            background: var(--eco-blue);
+            color: #000;
+        }
+
+        #time-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        /* INDICADOR */
+        .interaction-indicator {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--eco-blue);
+            font-size: 16px;
+            animation: bounce 1s infinite;
+            display: none;
+        }
+
+        .character:hover .interaction-indicator { display: block; }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-5px); }
+        }
+
+        /* TRANSICAO */
+        #transition-screen {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: var(--fissure-black);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            flex-direction: column;
+        }
+
+        #transition-screen.active { display: flex; }
+
+        .transition-text {
+            color: var(--eco-blue);
+            font-size: 14px;
+            text-align: center;
+            line-height: 2;
+        }
+
+        /* NOTIFICAÇÃO */
+        #notification {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 500px;
-            height: 350px;
-            display: none;
-            grid-template-columns: repeat(8, 1fr);
-            gap: 5px;
-            padding: 20px;
-        }
-        
-        .inv-slot {
-            width: 50px;
-            height: 50px;
-            background: rgba(0,0,0,0.6);
-            border: 2px solid #555;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-        }
-        
-        .inv-slot:hover { border-color: var(--accent); }
-        .inv-slot.equipped { border-color: var(--success); box-shadow: 0 0 10px var(--success); }
-        
-        /* Efeitos Visuais */
-        .damage-popup {
-            position: absolute;
-            color: #ff006e;
-            font-size: 16px;
-            font-weight: bold;
-            pointer-events: none;
-            animation: floatUp 1s ease-out forwards;
-            text-shadow: 2px 2px 0 #000;
-        }
-        
-        @keyframes floatUp {
-            0% { transform: translateY(0) scale(1); opacity: 1; }
-            100% { transform: translateY(-50px) scale(1.5); opacity: 0; }
-        }
-        
-        .spell-effect {
-            position: absolute;
-            pointer-events: none;
-            mix-blend-mode: screen;
-        }
-        
-        /* Tela de Combate */
-        #battle-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at center, #2d1b4e 0%, #0f0f1a 100%);
-            display: none;
-            z-index: 50;
-        }
-        
-        .battle-arena {
-            position: relative;
-            width: 100%;
-            height: 70%;
-        }
-        
-        .combatant {
-            position: absolute;
-            transition: all 0.3s;
-        }
-        
-        .battle-ui {
-            height: 30%;
-            background: rgba(0,0,0,0.8);
-            border-top: 3px solid var(--accent);
-            display: flex;
-            padding: 20px;
-            gap: 20px;
-        }
-        
-        .skill-bar {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        
-        .skill-btn {
-            width: 60px;
-            height: 60px;
-            background: #1a1a2e;
-            border: 2px solid var(--accent);
-            color: #fff;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 8px;
-            cursor: pointer;
-            position: relative;
-            transition: all 0.2s;
-        }
-        
-        .skill-btn:hover:not(:disabled) {
-            background: var(--accent);
-            color: #000;
-            transform: scale(1.1);
-        }
-        
-        .skill-btn:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
-        
-        .skill-cost {
-            position: absolute;
-            bottom: 2px;
-            right: 2px;
-            font-size: 6px;
-            color: var(--accent);
-        }
-        
-        /* Animações de Magia */
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.2); opacity: 0.8; }
-        }
-        
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        
-        .magic-circle {
-            position: absolute;
-            width: 100px;
-            height: 100px;
-            border: 3px solid var(--accent);
-            border-radius: 50%;
-            animation: spin 2s linear infinite;
-        }
-        
-        .magic-circle::before {
-            content: '';
-            position: absolute;
-            inset: 10px;
-            border: 2px solid var(--warning);
-            border-radius: 50%;
-            animation: spin 3s linear infinite reverse;
-        }
-        
-        /* Partículas */
-        .particle {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: var(--accent);
-            pointer-events: none;
-        }
-        
-        /* Notificações */
-        #notification {
-            position: absolute;
-            top: 100px;
-            left: 50%;
-            transform: translateX(-50%);
             background: rgba(0,0,0,0.9);
-            border: 2px solid var(--warning);
-            padding: 15px;
+            border: 2px solid var(--eco-blue);
+            padding: 20px;
             font-size: 10px;
+            color: var(--eco-blue);
+            text-align: center;
             display: none;
-            z-index: 200;
-            animation: slideDown 0.3s ease-out;
+            z-index: 1000;
+            max-width: 400px;
         }
-        
-        @keyframes slideDown {
-            from { transform: translateX(-50%) translateY(-20px); opacity: 0; }
-            to { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+        #notification.active { display: block; }
+
+        /* MAPA */
+        #quick-map {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            border: 2px solid var(--valthoria-silver);
+            padding: 10px;
+            font-size: 8px;
+            z-index: 200;
+        }
+
+        .map-location {
+            color: #666;
+            margin: 3px 0;
+            cursor: pointer;
+        }
+
+        .map-location:hover, .map-location.active { color: var(--eco-blue); }
+
+        .typing::after {
+            content: '▋';
+            animation: cursor 1s infinite;
+        }
+
+        @keyframes cursor {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
         }
     </style>
+<base target="_blank">
 </head>
 <body>
     <div id="game-container">
-        <canvas id="game-canvas" width="800" height="600"></canvas>
-        
-        <!-- UI Layer -->
-        <div id="ui-layer">
-            <div id="hud-top" class="ui-panel" style="display: none;">
-                <div style="display: flex; gap: 20px;">
-                    <div class="stat-bar">
-                        <span>HP</span>
-                        <div class="bar-container">
-                            <div class="bar-fill hp-fill" id="hp-bar" style="width: 100%;"></div>
-                        </div>
-                        <span id="hp-text">100/100</span>
-                    </div>
-                    <div class="stat-bar">
-                        <span>MP</span>
-                        <div class="bar-container">
-                            <div class="bar-fill mp-fill" id="mp-bar" style="width: 100%;"></div>
-                        </div>
-                        <span id="mp-text">50/50</span>
-                    </div>
-                    <div class="stat-bar">
-                        <span>XP</span>
-                        <div class="bar-container">
-                            <div class="bar-fill xp-fill" id="xp-bar" style="width: 0%;"></div>
-                        </div>
-                        <span id="level-text">LVL 1</span>
-                    </div>
-                </div>
-                <div id="minimap"></div>
-            </div>
-            
-            <div id="dialogue-box" class="ui-panel">
-                <div class="dialogue-portrait" id="npc-portrait"></div>
-                <div>
-                    <div class="dialogue-name" id="npc-name">NPC</div>
-                    <div class="dialogue-text" id="dialogue-text">Texto do diálogo...</div>
-                </div>
-            </div>
-            
-            <div id="inventory" class="ui-panel">
-                <!-- Slots gerados via JS -->
-            </div>
-            
-            <div id="notification"></div>
+        <div id="notification"></div>
+
+        <div id="title-screen">
+            <h1 class="game-title">CHRONOS ECHO</h1>
+            <p class="subtitle">Parte 1: O Despertar</p>
+            <div class="menu-option selected" onclick="startGame()">► NOVO JOGO</div>
+            <div class="menu-option" onclick="loadGame()">CARREGAR</div>
+            <div class="menu-option" onclick="showTutorial()">TUTORIAL</div>
+            <div class="menu-option" onclick="showCredits()">CRÉDITOS</div>
         </div>
-        
-        <!-- Tela de Batalha -->
-        <div id="battle-screen">
-            <div class="battle-arena" id="battle-arena">
-                <div class="magic-circle" style="top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
-            </div>
-            <div class="battle-ui">
-                <div style="flex: 1;">
-                    <div style="font-size: 10px; margin-bottom: 10px; color: var(--accent);">HABILIDADES</div>
-                    <div class="skill-bar" id="skill-bar">
-                        <!-- Skills geradas via JS -->
-                    </div>
-                </div>
-                <div style="width: 200px;">
-                    <div style="font-size: 10px; margin-bottom: 10px; color: var(--warning);">INFORMAÇÕES</div>
-                    <div id="battle-info" style="font-size: 8px; line-height: 1.8;">
-                        Turno: <span id="turn-count">1</span><br>
-                        Tempo: <span id="time-bonus">Normal</span>
-                    </div>
-                </div>
-            </div>
+
+        <div id="transition-screen">
+            <p class="transition-text"></p>
         </div>
-        
-        <!-- Menu Principal -->
-        <div id="main-menu">
-            <h1 class="game-title">CHRONOS</h1>
-            <p style="font-size: 10px; color: #888; margin-bottom: 30px;">O Fragmento do Tempo</p>
-            <button class="menu-btn" onclick="startGame()">NOVO JOGO</button>
-            <button class="menu-btn" onclick="loadGame()">CONTINUAR</button>
-            <button class="menu-btn" onclick="showCredits()">CRÉDITOS</button>
+
+        <div id="game-area">
+            <div id="hud">
+                <div class="hud-item">
+                    <span class="hud-label">LOCAL</span>
+                    <span id="location-name">???</span>
+                </div>
+                <div class="hud-item">
+                    <span class="hud-label">ECO-ZERO</span>
+                    <span id="eco-status">DESCONHECIDO</span>
+                </div>
+                <div class="hud-item">
+                    <span class="hud-label">KAEL</span>
+                    <span id="kael-mood">NEUTRO</span>
+                </div>
+            </div>
+
+            <button id="time-btn" onclick="rewindTime()">⏪ REWIND (3)</button>
+
+            <div id="quick-map">
+                <div class="map-location active" onclick="travelTo('valthoria')">🏰 VALTHORIA</div>
+                <div class="map-location" onclick="travelTo('fissure')">🌌 FISSURAS</div>
+            </div>
+
+            <div id="scene">
+                <div class="background bg-valthoria" id="bg-valthoria">
+                    <div class="throne"></div>
+
+                    <div class="character player" id="player" onclick="movePlayer()">
+                        <div class="player-body">
+                            <div class="player-head"><div class="player-hair"></div></div>
+                        </div>
+                        <div class="interaction-indicator">⌄</div>
+                    </div>
+
+                    <div class="character aldrich" id="aldrich" onclick="interactWith('aldrich')">
+                        <div class="aldrich-body">
+                            <div class="aldrich-head">
+                                <div class="aldrich-crown">👑</div>
+                                <div class="aldrich-eyes">
+                                    <div class="aldrich-eye"></div>
+                                    <div class="aldrich-eye"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="interaction-indicator">!</div>
+                    </div>
+
+                    <div class="character kael" id="kael" onclick="interactWith('kael')">
+                        <div class="kael-body">
+                            <div class="kael-scar"></div>
+                            <div class="kael-head"><div class="kael-hair"></div></div>
+                        </div>
+                        <div class="interaction-indicator">!</div>
+                    </div>
+                </div>
+
+                <div class="background bg-fissure" id="bg-fissure" style="display:none">
+                    <div class="clock-pile"></div>
+
+                    <div class="character player" id="player-fissure">
+                        <div class="player-body">
+                            <div class="player-head"><div class="player-hair"></div></div>
+                        </div>
+                        <div class="interaction-indicator">⌄</div>
+                    </div>
+
+                    <div class="character eco-zero" id="eco-zero" onclick="interactWith('eco-zero')">
+                        <div class="eco-zero-body">
+                            <div class="eco-zero-head">
+                                <div class="eco-zero-hair"></div>
+                                <div class="eco-zero-eyes">
+                                    <div class="eco-eye"></div>
+                                    <div class="eco-eye"></div>
+                                </div>
+                                <div class="eco-tears">
+                                    <div class="eco-tear"></div>
+                                    <div class="eco-tear"></div>
+                                </div>
+                            </div>
+                            <div class="eco-clock"></div>
+                        </div>
+                        <div class="interaction-indicator">!</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="dialogue-box">
+                <div class="speaker-name" id="speaker">???</div>
+                <div class="dialogue-text typing" id="dialogue-text"></div>
+                <div class="dialogue-choices" id="choices"></div>
+            </div>
         </div>
     </div>
 
     <script>
-       // ==================== SISTEMA PRINCIPAL ====================
-const canvas = document.getElementById('game-canvas');
-const ctx = canvas.getContext('2d');
-ctx.imageSmoothingEnabled = false;
-
-// Estado Global do Jogo
-const Game = {
-    state: 'MENU', // MENU, EXPLORING, DIALOGUE, BATTLE, INVENTORY, PAUSED
-    player: null,
-    currentMap: null,
-    entities: [],
-    particles: [],
-    camera: { x: 0, y: 0 },
-    timeOfDay: 0, // 0-24 ciclo temporal
-    questProgress: {},
-    flags: {}
-};
-
-// ==================== CLASSES DE PERSONAGEM ====================
-class Entity {
-    constructor(x, y, name, type = 'neutral') {
-        this.x = x;
-        this.y = y;
-        this.name = name;
-        this.type = type; // player, enemy, npc
-        this.width = 32;
-        this.height = 32;
-        this.vx = 0;
-        this.vy = 0;
-        this.speed = 2;
-        this.direction = 'down';
-        this.frame = 0;
-        this.animTimer = 0;
-        this.sprites = this.generateSprites();
-    }
-    
-    generateSprites() {
-        // Gera pixel art procedural simples
-        const canvas = document.createElement('canvas');
-        canvas.width = 32;
-        canvas.height = 48;
-        const c = canvas.getContext('2d');
-        
-        // Corpo base
-        c.fillStyle = this.type === 'player' ? '#4a90e2' : 
-                      this.type === 'enemy' ? '#e74c3c' : '#f39c12';
-        c.fillRect(8, 16, 16, 20);
-        
-        // Cabeça
-        c.fillStyle = '#ffdbac';
-        c.fillRect(10, 4, 12, 12);
-        
-        // Olhos
-        c.fillStyle = '#000';
-        c.fillRect(12, 8, 2, 2);
-        c.fillRect(18, 8, 2, 2);
-        
-        // Roupa detalhes
-        if (this.type === 'player') {
-            c.fillStyle = '#2c3e50';
-            c.fillRect(8, 16, 16, 8); // armadura peito
-            c.fillStyle = '#00d4ff';
-            c.fillRect(20, 20, 4, 4); // cristal mágico
-        }
-        
-        return canvas;
-    }
-    
-    update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        
-        // Animação
-        if (this.vx !== 0 || this.vy !== 0) {
-            this.animTimer++;
-            if (this.animTimer > 8) {
-                this.frame = (this.frame + 1) % 4;
-                this.animTimer = 0;
-            }
-            
-            // Direção
-            if (Math.abs(this.vx) > Math.abs(this.vy)) {
-                this.direction = this.vx > 0 ? 'right' : 'left';
-            } else {
-                this.direction = this.vy > 0 ? 'down' : 'up';
-            }
-        } else {
-            this.frame = 0;
-        }
-    }
-    
-    draw(ctx, camX, camY) {
-        const screenX = this.x - camX;
-        const screenY = this.y - camY;
-        
-        // Sombra
-        ctx.fillStyle = 'rgba(0,0,0,0.3)';
-        ctx.fillRect(screenX + 4, screenY + 40, 24, 8);
-        
-        // Sprite com animação de "caminhada" (bobbing)
-        const bobOffset = this.frame % 2 === 1 ? 2 : 0;
-        ctx.drawImage(this.sprites, screenX, screenY - bobOffset);
-        
-        // Nome
-        ctx.fillStyle = '#fff';
-        ctx.font = '8px "Press Start 2P"';
-        ctx.textAlign = 'center';
-        ctx.fillText(this.name, screenX + 16, screenY - 5);
-    }
-}
-
-class Player extends Entity {
-    constructor(x, y) {
-        super(x, y, 'Kael', 'player');
-        this.stats = {
-            hp: 100, maxHp: 100,
-            mp: 50, maxMp: 50,
-            xp: 0, maxXp: 100,
-            level: 1,
-            str: 10, dex: 10, int: 15,
-            defense: 5
+        const gameState = {
+            location: 'valthoria',
+            ecoZeroVisits: 0,
+            ecoZeroPhase: 0,
+            kaelMood: 50,
+            aldrichState: 1,
+            playerChoices: [],
+            timeRewinds: 3,
+            typingSpeed: 30
         };
-        this.class = 'cronomante';
-        this.inventory = [];
-        this.equipment = {};
-        this.skills = [
-            { name: 'Bola de Fogo', cost: 10, damage: 25, type: 'fire', icon: '🔥' },
-            { name: 'Gelo Temporal', cost: 15, damage: 20, type: 'ice', effect: 'slow', icon: '❄️' },
-            { name: 'Cura', cost: 12, heal: 30, type: 'heal', icon: '💚' },
-            { name: 'Paradoxo', cost: 25, damage: 40, type: 'time', effect: 'stun', icon: '⏰' }
-        ];
-        this.gold = 100;
-    }
-    
-    gainXp(amount) {
-        this.stats.xp += amount;
-        if (this.stats.xp >= this.stats.maxXp) {
-            this.levelUp();
-        }
-        updateHUD();
-    }
-    
-    levelUp() {
-        this.stats.level++;
-        this.stats.xp -= this.stats.maxXp;
-        this.stats.maxXp = Math.floor(this.stats.maxXp * 1.5);
-        this.stats.maxHp += 20;
-        this.stats.maxMp += 10;
-        this.stats.hp = this.stats.maxHp;
-        this.stats.mp = this.stats.maxMp;
-        this.stats.str += 2;
-        this.stats.int += 3;
-        
-        showNotification(`LEVEL UP! Nível ${this.stats.level}`);
-        createParticles(this.x + 16, this.y, 'levelup', 20);
-    }
-    
-    castSkill(skillIndex, target) {
-        const skill = this.skills[skillIndex];
-        if (this.stats.mp < skill.cost) {
-            showNotification('MP insuficiente!');
-            return false;
-        }
-        
-        this.stats.mp -= skill.cost;
-        
-        // Efeito visual
-        createParticles(target ? target.x : this.x, target ? target.y : this.y, skill.type, 15);
-        
-        if (skill.heal) {
-            this.stats.hp = Math.min(this.stats.hp + skill.heal, this.stats.maxHp);
-            showNotification(`+${skill.heal} HP`);
-        } else if (target) {
-            const damage = Math.floor(skill.damage * (1 + this.stats.int / 50));
-            target.takeDamage(damage);
-            
-            if (skill.effect === 'slow') target.addStatus('slow', 3);
-            if (skill.effect === 'stun') target.addStatus('stun', 2);
-        }
-        
-        updateHUD();
-        return true;
-    }
-    
-    takeDamage(amount) {
-        const reduced = Math.max(1, amount - this.stats.defense);
-        this.stats.hp -= reduced;
-        showDamagePopup(this.x, this.y, `-${reduced}`, '#ff006e');
-        
-        if (this.stats.hp <= 0) {
-            this.die();
-        }
-        updateHUD();
-    }
-    
-    die() {
-        showNotification('GAME OVER - Recarregando...');
-        setTimeout(() => location.reload(), 3000);
-    }
-}
 
-class Enemy extends Entity {
-    constructor(x, y, name, tier = 'normal') {
-        super(x, y, name, 'enemy');
-        this.tier = tier;
-        this.stats = {
-            hp: tier === 'boss' ? 500 : 80,
-            maxHp: tier === 'boss' ? 500 : 80,
-            mp: 30,
-            str: tier === 'boss' ? 20 : 12,
-            defense: tier === 'boss' ? 10 : 3
+        const dialogues = {
+            aldrich: {
+                name: 'REI ALDRIC III',
+                text: 'Valthoria prospera. O Rei ama sua Rainha... [ilução treme]',
+                choices: [
+                    { text: 'Vossa Majestade?', next: 'aldrich_lucid' },
+                    { text: '[Observar de perto]', next: 'aldrich_see' },
+                    { text: '[Ir embora]', next: null }
+                ]
+            },
+            aldrich_lucid: {
+                name: 'REI ALDRIC III',
+                text: '[Olhos focam] Ajude-me. Por favor. Me mate. Eu não deveria existir. Ela me mantém preso.',
+                choices: [
+                    { text: 'Quem?', next: 'aldrich_explain' },
+                    { text: 'Como posso ajudar?', next: 'aldrich_help' }
+                ]
+            },
+            aldrich_see: {
+                name: 'NARRADOR',
+                text: 'Você vê: o pescoço do Rei é translúcido. Osso brilha por baixo da pele. Ilusão mágica.',
+                choices: [
+                    { text: 'O que é você?', next: 'aldrich_lucid' },
+                    { text: '[Recuar]', next: null }
+                ]
+            },
+            aldrich_explain: {
+                name: 'REI ALDRIC III',
+                text: 'Seraphina. Minha esposa. Ela tem medo de ficar sozinha. Então me preserva. Com magia. Com minha alma presa nesta podridão.',
+                choices: [
+                    { text: 'Terrível...', next: 'aldrich_quest' }
+                ]
+            },
+            aldrich_help: {
+                name: 'REI ALDRIC III',
+                text: 'Fale com Kael. Meu filho. Ele sabe a verdade. Ou destrua o anel em meu dedo. Mas isso... isso me mataria de verdade.',
+                choices: [
+                    { text: 'Falarei com Kael', next: null, action: () => startQuest('kael') },
+                    { text: 'Destruirei o anel', next: null, action: () => startQuest('kill') }
+                ]
+            },
+            kael: {
+                name: 'PRÍNCIPE KAEL',
+                text: '[Sentado nos degraus, não no trono] Você é o Eco. O profetizado. Ou a maldição. Ainda não decidi.',
+                choices: [
+                    { text: 'Posso me sentar?', next: 'kael_sit' },
+                    { text: 'Seu pai pediu para falar contigo', next: 'kael_dad', condition: () => hasQuest('kael') }
+                ]
+            },
+            kael_sit: {
+                name: 'PRÍNCIPE KAEL',
+                text: 'Sente. O chão é mais honesto que o trono. Mais frio também. Mas honesto.',
+                choices: [
+                    { text: '[Sentar]', next: null, effect: () => changeKaelMood(10) },
+                    { text: 'Prefiro ficar de pé', next: null }
+                ]
+            },
+            kael_dad: {
+                name: 'PRÍNCIPE KAEL',
+                text: '[Espada treme] Ele falou? Depois de dez anos? O que disse?',
+                choices: [
+                    { text: 'Pediu para ser libertado', next: 'kael_free' }
+                ]
+            },
+            kael_free: {
+                name: 'PRÍNCIPE KAEL',
+                text: 'Libertado. Morte. Ele quer morte. E eu... eu quero negar. Quero mantê-lo. Como ela. Sou igual a ela.',
+                choices: [
+                    { text: 'Você não é sua mãe', next: null, effect: () => changeKaelMood(20) }
+                ]
+            }
         };
-        this.statusEffects = [];
-        this.aiTimer = 0;
-    }
-    
-    updateAI(player) {
-        this.aiTimer++;
-        if (this.aiTimer < 30) return; // Delay entre ações
-        
-        const dist = Math.hypot(player.x - this.x, player.y - this.y);
-        
-        if (dist < 300 && dist > 40) {
-            // Perseguir
-            const angle = Math.atan2(player.y - this.y, player.x - this.x);
-            this.vx = Math.cos(angle) * this.speed;
-            this.vy = Math.sin(angle) * this.speed;
-        } else if (dist <= 40) {
-            // Atacar
-            this.vx = 0;
-            this.vy = 0;
-            if (this.aiTimer > 60) {
-                this.attack(player);
-                this.aiTimer = 0;
-            }
-        } else {
-            // Patrulhar
-            this.vx = Math.sin(Date.now() / 1000) * this.speed;
-            this.vy = Math.cos(Date.now() / 1000) * this.speed;
-        }
-    }
-    
-    attack(target) {
-        const damage = Math.floor(this.stats.str * (0.8 + Math.random() * 0.4));
-        target.takeDamage(damage);
-        createParticles(target.x, target.y, 'hit', 8);
-    }
-    
-    takeDamage(amount) {
-        this.stats.hp -= amount;
-        showDamagePopup(this.x, this.y, `-${amount}`, '#fff');
-        
-        // Flash vermelho
-        this.flash = 10;
-        
-        if (this.stats.hp <= 0) {
-            this.die();
-        }
-    }
-    
-    addStatus(effect, duration) {
-        this.statusEffects.push({ effect, duration });
-        if (effect === 'slow') this.speed *= 0.5;
-    }
-    
-    die() {
-        createParticles(this.x, this.y, 'death', 30);
-        Game.player.gainXp(this.tier === 'boss' ? 500 : 30);
-        Game.player.gold += this.tier === 'boss' ? 100 : 10;
-        
-        // Drop de item
-        if (Math.random() < 0.3) {
-            const items = ['Poção de HP', 'Poção de MP', 'Cristal Temporal', 'Espada Enferrujada'];
-            const item = items[Math.floor(Math.random() * items.length)];
-            Game.player.inventory.push(item);
-            showNotification(`Drop: ${item}`);
-        }
-        
-        const idx = Game.entities.indexOf(this);
-        if (idx > -1) Game.entities.splice(idx, 1);
-    }
-    
-    draw(ctx, camX, camY) {
-        super.draw(ctx, camX, camY);
-        
-        // Barra de HP
-        const screenX = this.x - camX;
-        const screenY = this.y - camY;
-        const hpPercent = this.stats.hp / this.stats.maxHp;
-        
-        ctx.fillStyle = '#000';
-        ctx.fillRect(screenX, screenY - 15, 32, 4);
-        ctx.fillStyle = hpPercent > 0.5 ? '#0f0' : hpPercent > 0.25 ? '#ff0' : '#f00';
-        ctx.fillRect(screenX + 1, screenY - 14, 30 * hpPercent, 2);
-        
-        // Efeitos de status
-        if (this.flash > 0) {
-            ctx.fillStyle = `rgba(255, 0, 0, ${this.flash / 10})`;
-            ctx.fillRect(screenX, screenY, 32, 48);
-            this.flash--;
-        }
-    }
-}
 
-class NPC extends Entity {
-    constructor(x, y, name, dialogueTree) {
-        super(x, y, name, 'npc');
-        this.dialogueTree = dialogueTree;
-        this.currentDialogue = 0;
-        this.hasQuest = false;
-        this.shop = null;
-    }
-    
-    interact() {
-        showDialogue(this.name, this.dialogueTree[this.currentDialogue]);
-        if (this.currentDialogue < this.dialogueTree.length - 1) {
-            this.currentDialogue++;
-        }
-    }
-}
-
-// ==================== SISTEMA DE MAPA ====================
-class GameMap {
-    constructor(width, height) {
-        this.width = width;
-        this.height = height;
-        this.tiles = [];
-        this.collisions = [];
-        this.generate();
-    }
-    
-    generate() {
-        // Gera mapa procedural simples
-        for (let y = 0; y < this.height; y++) {
-            this.tiles[y] = [];
-            this.collisions[y] = [];
-            for (let x = 0; x < this.width; x++) {
-                // Chão base
-                let tile = Math.random() > 0.8 ? 'grass2' : 'grass1';
-                
-                // Bordas
-                if (x === 0 || x === this.width - 1 || y === 0 || y === this.height - 1) {
-                    tile = 'wall';
-                    this.collisions[y][x] = true;
-                } else if (Math.random() > 0.95) {
-                    tile = 'tree';
-                    this.collisions[y][x] = true;
-                } else if (Math.random() > 0.97) {
-                    tile = 'rock';
-                    this.collisions[y][x] = true;
-                } else {
-                    this.collisions[y][x] = false;
-                }
-                
-                this.tiles[y][x] = tile;
+        const ecoZeroDialogues = {
+            0: {
+                name: 'ECO-ZERO',
+                text: '[Não olha] Você demorou. Eu te esperei em 847 linhas temporais.',
+                choices: [
+                    { text: 'Como sabe quem sou?', next: 'eco_know' },
+                    { text: 'Por que esperava?', next: 'eco_why' },
+                    { text: '[Sair]', next: null }
+                ]
+            },
+            1: {
+                name: 'ECO-ZERO',
+                text: '[Sorriso torto] Olha só. O herói. O escolhido. Quer saber o que acontece com especiais? EU SEI PORQUE EU FUI VOCÊ.',
+                choices: [
+                    { text: 'Você foi eu?', next: 'eco_was' },
+                    { text: 'Não sou especial', next: 'eco_special' }
+                ]
+            },
+            5: {
+                name: 'ECO-ZERO',
+                text: '[Sorriso genuíno] Você voltou. De novo. Obrigado. Por não me deixar esquecer de mim.',
+                choices: [
+                    { text: 'Vamos juntos', next: null, action: () => alert('ECO-ZERO agora é seu companheiro!') },
+                    { text: 'Sempre volto', next: null }
+                ]
             }
-        }
-        
-        // Adiciona estruturas
-        this.addStructure(10, 10, 'house');
-        this.addStructure(20, 15, 'cave');
-    }
-    
-    addStructure(x, y, type) {
-        if (type === 'house') {
-            for (let dy = 0; dy < 4; dy++) {
-                for (let dx = 0; dx < 5; dx++) {
-                    if (dy === 0 || dy === 3 || dx === 0 || dx === 4) {
-                        this.tiles[y + dy][x + dx] = 'wall';
-                        this.collisions[y + dy][x + dx] = true;
-                    } else {
-                        this.tiles[y + dy][x + dx] = 'floor';
-                        this.collisions[y + dy][x + dx] = false;
-                    }
-                }
-            }
-            // Porta
-            this.tiles[y + 3][x + 2] = 'door';
-            this.collisions[y + 3][x + 2] = false;
-        }
-    }
-    
-    draw(ctx, camX, camY) {
-        const startX = Math.floor(camX / 32);
-        const startY = Math.floor(camY / 32);
-        const endX = startX + 26;
-        const endY = startY + 20;
-        
-        for (let y = startY; y <= endY; y++) {
-            for (let x = startX; x <= endX; x++) {
-                if (y < 0 || y >= this.height || x < 0 || x >= this.width) continue;
-                
-                const screenX = x * 32 - camX;
-                const screenY = y * 32 - camY;
-                const tile = this.tiles[y][x];
-                
-                // Cores dos tiles
-                const colors = {
-                    grass1: '#2d5016',
-                    grass2: '#3a6b1f',
-                    wall: '#4a4a4a',
-                    floor: '#6b4423',
-                    tree: '#1a4d1a',
-                    rock: '#666',
-                    door: '#4a2c17'
-                };
-                
-                ctx.fillStyle = colors[tile] || '#000';
-                ctx.fillRect(screenX, screenY, 32, 32);
-                
-                // Detalhes
-                if (tile === 'tree') {
-                    ctx.fillStyle = '#0f3d0f';
-                    ctx.fillRect(screenX + 8, screenY + 8, 16, 16);
-                    ctx.fillStyle = '#5c4033';
-                    ctx.fillRect(screenX + 12, screenY + 24, 8, 8);
-                } else if (tile === 'rock') {
-                    ctx.fillStyle = '#888';
-                    ctx.beginPath();
-                    ctx.arc(screenX + 16, screenY + 20, 10, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            }
-        }
-    }
-    
-    checkCollision(x, y, width, height) {
-        const left = Math.floor(x / 32);
-        const right = Math.floor((x + width) / 32);
-        const top = Math.floor(y / 32);
-        const bottom = Math.floor((y + height) / 32);
-        
-        for (let ty = top; ty <= bottom; ty++) {
-            for (let tx = left; tx <= right; tx++) {
-                if (ty < 0 || ty >= this.height || tx < 0 || tx >= this.width) return true;
-                if (this.collisions[ty][tx]) return true;
-            }
-        }
-        return false;
-    }
-}
-
-// ==================== SISTEMA DE PARTÍCULAS ====================
-class Particle {
-    constructor(x, y, type) {
-        this.x = x;
-        this.y = y;
-        this.type = type;
-        this.life = 60;
-        this.maxLife = 60;
-        
-        const angles = [0, 45, 90, 135, 180, 225, 270, 315];
-        const angle = angles[Math.floor(Math.random() * angles.length)] * Math.PI / 180;
-        const speed = 2 + Math.random() * 3;
-        
-        this.vx = Math.cos(angle) * speed;
-        this.vy = Math.sin(angle) * speed;
-        
-        this.colors = {
-            fire: ['#ff006e', '#ff4d6d', '#ffb3c1', '#ffbe0b'],
-            ice: ['#00d4ff', '#0096c7', '#90e0ef', '#caf0f8'],
-            heal: ['#00ff88', '#00cc6a', '#90e0ef'],
-            time: ['#9d4edd', '#c77dff', '#e0aaff'],
-            hit: ['#fff', '#ff0000', '#ff6666'],
-            death: ['#333', '#666', '#999', '#ff006e'],
-            levelup: ['#ffd700', '#ffed4e', '#fff']
         };
-    }
-    
-    update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        this.life--;
-        this.vy += 0.1; // Gravidade
-    }
-    
-    draw(ctx, camX, camY) {
-        const alpha = this.life / this.maxLife;
-        const colors = this.colors[this.type] || ['#fff'];
-        const color = colors[Math.floor((1 - alpha) * colors.length)];
-        
-        ctx.globalAlpha = alpha;
-        ctx.fillStyle = color;
-        ctx.fillRect(this.x - camX, this.y - camY, 4, 4);
-        ctx.globalAlpha = 1;
-    }
-}
 
-function createParticles(x, y, type, count) {
-    for (let i = 0; i < count; i++) {
-        Game.particles.push(new Particle(x + 16, y + 24, type));
-    }
-}
-
-// ==================== SISTEMA DE BATALHA ====================
-const BattleSystem = {
-    active: false,
-    turn: 1,
-    enemies: [],
-    timeBonus: 1,
-    
-    start(enemies) {
-        this.active = true;
-        this.enemies = enemies;
-        this.turn = 1;
-        document.getElementById('battle-screen').style.display = 'block';
-        document.getElementById('hud-top').style.display = 'none';
-        this.updateSkillBar();
-        this.positionCombatants();
-    },
-    
-    positionCombatants() {
-        const arena = document.getElementById('battle-arena');
-        arena.innerHTML = '<div class="magic-circle" style="top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>';
-        
-        // Jogador
-        const playerDiv = document.createElement('div');
-        playerDiv.className = 'combatant';
-        playerDiv.style.cssText = 'left: 150px; top: 200px; width: 64px; height: 96px;';
-        playerDiv.innerHTML = '<div style="width:100%;height:100%;background:#4a90e2;border:2px solid #00d4ff;"></div>';
-        arena.appendChild(playerDiv);
-        
-        // Inimigos
-        this.enemies.forEach((enemy, i) => {
-            const enemyDiv = document.createElement('div');
-            enemyDiv.className = 'combatant enemy-combatant';
-            enemyDiv.style.cssText = `right: ${150 + i * 80}px; top: ${150 + i * 40}px; width: 64px; height: 96px;`;
-            enemyDiv.innerHTML = `<div style="width:100%;height:100%;background:#e74c3c;border:2px solid #ff006e;"></div>
-                                 <div style="position:absolute;top:-20px;left:0;width:100%;height:4px;background:#333;">
-                                 <div style="width:${(enemy.stats.hp/enemy.stats.maxHp)*100}%;height:100%;background:#0f0;"></div></div>`;
-            arena.appendChild(enemyDiv);
-        });
-    },
-    
-    updateSkillBar() {
-        const bar = document.getElementById('skill-bar');
-        bar.innerHTML = '';
-        
-        Game.player.skills.forEach((skill, i) => {
-            const btn = document.createElement('button');
-            btn.className = 'skill-btn';
-            btn.innerHTML = `${skill.icon}<br>${skill.name}<span class="skill-cost">${skill.cost}MP</span>`;
-            btn.disabled = Game.player.stats.mp < skill.cost;
-            btn.onclick = () => this.playerAction(i);
-            bar.appendChild(btn);
-        });
-        
-        // Botão ataque básico
-        const atkBtn = document.createElement('button');
-        atkBtn.className = 'skill-btn';
-        atkBtn.innerHTML = `⚔️<br>Atacar<span class="skill-cost">0MP</span>`;
-        atkBtn.onclick = () => this.playerAction('attack');
-        bar.appendChild(atkBtn);
-    },
-    
-    playerAction(action) {
-        if (!this.active) return;
-        
-        let target = this.enemies[0];
-        if (!target || target.stats.hp <= 0) {
-            target = this.enemies.find(e => e.stats.hp > 0);
+        function startGame() {
+            document.getElementById('title-screen').classList.add('hidden');
+            showTransition('Valthoria
+Reino do Crepúsculo Eterno', () => {
+                document.getElementById('game-area').classList.add('active');
+                updateHUD();
+                showNotification('Bem-vindo!\nClique nos personagens para interagir.\nUse o mapa para viajar.');
+            });
         }
-        
-        if (!target) {
-            this.end(true);
-            return;
+
+        function showTransition(text, callback) {
+            const screen = document.getElementById('transition-screen');
+            screen.querySelector('.transition-text').innerHTML = text.replace(/\n/g, '<br>');
+            screen.classList.add('active');
+            setTimeout(() => {
+                screen.classList.remove('active');
+                if (callback) callback();
+            }, 2500);
         }
-        
-        if (action === 'attack') {
-            const dmg = Math.floor(Game.player.stats.str * 1.5);
-            target.takeDamage(dmg);
-            createParticles(600, 250, 'hit', 10);
-        } else {
-            Game.player.castSkill(action, target);
+
+        function showNotification(text) {
+            const notif = document.getElementById('notification');
+            notif.innerHTML = text.replace(/\n/g, '<br>');
+            notif.classList.add('active');
+            setTimeout(() => notif.classList.remove('active'), 4000);
         }
-        
-        // Verifica vitória
-        if (this.enemies.every(e => e.stats.hp <= 0)) {
-            setTimeout(() => this.end(true), 1000);
-            return;
+
+        function updateHUD() {
+            document.getElementById('location-name').textContent = gameState.location === 'valthoria' ? 'VALTHORIA' : 'FISSURAS';
+
+            const ecoStatuses = ['DESCONHECIDO', 'HOSTIL', 'IRA', 'VAZIO', 'ANSIOSO', 'COMPANHEIRO'];
+            document.getElementById('eco-status').textContent = ecoStatuses[gameState.ecoZeroPhase] || '???';
+
+            const kaelStatus = gameState.kaelMood < 30 ? 'HOSTIL' : gameState.kaelMood < 50 ? 'CÉTICO' : gameState.kaelMood < 70 ? 'NEUTRO' : gameState.kaelMood < 90 ? 'AMIGO' : 'LEAL';
+            document.getElementById('kael-mood').textContent = kaelStatus;
+
+            document.getElementById('time-btn').textContent = '⏪ REWIND (' + gameState.timeRewinds + ')';
+            if (gameState.timeRewinds <= 0) document.getElementById('time-btn').disabled = true;
         }
-        
-        // Turno inimigo
-        setTimeout(() => this.enemyTurn(), 800);
-    },
-    
-    enemyTurn() {
-        this.enemies.forEach(enemy => {
-            if (enemy.stats.hp > 0) {
-                enemy.attack(Game.player);
-                createParticles(150, 250, 'hit', 8);
-            }
-        });
-        
-        if (Game.player.stats.hp <= 0) {
-            this.end(false);
-            return;
-        }
-        
-        this.turn++;
-        document.getElementById('turn-count').textContent = this.turn;
-        this.updateSkillBar();
-    },
-    
-    end(victory) {
-        this.active = false;
-        document.getElementById('battle-screen').style.display = 'none';
-        document.getElementById('hud-top').style.display = 'flex';
-        
-        if (victory) {
-            showNotification('Vitória!');
-            Game.state = 'EXPLORING';
-        } else {
-            Game.player.die();
-        }
-    }
-};
 
-// ==================== FUNÇÕES DE INTERFACE ====================
-function startGame() {
-    document.getElementById('main-menu').style.display = 'none';
-    document.getElementById('hud-top').style.display = 'flex';
-    
-    // Inicializa jogo
-    Game.player = new Player(400, 300);
-    Game.currentMap = new GameMap(50, 50);
-    Game.entities = [];
-    
-    // Adiciona NPCs
-    Game.entities.push(new NPC(300, 200, 'Elder', [
-        'Bem-vindo, Cronomante. O tempo está desmoronando...',
-        'Você deve recuperar os 3 Fragmentos Primordiais.',
-        'Cuidado com o Lorde do Paradoxo!'
-    ]));
-    
-    Game.entities.push(new NPC(500, 400, 'Mercador', [
-        'Tenho itens raros de diferentes linhas do tempo!',
-        '(Sistema de loja em desenvolvimento)'
-    ]));
-    
-    // Adiciona inimigos
-    for (let i = 0; i < 5; i++) {
-        Game.entities.push(new Enemy(
-            600 + Math.random() * 400,
-            200 + Math.random() * 400,
-            'Slime Temporal',
-            'normal'
-        ));
-    }
-    
-    // Boss
-    const boss = new Enemy(1200, 800, 'Guardião do Passado', 'boss');
-    Game.entities.push(boss);
-    
-    Game.state = 'EXPLORING';
-    gameLoop();
-}
+        function travelTo(location) {
+            gameState.location = location;
+            document.getElementById('bg-valthoria').style.display = location === 'valthoria' ? 'block' : 'none';
+            document.getElementById('bg-fissure').style.display = location === 'fissure' ? 'block' : 'none';
 
-function updateHUD() {
-    const p = Game.player;
-    document.getElementById('hp-bar').style.width = `${(p.stats.hp/p.stats.maxHp)*100}%`;
-    document.getElementById('hp-text').textContent = `${p.stats.hp}/${p.stats.maxHp}`;
-    document.getElementById('mp-bar').style.width = `${(p.stats.mp/p.stats.maxMp)*100}%`;
-    document.getElementById('mp-text').textContent = `${p.stats.mp}/${p.stats.maxMp}`;
-    document.getElementById('xp-bar').style.width = `${(p.stats.xp/p.stats.maxXp)*100}%`;
-    document.getElementById('level-text').textContent = `LVL ${p.stats.level}`;
-}
+            document.querySelectorAll('.map-location').forEach(el => el.classList.remove('active'));
+            event.target.classList.add('active');
 
-function showDialogue(name, text) {
-    Game.state = 'DIALOGUE';
-    document.getElementById('dialogue-box').style.display = 'block';
-    document.getElementById('npc-name').textContent = name;
-    document.getElementById('dialogue-text').textContent = text;
-}
-
-function closeDialogue() {
-    document.getElementById('dialogue-box').style.display = 'none';
-    Game.state = 'EXPLORING';
-}
-
-function showNotification(text) {
-    const notif = document.getElementById('notification');
-    notif.textContent = text;
-    notif.style.display = 'block';
-    setTimeout(() => notif.style.display = 'none', 3000);
-}
-
-function showDamagePopup(x, y, text, color) {
-    const popup = document.createElement('div');
-    popup.className = 'damage-popup';
-    popup.style.left = (x - Game.camera.x) + 'px';
-    popup.style.top = (y - Game.camera.y) + 'px';
-    popup.style.color = color;
-    popup.textContent = text;
-    document.getElementById('game-container').appendChild(popup);
-    setTimeout(() => popup.remove(), 1000);
-}
-
-function toggleInventory() {
-    const inv = document.getElementById('inventory');
-    if (inv.style.display === 'grid') {
-        inv.style.display = 'none';
-        Game.state = 'EXPLORING';
-    } else {
-        inv.style.display = 'grid';
-        Game.state = 'INVENTORY';
-        renderInventory();
-    }
-}
-
-function renderInventory() {
-    const inv = document.getElementById('inventory');
-    inv.innerHTML = '';
-    
-    // 40 slots
-    for (let i = 0; i < 40; i++) {
-        const slot = document.createElement('div');
-        slot.className = 'inv-slot';
-        if (Game.player.inventory[i]) {
-            slot.textContent = getItemIcon(Game.player.inventory[i]);
-            slot.title = Game.player.inventory[i];
-        }
-        inv.appendChild(slot);
-    }
-}
-
-function getItemIcon(itemName) {
-    const icons = {
-        'Poção de HP': '❤️',
-        'Poção de MP': '💙',
-        'Cristal Temporal': '💎',
-        'Espada Enferrujada': '⚔️'
-    };
-    return icons[itemName] || '📦';
-}
-
-function loadGame() {
-    showNotification('Sistema de save em desenvolvimento!');
-}
-
-function showCredits() {
-    alert('CHRONOS: O Fragmento do Tempo\nDesenvolvido para GitHub\nArte Pixel Procedural\nSistema de Tempo Único');
-}
-
-// ==================== CONTROLES ====================
-const keys = {};
-window.addEventListener('keydown', (e) => {
-    keys[e.key] = true;
-    
-    if (Game.state === 'DIALOGUE' && e.key === ' ') {
-        closeDialogue();
-    }
-    
-    if (e.key === 'i' || e.key === 'I') {
-        toggleInventory();
-    }
-    
-    if (e.key === 'Escape') {
-        if (Game.state === 'INVENTORY') toggleInventory();
-    }
-});
-
-window.addEventListener('keyup', (e) => {
-    keys[e.key] = false;
-});
-
-// ==================== GAME LOOP ====================
-function gameLoop() {
-    if (Game.state === 'EXPLORING') {
-        // Movimento do jogador
-        Game.player.vx = 0;
-        Game.player.vy = 0;
-        
-        if (keys['ArrowUp'] || keys['w']) Game.player.vy = -Game.player.speed;
-        if (keys['ArrowDown'] || keys['s']) Game.player.vy = Game.player.speed;
-        if (keys['ArrowLeft'] || keys['a']) Game.player.vx = -Game.player.speed;
-        if (keys['ArrowRight'] || keys['d']) Game.player.vx = Game.player.speed;
-        
-        // Colisão
-        const nextX = Game.player.x + Game.player.vx;
-        const nextY = Game.player.y + Game.player.vy;
-        
-        if (!Game.currentMap.checkCollision(nextX, Game.player.y, 32, 48)) {
-            Game.player.x = nextX;
-        }
-        if (!Game.currentMap.checkCollision(Game.player.x, nextY, 32, 48)) {
-            Game.player.y = nextY;
-        }
-        
-        // Limites do mapa
-        Game.player.x = Math.max(0, Math.min(Game.player.x, Game.currentMap.width * 32 - 32));
-        Game.player.y = Math.max(0, Math.min(Game.player.y, Game.currentMap.height * 32 - 48));
-        
-        Game.player.update();
-        
-        // Câmera segue jogador
-        Game.camera.x = Game.player.x - canvas.width / 2 + 16;
-        Game.camera.y = Game.player.y - canvas.height / 2 + 24;
-        
-        // Limites da câmera
-        Game.camera.x = Math.max(0, Math.min(Game.camera.x, Game.currentMap.width * 32 - canvas.width));
-        Game.camera.y = Math.max(0, Math.min(Game.camera.y, Game.currentMap.height * 32 - canvas.height));
-        
-        // Atualiza entidades
-        Game.entities.forEach(entity => {
-            if (entity.type === 'enemy') {
-                entity.updateAI(Game.player);
-                
-                // Checa colisão com jogador para iniciar batalha
-                const dist = Math.hypot(entity.x - Game.player.x, entity.y - Game.player.y);
-                if (dist < 40 && !BattleSystem.active) {
-                    BattleSystem.start([entity]);
-                    Game.state = 'BATTLE';
-                }
-            }
-            entity.update();
-        });
-        
-        // Interação com NPC
-        if (keys[' ']) {
-            keys[' '] = false; // Previne múltiplos triggers
-            Game.entities.forEach(entity => {
-                if (entity.type === 'npc') {
-                    const dist = Math.hypot(entity.x - Game.player.x, entity.y - Game.player.y);
-                    if (dist < 50) entity.interact();
+            showTransition(location === 'valthoria' ? 'Valthoria' : 'As Fissuras', () => {
+                updateHUD();
+                if (location === 'fissure' && gameState.ecoZeroVisits === 0) {
+                    gameState.ecoZeroVisits++;
+                    setTimeout(() => startDialogue('eco-zero'), 500);
                 }
             });
         }
-    }
-    
-    // Regeneração de MP lenta
-    if (Game.player && Game.player.stats.mp < Game.player.stats.maxMp) {
-        if (Math.random() < 0.02) Game.player.stats.mp++;
-    }
-    
-    // Renderização
-    ctx.fillStyle = '#0f0f1a';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    if (Game.currentMap) {
-        Game.currentMap.draw(ctx, Game.camera.x, Game.camera.y);
-    }
-    
-    // Ordena entidades por Y para profundidade
-    const sortedEntities = [...Game.entities, Game.player].sort((a, b) => a.y - b.y);
-    sortedEntities.forEach(entity => {
-        if (entity) entity.draw(ctx, Game.camera.x, Game.camera.y);
-    });
-    
-    // Partículas
-    Game.particles = Game.particles.filter(p => p.life > 0);
-    Game.particles.forEach(p => {
-        p.update();
-        p.draw(ctx, Game.camera.x, Game.camera.y);
-    });
-    
-    // Ciclo dia/noite
-    Game.timeOfDay = (Game.timeOfDay + 0.001) % 24;
-    const darkness = Math.abs(12 - Game.timeOfDay) / 12 * 0.5;
-    ctx.fillStyle = `rgba(0, 0, 20, ${darkness})`;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    requestAnimationFrame(gameLoop);
-}
 
-// Inicialização
-console.log('CHRONOS carregado. Pressione "Novo Jogo" para iniciar.');
+        function startDialogue(character) {
+            const box = document.getElementById('dialogue-box');
+            const speaker = document.getElementById('speaker');
+            const text = document.getElementById('dialogue-text');
+            const choices = document.getElementById('choices');
+
+            box.classList.add('active');
+
+            let data;
+            if (character === 'eco-zero') {
+                data = ecoZeroDialogues[gameState.ecoZeroPhase] || ecoZeroDialogues[0];
+            } else {
+                data = dialogues[character];
+            }
+
+            if (!data) { closeDialogue(); return; }
+
+            speaker.textContent = data.name;
+            text.textContent = '';
+            text.classList.add('typing');
+
+            let i = 0;
+            const interval = setInterval(() => {
+                text.textContent += data.text[i];
+                i++;
+                if (i >= data.text.length) {
+                    clearInterval(interval);
+                    text.classList.remove('typing');
+                    showChoices(data.choices);
+                }
+            }, gameState.typingSpeed);
+        }
+
+        function showChoices(choices) {
+            const container = document.getElementById('choices');
+            container.innerHTML = '';
+
+            choices.forEach((choice, idx) => {
+                if (choice.condition && !choice.condition()) return;
+
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn' + (idx === 0 ? ' selected' : '');
+                btn.textContent = choice.text;
+                btn.onclick = () => selectChoice(choice);
+                container.appendChild(btn);
+            });
+        }
+
+        function selectChoice(choice) {
+            if (choice.effect) choice.effect();
+            if (choice.action) choice.action();
+
+            if (choice.next && dialogues[choice.next]) {
+                startDialogue(choice.next);
+            } else {
+                closeDialogue();
+            }
+
+            updateHUD();
+            saveGame();
+        }
+
+        function closeDialogue() {
+            document.getElementById('dialogue-box').classList.remove('active');
+        }
+
+        function interactWith(char) {
+            if (char === 'eco-zero') {
+                gameState.ecoZeroVisits++;
+                if (gameState.ecoZeroVisits === 2) gameState.ecoZeroPhase = 1;
+                if (gameState.ecoZeroVisits >= 10) gameState.ecoZeroPhase = 5;
+            }
+            startDialogue(char);
+        }
+
+        function rewindTime() {
+            if (gameState.timeRewinds <= 0) return;
+            gameState.timeRewinds--;
+            showNotification('⏪ TEMPO REVERTIDO!\nRewinds restantes: ' + gameState.timeRewinds);
+            updateHUD();
+        }
+
+        function movePlayer() {
+            const player = document.getElementById('player');
+            player.style.left = player.style.left === '50%' ? '20%' : '50%';
+        }
+
+        function changeKaelMood(amount) {
+            gameState.kaelMood = Math.max(0, Math.min(100, gameState.kaelMood + amount));
+            showNotification('Kael: +' + amount + ' de afinidade');
+        }
+
+        function startQuest(id) {
+            gameState.playerChoices.push(id);
+            showNotification('QUEST INICIADA!');
+        }
+
+        function hasQuest(id) {
+            return gameState.playerChoices.includes(id);
+        }
+
+        function saveGame() {
+            localStorage.setItem('chronos_echo_save', JSON.stringify(gameState));
+        }
+
+        function loadGame() {
+            const save = localStorage.getItem('chronos_echo_save');
+            if (save) {
+                Object.assign(gameState, JSON.parse(save));
+                document.getElementById('title-screen').classList.add('hidden');
+                document.getElementById('game-area').classList.add('active');
+                updateHUD();
+                showNotification('Jogo carregado!');
+            } else {
+                alert('Nenhum save encontrado');
+            }
+        }
+
+        function showTutorial() {
+            showNotification('TUTORIAL:\n- CLICK: Interagir\n- MAPA: Viajar entre locais\n- REWIND: Reverter escolhas (3x)\n- Visite Eco-Zero 10x para companheiro!');
+        }
+
+        function showCredits() {
+            showNotification('CHRONOS ECHO\nParte 1: O Despertar\n\nPersonagens:\n- Eco-Zero: O Eco Quebrado\n- Aldric III: O Morto-Vivo\n- Kael: O Herdeiro de Cinzas\n- Seraphina: A Viúva de Gelo');
+        }
+
+        // Auto-save
+        setInterval(saveGame, 30000);
+
+        // Teclas
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeDialogue();
+            if (e.key === 'F5') { e.preventDefault(); saveGame(); showNotification('Salvo!'); }
+            if (e.key === 'F9') { e.preventDefault(); loadGame(); }
+        });
+
+        console.log('CHRONOS ECHO carregado');
     </script>
 </body>
 </html>
