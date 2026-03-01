@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ECOS DO ABISMO - Possessão Procedural</title>
+    <title>ECOS DO ABISMO - A Queda dos Titãs</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Space+Mono:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Space+Mono:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
         
         * {
             margin: 0;
@@ -14,7 +14,7 @@
         }
 
         :root {
-            --void: #0a0a0f;
+            --void: #050508;
             --flesh: #8b2635;
             --flesh-light: #c93a4f;
             --neural: #4a90e2;
@@ -23,6 +23,9 @@
             --shadow: #1a1a2e;
             --gold: #ffd700;
             --corruption: #9400d3;
+            --memory: #ff6b9d;
+            --divine: #00d4ff;
+            --ash: #4a4a5a;
         }
 
         body {
@@ -33,6 +36,155 @@
             position: relative;
         }
 
+        /* CUTSCENE DE ABERTURA */
+        #intro-cutscene {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .cutscene-slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+            background: radial-gradient(ellipse at center, #1a1a2e 0%, #000 100%);
+        }
+
+        .cutscene-slide.active {
+            display: flex;
+            animation: fadeIn 2s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .cutscene-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 28px;
+            color: var(--bone);
+            max-width: 800px;
+            text-align: center;
+            line-height: 1.8;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+            opacity: 0;
+            animation: textReveal 3s ease forwards;
+            animation-delay: 0.5s;
+        }
+
+        @keyframes textReveal {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .cutscene-visual {
+            width: 600px;
+            height: 400px;
+            margin-bottom: 40px;
+            position: relative;
+            border: 2px solid var(--divine);
+            box-shadow: 0 0 60px rgba(0, 212, 255, 0.3);
+            background: #0a0a15;
+            overflow: hidden;
+        }
+
+        .god-silhouette {
+            position: absolute;
+            width: 300px;
+            height: 500px;
+            background: linear-gradient(to bottom, var(--divine), transparent);
+            left: 50%;
+            bottom: 0;
+            transform: translateX(-50%);
+            clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
+            animation: godPulse 4s infinite;
+        }
+
+        @keyframes godPulse {
+            0%, 100% { opacity: 0.8; filter: brightness(1); }
+            50% { opacity: 1; filter: brightness(1.3); }
+        }
+
+        .war-visual {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .lightning {
+            position: absolute;
+            width: 2px;
+            height: 100%;
+            background: var(--divine);
+            opacity: 0;
+            animation: lightning 0.2s infinite;
+        }
+
+        @keyframes lightning {
+            0%, 90%, 100% { opacity: 0; }
+            95% { opacity: 1; }
+        }
+
+        .falling-god {
+            position: absolute;
+            width: 200px;
+            height: 300px;
+            background: linear-gradient(to bottom, var(--divine), var(--flesh));
+            left: 50%;
+            top: -300px;
+            transform: translateX(-50%) rotate(15deg);
+            animation: falling 5s ease-in forwards;
+            animation-delay: 1s;
+            clip-path: polygon(30% 0%, 70% 0%, 100% 100%, 0% 100%);
+        }
+
+        @keyframes falling {
+            to { top: 100%; transform: translateX(-50%) rotate(45deg); opacity: 0.3; }
+        }
+
+        .cutscene-skip {
+            position: absolute;
+            bottom: 40px;
+            right: 40px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: rgba(255,255,255,0.5);
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .cutscene-skip:hover {
+            border-color: var(--divine);
+            color: var(--divine);
+        }
+
+        .cutscene-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: var(--divine);
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
         #gameCanvas {
             position: fixed;
             top: 0;
@@ -40,7 +192,6 @@
             width: 100%;
             height: 100%;
             image-rendering: pixelated;
-            image-rendering: crisp-edges;
         }
 
         #ui-layer {
@@ -164,6 +315,78 @@
             color: var(--neural);
         }
 
+        #abilities-bar {
+            position: fixed;
+            bottom: 100px;
+            left: 20px;
+            background: rgba(10, 10, 15, 0.95);
+            border: 1px solid var(--divine);
+            padding: 15px;
+            min-width: 250px;
+            display: none;
+        }
+
+        #abilities-bar.active {
+            display: block;
+        }
+
+        #abilities-bar h3 {
+            font-family: 'Cinzel', serif;
+            color: var(--divine);
+            font-size: 12px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .ability-slot {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 8px 0;
+            padding: 8px;
+            background: rgba(0, 212, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .ability-slot:hover {
+            background: rgba(0, 212, 255, 0.15);
+            border-color: var(--divine);
+        }
+
+        .ability-slot.cooldown {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .ability-icon {
+            width: 35px;
+            height: 35px;
+            background: var(--shadow);
+            border: 2px solid var(--divine);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .ability-info {
+            flex: 1;
+        }
+
+        .ability-name {
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--bone);
+        }
+
+        .ability-key {
+            font-size: 9px;
+            color: var(--divine);
+            margin-top: 2px;
+        }
+
         #echo-mode {
             position: fixed;
             top: 50%;
@@ -227,6 +450,7 @@
             padding: 30px;
             display: none;
             pointer-events: auto;
+            z-index: 150;
         }
 
         #dialogue-box.active {
@@ -237,6 +461,22 @@
         @keyframes dialogueSlide {
             from { transform: translateX(-50%) translateY(100px); opacity: 0; }
             to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+
+        .npc-portrait {
+            width: 120px;
+            height: 120px;
+            border: 3px solid var(--gold);
+            margin-bottom: 15px;
+            position: relative;
+            overflow: hidden;
+            background: var(--shadow);
+        }
+
+        .npc-skin {
+            width: 100%;
+            height: 100%;
+            position: relative;
         }
 
         .npc-name {
@@ -286,17 +526,6 @@
             background: var(--flesh);
             color: var(--void);
             transform: translateX(5px);
-        }
-
-        .dialogue-btn::before {
-            content: '>';
-            position: absolute;
-            left: -20px;
-            transition: left 0.3s;
-        }
-
-        .dialogue-btn:hover::before {
-            left: 5px;
         }
 
         #memory-map {
@@ -392,7 +621,7 @@
             width: 100%;
             height: 100%;
             background: var(--void);
-            display: flex;
+            display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -400,9 +629,8 @@
             transition: opacity 1s;
         }
 
-        #loading-screen.hidden {
-            opacity: 0;
-            pointer-events: none;
+        #loading-screen.active {
+            display: flex;
         }
 
         .loading-text {
@@ -561,6 +789,45 @@
             opacity: 0.8;
         }
 
+        /* BIOME LEGEND */
+        #biome-legend {
+            position: fixed;
+            top: 50%;
+            left: 20px;
+            transform: translateY(-50%);
+            background: rgba(10, 10, 15, 0.95);
+            border: 1px solid var(--divine);
+            padding: 20px;
+            display: none;
+            max-width: 250px;
+        }
+
+        #biome-legend.active {
+            display: block;
+        }
+
+        #biome-legend h3 {
+            font-family: 'Cinzel', serif;
+            color: var(--divine);
+            font-size: 14px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .biome-entry {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+            font-size: 11px;
+        }
+
+        .biome-color {
+            width: 20px;
+            height: 20px;
+            border: 2px solid white;
+        }
+
         #audio-controls {
             position: fixed;
             top: 20px;
@@ -607,7 +874,70 @@
     </style>
 </head>
 <body>
-    <div id="loading-screen">
+    <!-- CUTSCENE DE ABERTURA -->
+    <div id="intro-cutscene">
+        <!-- Slide 1: O Paraíso -->
+        <div class="cutscene-slide active" id="slide-1">
+            <div class="cutscene-visual">
+                <div class="god-silhouette"></div>
+                <div style="position: absolute; top: 20px; left: 20px; color: var(--divine); font-size: 12px;">
+                    Era uma vez...
+                </div>
+            </div>
+            <div class="cutscene-text">
+                "Antes do Silêncio, havia os <span style="color: var(--divine);">Titãs</span> — divindades tão vastas que suas formas eram confundidas com montanhas, rios e céus. Eles não precisavam de adoradores. Sua mera existência gerava vida."
+            </div>
+            <div class="cutscene-progress"></div>
+        </div>
+
+        <!-- Slide 2: A Guerra -->
+        <div class="cutscene-slide" id="slide-2">
+            <div class="cutscene-visual war-visual">
+                <div class="lightning" style="left: 20%;"></div>
+                <div class="lightning" style="left: 50%; animation-delay: 0.1s;"></div>
+                <div class="lightning" style="left: 80%; animation-delay: 0.2s;"></div>
+                <div style="position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); color: var(--flesh); font-size: 24px; font-family: 'Cinzel', serif;">
+                    A GUERRA DOS DEUSES
+                </div>
+            </div>
+            <div class="cutscene-text">
+                "Mas até imortais têm ambição. <span style="color: var(--flesh);">Atherion</span>, o Titã do Amanhecer, desejou ser Único. Desencadeou uma guerra que durou milênios. Os céus sangraram. As estrelas caíram."
+            </div>
+            <div class="cutscene-progress"></div>
+        </div>
+
+        <!-- Slide 3: A Queda -->
+        <div class="cutscene-slide" id="slide-3">
+            <div class="cutscene-visual">
+                <div class="falling-god"></div>
+                <div style="position: absolute; bottom: 20px; left: 20px; color: var(--ash); font-size: 12px;">
+                    A Queda de Atherion
+                </div>
+            </div>
+            <div class="cutscene-text">
+                "Derrotado, Atherion caiu. Seu corpo — ainda pulsando com divindade residual — tornou-se este mundo. Seu sangue virou rios. Seus ossos, montanhas. Seu último suspiro... deu origem aos <span style="color: var(--corruption);">Ecos</span>."
+            </div>
+            <div class="cutscene-progress"></div>
+        </div>
+
+        <!-- Slide 4: O Presente -->
+        <div class="cutscene-slide" id="slide-4">
+            <div class="cutscene-visual" style="background: radial-gradient(circle at center, var(--flesh) 0%, transparent 70%);">
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                    <div style="font-size: 48px; color: var(--toxic); margin-bottom: 20px;">◈</div>
+                    <div style="color: var(--bone); font-size: 14px;">Você é um Eco</div>
+                </div>
+            </div>
+            <div class="cutscene-text">
+                "Você despertou nas entranhas do cadáver divino. Não lembra quem foi. Não sabe por que está aqui. Mas sente — <span style="color: var(--toxic);">instintivamente</span> — que deve possuir, consumir, sobreviver. Ou se tornar apenas mais poeira no corpo de um deus morto."
+            </div>
+            <div class="cutscene-progress"></div>
+        </div>
+
+        <button class="cutscene-skip" onclick="skipCutscene()">Pular História [ESC]</button>
+    </div>
+
+    <div id="loading-screen" class="active">
         <div class="loading-text">ECOS DO ABISMO</div>
         <div class="loading-bar">
             <div class="loading-progress"></div>
@@ -630,8 +960,52 @@
         <span id="current-biome-sound" style="font-size: 9px; color: var(--bone);">Bioma: Coração</span>
     </div>
 
+    <div id="biome-legend">
+        <h3>◈ Biomas do Cadáver Divino</h3>
+        <div class="biome-entry">
+            <div class="biome-color" style="background: #8b0000; border-color: #ff4444;"></div>
+            <div>
+                <strong style="color: #ff4444;">Coração Ardente</strong><br>
+                <span style="font-size: 10px; opacity: 0.7;">Vulcão vivo, magma divino</span>
+            </div>
+        </div>
+        <div class="biome-entry">
+            <div class="biome-color" style="background: #2d5016; border-color: #39ff14;"></div>
+            <div>
+                <strong style="color: #39ff14;">Pulmão do Pântano</strong><br>
+                <span style="font-size: 10px; opacity: 0.7;">Ácido venenoso, esporos</span>
+            </div>
+        </div>
+        <div class="biome-entry">
+            <div class="biome-color" style="background: #1a237e; border-color: #4a90e2;"></div>
+            <div>
+                <strong style="color: #4a90e2;">Corteza Neural</strong><br>
+                <span style="font-size: 10px; opacity: 0.7;">Cristais de pensamento</span>
+            </div>
+        </div>
+        <div class="biome-entry">
+            <div class="biome-color" style="background: #4a2c00; border-color: #d4a574;"></div>
+            <div>
+                <strong style="color: #d4a574;">Fígado Tóxico</strong><br>
+                <span style="font-size: 10px; opacity: 0.7;">Veneno puro, decadência</span>
+            </div>
+        </div>
+        <div class="biome-entry">
+            <div class="biome-color" style="background: #3d3d00; border-color: #ffff99;"></div>
+            <div>
+                <strong style="color: #ffff99;">Estômago Ácido</strong><br>
+                <span style="font-size: 10px; opacity: 0.7;">Digestão eterna, dissolução</span>
+            </div>
+        </div>
+    </div>
+
     <canvas id="gameCanvas"></canvas>
     <div id="possession-vfx"></div>
+
+    <div id="abilities-bar">
+        <h3>◈ Habilidades Divinas</h3>
+        <div id="abilities-list"></div>
+    </div>
 
     <div id="ui-layer">
         <div id="possession-bar" class="hud-panel">
@@ -648,9 +1022,9 @@
             <div style="font-size: 10px; color: var(--corruption); margin-bottom: 5px;">DECADÊNCIA DO DEUS</div>
             <div class="decay-timer" id="decay-timer">71:59:59</div>
             <div class="biome-indicator" id="biome-indicator">
-                ◈ Bioma: Cordão Umbilical<br>
-                ◈ Temperatura: 37°C<br>
-                ◈ Toxicidade: Baixa
+                ◈ Bioma: Desconhecido<br>
+                ◈ Perigo: ???<br>
+                ◈ Recursos: ???
             </div>
             <div style="margin-top: 15px; font-size: 10px; color: var(--gold);">
                 ◈ Sementes: <span id="seeds-count">0</span><br>
@@ -671,9 +1045,10 @@
         <div class="controls-hint">
             <span>[WASD]</span> Mover<br>
             <span>[E]</span> Interagir<br>
-            <span>[ESPAÇO]</span> Modo Eco (possessão)<br>
+            <span>[ESPAÇO]</span> Modo Eco<br>
             <span>[Q]</span> Trocar corpo<br>
-            <span>[M]</span> Mapa de memória<br>
+            <span>[1-4]</span> Habilidades<br>
+            <span>[L]</span> Legendas<br>
             <span>[TAB]</span> Inventário
         </div>
     </div>
@@ -688,6 +1063,9 @@
     </div>
 
     <div id="dialogue-box">
+        <div class="npc-portrait" id="npc-portrait">
+            <canvas id="portrait-canvas" width="120" height="120"></canvas>
+        </div>
         <div class="npc-name">
             <div class="npc-mood" id="npc-mood"></div>
             <span id="npc-name">Nome do NPC</span>
@@ -717,207 +1095,268 @@
     </div>
 
     <script>
-        // SISTEMA DE ÁUDIO PROCEDURAL
-        class ProceduralAudio {
+        // CONTROLE DA CUTSCENE
+        let currentSlide = 1;
+        const totalSlides = 4;
+        let cutsceneInterval;
+
+        function startCutscene() {
+            document.getElementById('intro-cutscene').style.display = 'flex';
+            updateProgress();
+            cutsceneInterval = setInterval(() => {
+                nextSlide();
+            }, 8000); // 8 segundos por slide
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides) {
+                document.getElementById(`slide-${currentSlide}`).classList.remove('active');
+                currentSlide++;
+                document.getElementById(`slide-${currentSlide}`).classList.add('active');
+                updateProgress();
+            } else {
+                endCutscene();
+            }
+        }
+
+        function updateProgress() {
+            const progress = (currentSlide / totalSlides) * 100;
+            document.querySelectorAll('.cutscene-progress').forEach(bar => {
+                bar.style.width = progress + '%';
+            });
+        }
+
+        function skipCutscene() {
+            clearInterval(cutsceneInterval);
+            endCutscene();
+        }
+
+        function endCutscene() {
+            document.getElementById('intro-cutscene').style.display = 'none';
+            document.getElementById('loading-screen').classList.add('active');
+            
+            // Inicia o jogo após loading
+            setTimeout(() => {
+                document.getElementById('loading-screen').classList.remove('active');
+                document.getElementById('audio-controls').style.display = 'flex';
+                document.getElementById('biome-legend').classList.add('active');
+                document.getElementById('abilities-bar').classList.add('active');
+                game.showNotification('Bem-vindo ao Cadáver', 'Você despertou nas entranhas de Atherion. Use [L] para ver as legendas dos biomas.');
+                game.startGameLoop();
+            }, 3500);
+        }
+
+        // SISTEMA DE HABILIDADES
+        class AbilitySystem {
             constructor() {
-                this.audioContext = null;
-                this.isPlaying = false;
-                this.currentBiome = 'heart';
-                this.oscillators = [];
-                this.gainNodes = [];
-                this.analyser = null;
-                this.initialized = false;
+                this.abilities = [
+                    { id: 'echo_dash', name: 'Investida Etérea', icon: '⚡', key: '1', cooldown: 5000, duration: 500, active: false, desc: 'Dash rápido através de inimigos' },
+                    { id: 'soul_drain', name: 'Drenar Alma', icon: '💀', key: '2', cooldown: 10000, duration: 3000, active: false, desc: 'Rouba vida de inimigos próximos' },
+                    { id: 'possession_blast', name: 'Explosão de Possessão', icon: '💥', key: '3', cooldown: 15000, duration: 0, active: false, desc: 'Atordoa inimigos para possessão fácil' },
+                    { id: 'divine_sight', name: 'Visão Divina', icon: '👁️', key: '4', cooldown: 20000, duration: 5000, active: false, desc: 'Revela todos os cadáveres e NPCs no mapa' }
+                ];
+                this.cooldowns = {};
             }
 
-            init() {
-                if (this.initialized) return;
-                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                this.analyser = this.audioContext.createAnalyser();
-                this.analyser.fftSize = 32;
-                this.initialized = true;
+            useAbility(index) {
+                const ability = this.abilities[index];
+                if (this.cooldowns[ability.id]) return false;
+                
+                // Ativa habilidade
+                ability.active = true;
+                this.executeAbility(ability);
+                
+                // Coloca em cooldown
+                this.cooldowns[ability.id] = true;
+                setTimeout(() => {
+                    this.cooldowns[ability.id] = false;
+                    ability.active = false;
+                    this.updateUI();
+                }, ability.cooldown);
+                
+                this.updateUI();
+                return true;
             }
 
-            // Gera som baseado no bioma e nível de decadência
-            generateBiomeSound(biomeType, decayLevel) {
-                if (!this.initialized || !this.isPlaying) return;
+            executeAbility(ability) {
+                switch(ability.id) {
+                    case 'echo_dash':
+                        // Dash na direção do movimento
+                        const dashDistance = 200;
+                        if (game.keys['w']) game.player.y -= dashDistance;
+                        if (game.keys['s']) game.player.y += dashDistance;
+                        if (game.keys['a']) game.player.x -= dashDistance;
+                        if (game.keys['d']) game.player.x += dashDistance;
+                        game.showNotification('Habilidade', 'Investida Etérea ativada!');
+                        break;
+                        
+                    case 'soul_drain':
+                        // Cura baseada em inimigos próximos
+                        const nearby = game.npcs.filter(n => {
+                            const dist = Math.hypot(n.x - game.player.x, n.y - game.player.y);
+                            return dist < 150;
+                        });
+                        const heal = nearby.length * 20;
+                        if (game.player.currentBody) {
+                            game.player.currentBody.heal(heal);
+                        }
+                        game.showNotification('Habilidade', `Drenou ${nearby.length} almas! +${heal} HP`);
+                        break;
+                        
+                    case 'possession_blast':
+                        // Atordoa inimigos próximos
+                        game.npcs.forEach(n => {
+                            const dist = Math.hypot(n.x - game.player.x, n.y - game.player.y);
+                            if (dist < 200) {
+                                n.stunned = true;
+                                setTimeout(() => n.stunned = false, 3000);
+                            }
+                        });
+                        game.showNotification('Habilidade', 'Inimigos atordoados! Possua-os agora!');
+                        break;
+                        
+                    case 'divine_sight':
+                        // Revela tudo no mapa
+                        game.revealAll = true;
+                        setTimeout(() => game.revealAll = false, ability.duration);
+                        game.showNotification('Habilidade', 'Visão Divina ativada! Tudo revelado por 5s.');
+                        break;
+                }
+            }
+
+            updateUI() {
+                const container = document.getElementById('abilities-list');
+                container.innerHTML = '';
                 
-                // Para sons anteriores
-                this.stopAll();
-                
-                const now = this.audioContext.currentTime;
-                const decayFactor = decayLevel / 100; // 0 a 1
-                
-                // Configurações de som por bioma
-                const biomeSounds = {
-                    heart: {
-                        baseFreq: 60, // Batimento cardíaco lento
-                        harmonics: [1, 1.5, 2],
-                        waveform: 'sawtooth',
-                        rhythm: 1.2, // BPM lento
-                        filter: 200,
-                        resonance: 5
-                    },
-                    lung: {
-                        baseFreq: 80,
-                        harmonics: [1, 2.3, 3.7],
-                        waveform: 'sine',
-                        rhythm: 0.8, // Respiração
-                        filter: 400,
-                        resonance: 3
-                    },
-                    brain: {
-                        baseFreq: 200,
-                        harmonics: [1, 1.25, 1.5, 2],
-                        waveform: 'square',
-                        rhythm: 0.3, // Rápido, neural
-                        filter: 800,
-                        resonance: 8
-                    },
-                    liver: {
-                        baseFreq: 40,
-                        harmonics: [1, 3, 5],
-                        waveform: 'triangle',
-                        rhythm: 2.0, // Lento, pesado
-                        filter: 150,
-                        resonance: 2
-                    },
-                    stomach: {
-                        baseFreq: 30,
-                        harmonics: [1, 1.8, 2.5],
-                        waveform: 'sawtooth',
-                        rhythm: 1.5,
-                        filter: 100,
-                        resonance: 4
-                    }
+                this.abilities.forEach((ability, index) => {
+                    const div = document.createElement('div');
+                    div.className = `ability-slot ${this.cooldowns[ability.id] ? 'cooldown' : ''}`;
+                    div.innerHTML = `
+                        <div class="ability-icon">${ability.icon}</div>
+                        <div class="ability-info">
+                            <div class="ability-name">${ability.name}</div>
+                            <div class="ability-key">[${ability.key}] ${this.cooldowns[ability.id] ? 'Recarregando...' : 'Pronto'}</div>
+                        </div>
+                    `;
+                    div.onclick = () => this.useAbility(index);
+                    container.appendChild(div);
+                });
+            }
+        }
+
+        const abilitySystem = new AbilitySystem();
+
+        // SISTEMA DE SKINS DETALHADAS PARA NPCs
+        class NPCSkinSystem {
+            constructor() {
+                this.skinParts = {
+                    heads: ['◉', '◐', '◑', '◒', '◓', '◔', '◕', '◖', '◗', '◍'],
+                    bodies: ['⬟', '⬠', '⬡', '⬢', '⬣', '⬤', '⬥', '⬦', '⬧', '⬨'],
+                    accessories: ['', '✦', '✧', '✪', '✫', '✬', '✭', '✮', '✯', '✰'],
+                    colors: ['#e8dcc4', '#c93a4f', '#4a90e2', '#39ff14', '#ffd700', '#9400d3', '#00d4ff', '#ff6b9d']
                 };
+            }
+
+            generateSkin(dna) {
+                const rng = new RNG(dna.seed);
                 
-                const sound = biomeSounds[biomeType] || biomeSounds.heart;
+                return {
+                    head: this.skinParts.heads[rng.next(0, this.skinParts.heads.length - 1)],
+                    body: this.skinParts.bodies[rng.next(0, this.skinParts.bodies.length - 1)],
+                    accessory: this.skinParts.accessories[rng.next(0, this.skinParts.accessories.length - 1)],
+                    color: this.skinParts.colors[rng.next(0, this.skinParts.colors.length - 1)],
+                    size: rng.next(0.8, 1.3),
+                    hunch: rng.next(-0.3, 0.3),
+                    glow: dna.traits.trauma > 70
+                };
+            }
+
+            drawPortrait(canvas, skin, dna) {
+                const ctx = canvas.getContext('2d');
+                const w = canvas.width;
+                const h = canvas.height;
                 
-                // Cria osciladores para cada harmônico
-                sound.harmonics.forEach((harmonic, index) => {
-                    const osc = this.audioContext.createOscillator();
-                    const gain = this.audioContext.createGain();
-                    const filter = this.audioContext.createBiquadFilter();
-                    
-                    osc.type = sound.waveform;
-                    // Frequência modulada pela decadência (mais caótico quando apodrece)
-                    const freqVariation = (Math.random() - 0.5) * decayFactor * 50;
-                    osc.frequency.value = sound.baseFreq * harmonic + freqVariation;
-                    
-                    // Filtro que muda com a decadência
-                    filter.type = 'lowpass';
-                    filter.frequency.value = sound.filter * (1 - decayFactor * 0.5);
-                    filter.Q.value = sound.resonance * (1 + decayFactor);
-                    
-                    // Ganho modulado por LFO para criar ritmo
-                    const lfo = this.audioContext.createOscillator();
-                    lfo.type = 'sine';
-                    lfo.frequency.value = sound.rhythm;
-                    
-                    const lfoGain = this.audioContext.createGain();
-                    lfoGain.gain.value = 0.3 + (decayFactor * 0.4); // Mais instável quando apodrece
-                    
-                    lfo.connect(lfoGain);
-                    lfoGain.connect(gain.gain);
-                    
-                    // Volume base
-                    gain.gain.value = 0.1 / sound.harmonics.length;
-                    
-                    // Conecta: osc -> filter -> gain -> analyser -> destino
-                    osc.connect(filter);
-                    filter.connect(gain);
-                    gain.connect(this.analyser);
-                    this.analyser.connect(this.audioContext.destination);
-                    
-                    osc.start(now);
-                    lfo.start(now);
-                    
-                    // Adiciona à lista para poder parar depois
-                    this.oscillators.push(osc, lfo);
-                    this.gainNodes.push(gain, lfoGain);
-                });
+                // Limpa
+                ctx.fillStyle = '#1a1a2e';
+                ctx.fillRect(0, 0, w, h);
                 
-                // Adiciona ruído baseado na decadência (mais ruído = mais podre)
-                if (decayFactor > 0.3) {
-                    const bufferSize = this.audioContext.sampleRate * 2;
-                    const buffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
-                    const data = buffer.getChannelData(0);
-                    
-                    for (let i = 0; i < bufferSize; i++) {
-                        data[i] = (Math.random() * 2 - 1) * decayFactor * 0.3;
-                    }
-                    
-                    const noise = this.audioContext.createBufferSource();
-                    noise.buffer = buffer;
-                    noise.loop = true;
-                    
-                    const noiseGain = this.audioContext.createGain();
-                    noiseGain.gain.value = decayFactor * 0.1;
-                    
-                    noise.connect(noiseGain);
-                    noiseGain.connect(this.analyser);
-                    
-                    noise.start(now);
-                    this.oscillators.push(noise);
-                    this.gainNodes.push(noiseGain);
+                // Background baseado no bioma/profissão
+                const gradient = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, w/2);
+                gradient.addColorStop(0, skin.color + '40');
+                gradient.addColorStop(1, 'transparent');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, w, h);
+                
+                // Sombra
+                ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                ctx.beginPath();
+                ctx.ellipse(w/2, h-20, 40, 10, 0, 0, Math.PI*2);
+                ctx.fill();
+                
+                // Corpo
+                ctx.save();
+                ctx.translate(w/2, h/2 + 20);
+                ctx.scale(skin.size, skin.size);
+                ctx.rotate(skin.hunch);
+                
+                ctx.fillStyle = skin.color;
+                ctx.font = '60px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(skin.body, 0, 0);
+                
+                // Cabeça
+                ctx.font = '40px Arial';
+                ctx.fillText(skin.head, 0, -35);
+                
+                // Acessório
+                if (skin.accessory) {
+                    ctx.font = '25px Arial';
+                    ctx.fillStyle = '#ffd700';
+                    ctx.fillText(skin.accessory, 25, -45);
                 }
                 
-                this.currentBiome = biomeType;
-                this.updateVisualizer();
-            }
-
-            stopAll() {
-                this.oscillators.forEach(osc => {
-                    try { osc.stop(); } catch(e) {}
-                });
-                this.oscillators = [];
-                this.gainNodes = [];
-            }
-
-            toggle() {
-                if (!this.initialized) this.init();
-                
-                this.isPlaying = !this.isPlaying;
-                if (this.isPlaying) {
-                    this.audioContext.resume();
-                    if (game) this.generateBiomeSound(game.currentBiomeType || 'heart', 0);
-                } else {
-                    this.stopAll();
+                // Efeito de trauma (brilho)
+                if (skin.glow) {
+                    ctx.shadowColor = '#9400d3';
+                    ctx.shadowBlur = 20;
+                    ctx.strokeStyle = '#9400d3';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(0, -35, 25, 0, Math.PI*2);
+                    ctx.stroke();
+                    ctx.shadowBlur = 0;
                 }
-            }
-
-            updateVisualizer() {
-                if (!this.isPlaying) return;
                 
-                const dataArray = new Uint8Array(this.analyser.frequencyBinCount);
-                this.analyser.getByteFrequencyData(dataArray);
+                ctx.restore();
                 
-                const bars = document.querySelectorAll('.audio-bar');
-                bars.forEach((bar, index) => {
-                    const value = dataArray[index] || 0;
-                    const height = Math.max(10, (value / 255) * 100);
-                    bar.style.height = height + '%';
-                });
+                // Borda decorativa baseada na profissão
+                ctx.strokeStyle = skin.color;
+                ctx.lineWidth = 3;
+                ctx.strokeRect(0, 0, w, h);
                 
-                requestAnimationFrame(() => this.updateVisualizer());
-            }
-
-            updateBiome(biomeType, decayLevel) {
-                if (this.currentBiome !== biomeType && this.isPlaying) {
-                    this.generateBiomeSound(biomeType, decayLevel);
-                    document.getElementById('current-biome-sound').textContent = `Bioma: ${biomeType.charAt(0).toUpperCase() + biomeType.slice(1)}`;
+                // Detalhes de roupa baseados na profissão
+                if (dna.profession.includes('Necromante')) {
+                    ctx.fillStyle = '#4a0080';
+                    ctx.fillRect(10, 10, 5, h-20);
+                } else if (dna.profession.includes('Ferreira')) {
+                    ctx.fillStyle = '#8b4513';
+                    ctx.fillRect(w-15, 10, 5, h-20);
                 }
             }
         }
 
-        const audioManager = new ProceduralAudio();
+        const skinSystem = new NPCSkinSystem();
 
-        // SISTEMA DE DNA PROCEDURAL PARA NPCs
+        // [Resto do código do jogo permanece similar, com adições para suportar os novos sistemas]
+        
+        // Classe DNA atualizada para incluir skin
         class DNA {
             constructor(seed = Math.random()) {
                 this.seed = seed;
                 this.rng = new RNG(seed);
                 this.generate();
+                this.skin = skinSystem.generateSkin(this);
             }
 
             generate() {
@@ -1134,6 +1573,53 @@
                 this.connections = [];
                 this.hazards = this.generateHazards();
                 this.resources = this.generateResources();
+                this.visuals = this.getVisualTheme();
+            }
+
+            getVisualTheme() {
+                const themes = {
+                    heart: {
+                        color: '#8b0000',
+                        secondary: '#ff4444',
+                        particles: 'ember',
+                        ground: 'magma',
+                        structures: ['artery', 'ventricle', 'valve'],
+                        description: 'O coração de Atherion ainda pulsa com magma divino. O calor é insuportável, mas a energia aqui é pura.'
+                    },
+                    lung: {
+                        color: '#2d5016',
+                        secondary: '#39ff14',
+                        particles: 'spore',
+                        ground: 'swamp',
+                        structures: ['bronchiole', 'alveoli', 'cilia'],
+                        description: 'Ácido venenoso preenche estes pulmões podres. Cada respiração corrói, mas os fungos prosperam.'
+                    },
+                    brain: {
+                        color: '#1a237e',
+                        secondary: '#4a90e2',
+                        particles: 'neuron',
+                        ground: 'crystal',
+                        structures: ['synapse', 'cortex', 'gyrus'],
+                        description: 'Cristais de pensamento crescem como árvores. Aqui, a realidade é fluida e memórias ganham vida.'
+                    },
+                    liver: {
+                        color: '#4a2c00',
+                        secondary: '#d4a574',
+                        particles: 'toxin',
+                        ground: 'filth',
+                        structures: ['lobule', 'duct', 'filter'],
+                        description: 'O filtro tóxico do deus. Tudo que era impuro se acumula aqui, criando tesouros e horrores.'
+                    },
+                    stomach: {
+                        color: '#3d3d00',
+                        secondary: '#ffff99',
+                        particles: 'acid',
+                        ground: 'digestive',
+                        structures: ['fold', 'gland', 'chamber'],
+                        description: 'Digestão eterna. Nada escapa do ácido divino, mas nutrientes concentrados alimentam os desesperados.'
+                    }
+                };
+                return themes[this.type] || themes.heart;
             }
 
             generateHazards() {
@@ -1165,32 +1651,23 @@
 
             getVisualData() {
                 return {
-                    color: this.getBiomeColor(),
+                    color: this.visuals.color,
+                    secondary: this.visuals.secondary,
                     particles: this.generateParticles(),
                     silhouette: this.generateBiomeSilhouette()
                 };
             }
 
-            getBiomeColor() {
-                const colors = {
-                    heart: `hsl(0, ${70 - this.decayLevel}%, ${30 + this.decayLevel/3}%)`,
-                    lung: `hsl(120, ${60 - this.decayLevel/2}%, ${25 + this.decayLevel/4}%)`,
-                    brain: `hsl(220, ${80 - this.decayLevel}%, ${40 + this.decayLevel/5}%)`,
-                    liver: `hsl(30, ${90 - this.decayLevel}%, ${20 + this.decayLevel/3}%)`,
-                    stomach: `hsl(60, ${50 - this.decayLevel/2}%, ${15 + this.decayLevel/2}%)`
-                };
-                return colors[this.type] || '#333';
-            }
-
             generateParticles() {
-                const count = Math.floor(this.decayLevel / 10);
+                const count = Math.floor(this.decayLevel / 10) + 20;
                 return Array(count).fill(null).map(() => ({
                     x: this.x + Math.random() * this.width,
                     y: this.y + Math.random() * this.height,
                     vx: (Math.random() - 0.5) * 0.5,
                     vy: (Math.random() - 0.5) * 0.5,
                     life: Math.random() * 100,
-                    type: this.type === 'lung' ? 'spore' : 'dust'
+                    type: this.visuals.particles,
+                    size: Math.random() * 3 + 1
                 }));
             }
 
@@ -1200,7 +1677,10 @@
                 for (let i = 0; i < segments; i++) {
                     const angle = (i / segments) * Math.PI * 2;
                     const radius = 100 + Math.sin(angle * 3) * 30 + Math.random() * 20;
-                    points.push({ x: Math.cos(angle) * radius, y: Math.sin(angle) * radius });
+                    points.push({
+                        x: Math.cos(angle) * radius,
+                        y: Math.sin(angle) * radius
+                    });
                 }
                 return points;
             }
@@ -1230,7 +1710,9 @@
                     corruption: 5,
                     path: 'Eco Errante',
                     pathProgress: 0,
-                    mapAnnotations: []
+                    mapAnnotations: [],
+                    inventory: [],
+                    abilitiesUnlocked: true
                 };
 
                 this.npcs = [];
@@ -1241,6 +1723,8 @@
                 this.startTime = Date.now();
                 this.lastTime = Date.now();
                 this.currentBiomeType = 'heart';
+                this.isPaused = false;
+                this.revealAll = false;
 
                 this.keys = {};
                 this.mouse = { x: 0, y: 0, clicked: false };
@@ -1252,12 +1736,8 @@
                 this.generateWorld();
                 this.setupEventListeners();
                 
-                setTimeout(() => {
-                    document.getElementById('loading-screen').classList.add('hidden');
-                    document.getElementById('audio-controls').style.display = 'flex';
-                    this.showNotification('Bem-vindo ao Cadáver', 'Você acordou nas entranhas de um deus morto. Encontre um corpo antes que seu eco se dissipe.');
-                    this.startGameLoop();
-                }, 3500);
+                // Inicia cutscene primeiro
+                startCutscene();
             }
 
             generateWorld() {
@@ -1284,7 +1764,9 @@
                         vx: (Math.random() - 0.5) * 0.5,
                         vy: (Math.random() - 0.5) * 0.5,
                         state: 'idle',
-                        target: null
+                        target: null,
+                        stunned: false,
+                        skin: dna.skin
                     };
                     this.npcs.push(npc);
                     biome.entities.push(dna);
@@ -1301,6 +1783,9 @@
                 for (let i = 0; i < 10; i++) {
                     this.spawnCorpse();
                 }
+
+                // Inicializa UI de habilidades
+                abilitySystem.updateUI();
             }
 
             spawnCorpse() {
@@ -1366,7 +1851,24 @@
                     this.interact();
                 } else if (key === 'm') {
                     this.toggleMap();
+                } else if (key === 'l') {
+                    this.toggleLegend();
+                } else if (key === '1') {
+                    abilitySystem.useAbility(0);
+                } else if (key === '2') {
+                    abilitySystem.useAbility(1);
+                } else if (key === '3') {
+                    abilitySystem.useAbility(2);
+                } else if (key === '4') {
+                    abilitySystem.useAbility(3);
+                } else if (key === 'escape') {
+                    skipCutscene();
                 }
+            }
+
+            toggleLegend() {
+                const legend = document.getElementById('biome-legend');
+                legend.classList.toggle('active');
             }
 
             toggleEchoMode() {
@@ -1457,7 +1959,7 @@
             interact() {
                 const nearby = this.npcs.filter(n => {
                     const dist = Math.hypot(n.x - this.player.x, n.y - this.player.y);
-                    return dist < 100;
+                    return dist < 100 && !n.stunned;
                 });
 
                 if (nearby.length > 0) {
@@ -1468,6 +1970,10 @@
             startDialogue(npc) {
                 const interaction = npc.dna.interact(this.player, 'first_meeting');
                 const box = document.getElementById('dialogue-box');
+                
+                // Desenha portrait
+                const portraitCanvas = document.getElementById('portrait-canvas');
+                skinSystem.drawPortrait(portraitCanvas, npc.skin, npc.dna);
                 
                 document.getElementById('npc-name').textContent = npc.dna.name;
                 document.getElementById('npc-mood').style.background = 
@@ -1566,6 +2072,8 @@
             }
 
             update(deltaTime) {
+                if (this.isPaused) return;
+
                 this.biomes.forEach(biome => {
                     const status = biome.update(deltaTime, this.globalDecay);
                     if (status === 'collapsed') {
@@ -1574,10 +2082,13 @@
                 });
 
                 this.npcs.forEach(npc => {
+                    if (npc.stunned) return;
+                    
                     if (Math.random() < 0.02) {
                         npc.vx = (Math.random() - 0.5) * 0.5;
                         npc.vy = (Math.random() - 0.5) * 0.5;
                     }
+                    
                     npc.x += npc.vx * deltaTime * 0.1;
                     npc.y += npc.vy * deltaTime * 0.1;
 
@@ -1607,17 +2118,13 @@
                 this.camera.x += (this.player.x - this.camera.x) * 0.1;
                 this.camera.y += (this.player.y - this.camera.y) * 0.1;
 
-                // Atualiza bioma atual para áudio
                 const currentBiome = this.getCurrentBiome();
                 if (currentBiome) {
                     this.currentBiomeType = currentBiome.type;
-                    audioManager.updateBiome(currentBiome.type, currentBiome.decayLevel);
-                    
-                    // Atualiza UI de bioma
                     document.getElementById('biome-indicator').innerHTML = `
                         ◈ Bioma: ${currentBiome.name}<br>
-                        ◈ Decadência: ${Math.floor(currentBiome.decayLevel)}%<br>
-                        ◈ Tipo: ${currentBiome.type}
+                        ◈ ${currentBiome.visuals.description.substring(0, 50)}...<br>
+                        ◈ Decadência: ${Math.floor(currentBiome.decayLevel)}%
                     `;
                 }
 
@@ -1632,9 +2139,10 @@
             }
 
             render() {
-                this.ctx.fillStyle = '#0a0a0f';
+                this.ctx.fillStyle = '#050508';
                 this.ctx.fillRect(0, 0, this.width, this.height);
 
+                // Renderiza biomas com visuais distintos
                 this.biomes.forEach((biome, index) => {
                     const parallax = 0.5 + index * 0.1;
                     const bx = (biome.x - this.camera.x) * parallax + this.width / 2;
@@ -1642,30 +2150,65 @@
                     
                     this.ctx.save();
                     this.ctx.translate(bx, by);
-                    this.ctx.fillStyle = biome.getBiomeColor();
+                    
+                    // Fundo do bioma
+                    const gradient = this.ctx.createRadialGradient(0, 0, 0, 0, 0, 400);
+                    gradient.addColorStop(0, biome.visuals.color + '60');
+                    gradient.addColorStop(0.5, biome.visuals.color + '30');
+                    gradient.addColorStop(1, 'transparent');
+                    this.ctx.fillStyle = gradient;
+                    this.ctx.beginPath();
+                    this.ctx.arc(0, 0, 400, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    
+                    // Estruturas do bioma
+                    this.ctx.strokeStyle = biome.visuals.secondary;
+                    this.ctx.lineWidth = 2;
                     this.ctx.globalAlpha = 0.3;
                     
-                    const silhouette = biome.generateBiomeSilhouette();
-                    this.ctx.beginPath();
-                    silhouette.forEach((point, i) => {
-                        if (i === 0) this.ctx.moveTo(point.x, point.y);
-                        else this.ctx.lineTo(point.x, point.y);
+                    biome.visuals.structures.forEach((structure, i) => {
+                        const angle = (i / biome.visuals.structures.length) * Math.PI * 2;
+                        const x = Math.cos(angle) * 150;
+                        const y = Math.sin(angle) * 150;
+                        
+                        this.ctx.beginPath();
+                        if (structure === 'artery' || structure === 'bronchiole') {
+                            this.ctx.moveTo(0, 0);
+                            this.ctx.lineTo(x, y);
+                            this.ctx.stroke();
+                            
+                            // Nódulos
+                            this.ctx.fillStyle = biome.visuals.secondary;
+                            this.ctx.beginPath();
+                            this.ctx.arc(x, y, 10, 0, Math.PI * 2);
+                            this.ctx.fill();
+                        } else if (structure === 'crystal' || structure === 'synapse') {
+                            this.ctx.moveTo(x - 20, y);
+                            this.ctx.lineTo(x, y - 30);
+                            this.ctx.lineTo(x + 20, y);
+                            this.ctx.lineTo(x, y + 30);
+                            this.ctx.closePath();
+                            this.ctx.stroke();
+                        }
                     });
-                    this.ctx.closePath();
-                    this.ctx.fill();
+                    
                     this.ctx.restore();
 
+                    // Partículas
                     const particles = biome.generateParticles();
                     particles.forEach(p => {
-                        this.ctx.fillStyle = biome.type === 'lung' ? 'rgba(57, 255, 20, 0.5)' : 'rgba(139, 38, 53, 0.3)';
-                        this.ctx.fillRect(
-                            (p.x - this.camera.x) * parallax + this.width / 2,
-                            (p.y - this.camera.y) * parallax + this.height / 2,
-                            2, 2
-                        );
+                        const px = (p.x - this.camera.x) * parallax + this.width / 2;
+                        const py = (p.y - this.camera.y) * parallax + this.height / 2;
+                        
+                        this.ctx.fillStyle = biome.visuals.secondary;
+                        this.ctx.globalAlpha = 0.6;
+                        this.ctx.beginPath();
+                        this.ctx.arc(px, py, p.size, 0, Math.PI * 2);
+                        this.ctx.fill();
                     });
                 });
 
+                // Renderiza cadáveres
                 this.corpses.forEach(corpse => {
                     const cx = (corpse.x - this.camera.x) + this.width / 2;
                     const cy = (corpse.y - this.camera.y) + this.height / 2;
@@ -1680,32 +2223,66 @@
                     this.ctx.fillRect(cx - 15, cy + 20, 30 * (1 - corpse.decay / 100), 3);
                 });
 
+                // Renderiza NPCs com skins detalhadas
                 this.npcs.forEach(npc => {
                     if (!npc.dna.isAlive) return;
                     
                     const nx = (npc.x - this.camera.x) + this.width / 2;
                     const ny = (npc.y - this.camera.y) + this.height / 2;
                     
-                    this.ctx.save();
-                    this.ctx.translate(nx, ny);
-                    
-                    const sil = npc.dna.silhouette;
-                    this.ctx.scale(sil.width, sil.height);
-                    this.ctx.rotate(sil.hunch);
-                    
-                    this.ctx.fillStyle = `rgba(232, 220, 196, ${0.5 + sil.corruption})`;
+                    // Sombra
+                    this.ctx.fillStyle = 'rgba(0,0,0,0.3)';
                     this.ctx.beginPath();
-                    this.ctx.arc(0, 0, 20, 0, Math.PI * 2);
+                    this.ctx.ellipse(nx, ny + 25, 20, 8, 0, 0, Math.PI * 2);
                     this.ctx.fill();
                     
-                    this.ctx.fillStyle = '#ffd700';
-                    this.ctx.font = '12px Arial';
+                    // Corpo com skin
+                    this.ctx.save();
+                    this.ctx.translate(nx, ny);
+                    this.ctx.scale(npc.skin.size, npc.skin.size);
+                    this.ctx.rotate(npc.skin.hunch);
+                    
+                    // Glow se traumatizado
+                    if (npc.skin.glow) {
+                        this.ctx.shadowColor = '#9400d3';
+                        this.ctx.shadowBlur = 15;
+                    }
+                    
+                    // Corpo
+                    this.ctx.fillStyle = npc.skin.color;
+                    this.ctx.font = '40px Arial';
                     this.ctx.textAlign = 'center';
-                    this.ctx.fillText(npc.dna.profession.split(' ')[0], 0, -30);
+                    this.ctx.textBaseline = 'middle';
+                    this.ctx.fillText(npc.skin.body, 0, 10);
+                    
+                    // Cabeça
+                    this.ctx.font = '28px Arial';
+                    this.ctx.fillText(npc.skin.head, 0, -20);
+                    
+                    // Acessório
+                    if (npc.skin.accessory) {
+                        this.ctx.font = '20px Arial';
+                        this.ctx.fillStyle = '#ffd700';
+                        this.ctx.fillText(npc.skin.accessory, 18, -25);
+                    }
                     
                     this.ctx.restore();
+                    
+                    // Indicador de profissão
+                    this.ctx.fillStyle = '#ffd700';
+                    this.ctx.font = '10px Arial';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.fillText(npc.dna.profession.split(' ')[0], nx, ny - 40);
+                    
+                    // Indicador de atordoado
+                    if (npc.stunned) {
+                        this.ctx.fillStyle = '#ffff00';
+                        this.ctx.font = '20px Arial';
+                        this.ctx.fillText('💫', nx, ny - 60);
+                    }
                 });
 
+                // Renderiza jogador
                 const px = this.width / 2;
                 const py = this.height / 2;
                 
@@ -1750,7 +2327,7 @@
                 const mapCanvas = document.getElementById('mapCanvas');
                 const ctx = mapCanvas.getContext('2d');
                 
-                ctx.fillStyle = '#0a0a0f';
+                ctx.fillStyle = '#050508';
                 ctx.fillRect(0, 0, 300, 200);
                 
                 const scale = 0.05;
@@ -1758,9 +2335,19 @@
                 const offsetY = 100;
                 
                 this.biomes.forEach(biome => {
-                    ctx.fillStyle = biome.getBiomeColor();
-                    ctx.globalAlpha = 0.5;
+                    ctx.fillStyle = biome.visuals.color;
+                    ctx.globalAlpha = 0.6;
                     ctx.fillRect(
+                        offsetX + biome.x * scale,
+                        offsetY + biome.y * scale,
+                        biome.width * scale,
+                        biome.height * scale
+                    );
+                    
+                    // Borda colorida
+                    ctx.strokeStyle = biome.visuals.secondary;
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(
                         offsetX + biome.x * scale,
                         offsetY + biome.y * scale,
                         biome.width * scale,
@@ -1774,9 +2361,34 @@
                 ctx.arc(
                     offsetX + this.player.x * scale,
                     offsetY + this.player.y * scale,
-                    3, 0, Math.PI * 2
+                    4, 0, Math.PI * 2
                 );
                 ctx.fill();
+                
+                // Revela tudo se Visão Divina ativa
+                if (this.revealAll) {
+                    ctx.fillStyle = '#ffff00';
+                    this.npcs.forEach(npc => {
+                        ctx.beginPath();
+                        ctx.arc(
+                            offsetX + npc.x * scale,
+                            offsetY + npc.y * scale,
+                            2, 0, Math.PI * 2
+                        );
+                        ctx.fill();
+                    });
+                    
+                    ctx.fillStyle = '#ff0000';
+                    this.corpses.forEach(corpse => {
+                        ctx.beginPath();
+                        ctx.arc(
+                            offsetX + corpse.x * scale,
+                            offsetY + corpse.y * scale,
+                            2, 0, Math.PI * 2
+                        );
+                        ctx.fill();
+                    });
+                }
                 
                 ctx.fillStyle = '#ffd700';
                 this.player.mapAnnotations.forEach(note => {
