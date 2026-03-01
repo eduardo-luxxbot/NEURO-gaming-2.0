@@ -560,6 +560,50 @@
             color: var(--bone);
             opacity: 0.8;
         }
+
+        #audio-controls {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(10, 10, 15, 0.9);
+            border: 1px solid var(--neural);
+            padding: 10px 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            z-index: 300;
+        }
+
+        .audio-btn {
+            background: transparent;
+            border: 1px solid var(--neural);
+            color: var(--neural);
+            padding: 5px 15px;
+            cursor: pointer;
+            font-size: 10px;
+            transition: all 0.3s;
+        }
+
+        .audio-btn:hover {
+            background: var(--neural);
+            color: var(--void);
+        }
+
+        .audio-visualizer {
+            width: 100px;
+            height: 20px;
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+        }
+
+        .audio-bar {
+            flex: 1;
+            background: var(--neural);
+            transition: height 0.1s;
+            opacity: 0.5;
+        }
     </style>
 </head>
 <body>
@@ -571,6 +615,19 @@
         <div style="margin-top: 20px; font-size: 12px; color: var(--flesh-light);">
             Gerando DNA de 200+ NPCs... Criando biomas orgânicos...
         </div>
+    </div>
+
+    <div id="audio-controls" style="display: none;">
+        <span style="font-size: 10px; color: var(--neural);">♫ SOM PROCEDURAL</span>
+        <button class="audio-btn" onclick="audioManager.toggle()">ATIVAR/DESATIVAR</button>
+        <div class="audio-visualizer" id="visualizer">
+            <div class="audio-bar" style="height: 10%"></div>
+            <div class="audio-bar" style="height: 30%"></div>
+            <div class="audio-bar" style="height: 50%"></div>
+            <div class="audio-bar" style="height: 70%"></div>
+            <div class="audio-bar" style="height: 40%"></div>
+        </div>
+        <span id="current-biome-sound" style="font-size: 9px; color: var(--bone);">Bioma: Coração</span>
     </div>
 
     <canvas id="gameCanvas"></canvas>
@@ -660,6 +717,201 @@
     </div>
 
     <script>
+        // SISTEMA DE ÁUDIO PROCEDURAL
+        class ProceduralAudio {
+            constructor() {
+                this.audioContext = null;
+                this.isPlaying = false;
+                this.currentBiome = 'heart';
+                this.oscillators = [];
+                this.gainNodes = [];
+                this.analyser = null;
+                this.initialized = false;
+            }
+
+            init() {
+                if (this.initialized) return;
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                this.analyser = this.audioContext.createAnalyser();
+                this.analyser.fftSize = 32;
+                this.initialized = true;
+            }
+
+            // Gera som baseado no bioma e nível de decadência
+            generateBiomeSound(biomeType, decayLevel) {
+                if (!this.initialized || !this.isPlaying) return;
+                
+                // Para sons anteriores
+                this.stopAll();
+                
+                const now = this.audioContext.currentTime;
+                const decayFactor = decayLevel / 100; // 0 a 1
+                
+                // Configurações de som por bioma
+                const biomeSounds = {
+                    heart: {
+                        baseFreq: 60, // Batimento cardíaco lento
+                        harmonics: [1, 1.5, 2],
+                        waveform: 'sawtooth',
+                        rhythm: 1.2, // BPM lento
+                        filter: 200,
+                        resonance: 5
+                    },
+                    lung: {
+                        baseFreq: 80,
+                        harmonics: [1, 2.3, 3.7],
+                        waveform: 'sine',
+                        rhythm: 0.8, // Respiração
+                        filter: 400,
+                        resonance: 3
+                    },
+                    brain: {
+                        baseFreq: 200,
+                        harmonics: [1, 1.25, 1.5, 2],
+                        waveform: 'square',
+                        rhythm: 0.3, // Rápido, neural
+                        filter: 800,
+                        resonance: 8
+                    },
+                    liver: {
+                        baseFreq: 40,
+                        harmonics: [1, 3, 5],
+                        waveform: 'triangle',
+                        rhythm: 2.0, // Lento, pesado
+                        filter: 150,
+                        resonance: 2
+                    },
+                    stomach: {
+                        baseFreq: 30,
+                        harmonics: [1, 1.8, 2.5],
+                        waveform: 'sawtooth',
+                        rhythm: 1.5,
+                        filter: 100,
+                        resonance: 4
+                    }
+                };
+                
+                const sound = biomeSounds[biomeType] || biomeSounds.heart;
+                
+                // Cria osciladores para cada harmônico
+                sound.harmonics.forEach((harmonic, index) => {
+                    const osc = this.audioContext.createOscillator();
+                    const gain = this.audioContext.createGain();
+                    const filter = this.audioContext.createBiquadFilter();
+                    
+                    osc.type = sound.waveform;
+                    // Frequência modulada pela decadência (mais caótico quando apodrece)
+                    const freqVariation = (Math.random() - 0.5) * decayFactor * 50;
+                    osc.frequency.value = sound.baseFreq * harmonic + freqVariation;
+                    
+                    // Filtro que muda com a decadência
+                    filter.type = 'lowpass';
+                    filter.frequency.value = sound.filter * (1 - decayFactor * 0.5);
+                    filter.Q.value = sound.resonance * (1 + decayFactor);
+                    
+                    // Ganho modulado por LFO para criar ritmo
+                    const lfo = this.audioContext.createOscillator();
+                    lfo.type = 'sine';
+                    lfo.frequency.value = sound.rhythm;
+                    
+                    const lfoGain = this.audioContext.createGain();
+                    lfoGain.gain.value = 0.3 + (decayFactor * 0.4); // Mais instável quando apodrece
+                    
+                    lfo.connect(lfoGain);
+                    lfoGain.connect(gain.gain);
+                    
+                    // Volume base
+                    gain.gain.value = 0.1 / sound.harmonics.length;
+                    
+                    // Conecta: osc -> filter -> gain -> analyser -> destino
+                    osc.connect(filter);
+                    filter.connect(gain);
+                    gain.connect(this.analyser);
+                    this.analyser.connect(this.audioContext.destination);
+                    
+                    osc.start(now);
+                    lfo.start(now);
+                    
+                    // Adiciona à lista para poder parar depois
+                    this.oscillators.push(osc, lfo);
+                    this.gainNodes.push(gain, lfoGain);
+                });
+                
+                // Adiciona ruído baseado na decadência (mais ruído = mais podre)
+                if (decayFactor > 0.3) {
+                    const bufferSize = this.audioContext.sampleRate * 2;
+                    const buffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
+                    const data = buffer.getChannelData(0);
+                    
+                    for (let i = 0; i < bufferSize; i++) {
+                        data[i] = (Math.random() * 2 - 1) * decayFactor * 0.3;
+                    }
+                    
+                    const noise = this.audioContext.createBufferSource();
+                    noise.buffer = buffer;
+                    noise.loop = true;
+                    
+                    const noiseGain = this.audioContext.createGain();
+                    noiseGain.gain.value = decayFactor * 0.1;
+                    
+                    noise.connect(noiseGain);
+                    noiseGain.connect(this.analyser);
+                    
+                    noise.start(now);
+                    this.oscillators.push(noise);
+                    this.gainNodes.push(noiseGain);
+                }
+                
+                this.currentBiome = biomeType;
+                this.updateVisualizer();
+            }
+
+            stopAll() {
+                this.oscillators.forEach(osc => {
+                    try { osc.stop(); } catch(e) {}
+                });
+                this.oscillators = [];
+                this.gainNodes = [];
+            }
+
+            toggle() {
+                if (!this.initialized) this.init();
+                
+                this.isPlaying = !this.isPlaying;
+                if (this.isPlaying) {
+                    this.audioContext.resume();
+                    if (game) this.generateBiomeSound(game.currentBiomeType || 'heart', 0);
+                } else {
+                    this.stopAll();
+                }
+            }
+
+            updateVisualizer() {
+                if (!this.isPlaying) return;
+                
+                const dataArray = new Uint8Array(this.analyser.frequencyBinCount);
+                this.analyser.getByteFrequencyData(dataArray);
+                
+                const bars = document.querySelectorAll('.audio-bar');
+                bars.forEach((bar, index) => {
+                    const value = dataArray[index] || 0;
+                    const height = Math.max(10, (value / 255) * 100);
+                    bar.style.height = height + '%';
+                });
+                
+                requestAnimationFrame(() => this.updateVisualizer());
+            }
+
+            updateBiome(biomeType, decayLevel) {
+                if (this.currentBiome !== biomeType && this.isPlaying) {
+                    this.generateBiomeSound(biomeType, decayLevel);
+                    document.getElementById('current-biome-sound').textContent = `Bioma: ${biomeType.charAt(0).toUpperCase() + biomeType.slice(1)}`;
+                }
+            }
+        }
+
+        const audioManager = new ProceduralAudio();
+
         // SISTEMA DE DNA PROCEDURAL PARA NPCs
         class DNA {
             constructor(seed = Math.random()) {
@@ -669,7 +921,6 @@
             }
 
             generate() {
-                // Traços de personalidade (0-100)
                 this.traits = {
                     paranoia: this.rng.next(0, 100),
                     altruism: this.rng.next(0, 100),
@@ -679,24 +930,13 @@
                     trauma: this.rng.next(0, 100)
                 };
 
-                // Profissão baseada em traços
                 this.profession = this.selectProfession();
-                
-                // Nome procedural
                 this.name = this.generateName();
-                
-                // História de vida
                 this.lifeStory = this.generateLifeStory();
-                
-                // Memórias do jogador (o que este NPC lembra das interações)
                 this.playerMemories = [];
-                
-                // Ciclo de vida
                 this.age = this.rng.next(18, 70);
                 this.maxAge = this.age + this.rng.next(5, 30);
                 this.isAlive = true;
-
-                // Aparência única (silhueta)
                 this.silhouette = this.generateSilhouette();
             }
 
@@ -715,9 +955,7 @@
                 ];
 
                 const valid = professions.filter(p => p.req(this.traits));
-                return valid.length > 0 
-                    ? valid[this.rng.next(0, valid.length - 1)].name 
-                    : professions[0].name;
+                return valid.length > 0 ? valid[this.rng.next(0, valid.length - 1)].name : professions[0].name;
             }
 
             generateName() {
@@ -739,13 +977,10 @@
                     'possuiu um deus menor',
                     'sobreviveu ao colapso do fígado'
                 ];
-                
-                const event = events[this.rng.next(0, events.length - 1)];
-                return `Um ${this.profession.toLowerCase()} que ${event}.`;
+                return `Um ${this.profession.toLowerCase()} que ${events[this.rng.next(0, events.length - 1)]}.`;
             }
 
             generateSilhouette() {
-                // Gera parâmetros únicos para desenhar a silhueta
                 return {
                     height: this.rng.next(0.8, 1.4),
                     width: this.rng.next(0.6, 1.2),
@@ -756,10 +991,7 @@
             }
 
             interact(player, context) {
-                // Lógica de diálogo baseada em memórias e traços
                 let disposition = 50;
-                
-                // Modificadores baseados em memórias
                 this.playerMemories.forEach(mem => {
                     if (mem.type === 'betrayal') disposition -= 40;
                     if (mem.type === 'help') disposition += 30;
@@ -767,13 +999,10 @@
                     if (mem.type === 'possessed_friend') disposition -= 60;
                 });
 
-                // Modificadores de traços
                 if (this.traits.paranoia > 70) disposition -= 20;
                 if (this.traits.altruism > 70) disposition += 15;
 
-                // Verifica se reconhece o jogador em corpo diferente
-                const recognized = this.playerMemories.length > 0 && 
-                    this.playerMemories.some(m => m.playerId === player.id);
+                const recognized = this.playerMemories.some(m => m.playerId === player.id);
 
                 return {
                     disposition: Math.max(0, Math.min(100, disposition)),
@@ -818,7 +1047,6 @@
 
             addMemory(type, playerId, details) {
                 this.playerMemories.push({ type, playerId, details, timestamp: Date.now() });
-                // NPCs esquecem memórias antigas baseado em trauma (mais trauma = mais obsessivo = não esquece)
                 const memoryLimit = 5 + Math.floor(this.traits.trauma / 20);
                 if (this.playerMemories.length > memoryLimit) {
                     this.playerMemories.shift();
@@ -826,7 +1054,7 @@
             }
 
             update(deltaTime) {
-                this.age += deltaTime / 3600; // envelhece em horas reais
+                this.age += deltaTime / 3600;
                 if (this.age >= this.maxAge && this.rng.next(0, 1000) < 1) {
                     this.isAlive = false;
                     return 'died_natural';
@@ -835,7 +1063,6 @@
             }
         }
 
-        // Gerador de números pseudo-aleatórios seedable
         class RNG {
             constructor(seed) {
                 this.seed = seed;
@@ -843,11 +1070,10 @@
             next(min = 0, max = 1) {
                 this.seed = (this.seed * 9301 + 49297) % 233280;
                 const rnd = this.seed / 233280;
-                return min + rnd * (max - min);
+                return Math.floor(min + rnd * (max - min + 1));
             }
         }
 
-        // SISTEMA DE CORPOS/JOGADOR
         class Body {
             constructor(type, dna = null) {
                 this.type = type;
@@ -895,7 +1121,6 @@
             }
         }
 
-        // SISTEMA DE BIOMAS (ÓRGÃOS DO DEUS)
         class Biome {
             constructor(name, type, x, y, width, height) {
                 this.name = name;
@@ -913,17 +1138,17 @@
 
             generateHazards() {
                 const hazards = {
-                    'heart': [{ type: 'lava_vein', damage: 20, x: 100, y: 100 }],
-                    'lung': [{ type: 'acid_pool', damage: 15, x: 200, y: 300 }],
-                    'brain': [{ type: 'neural_blast', damage: 25, x: 150, y: 150 }],
-                    'liver': [{ type: 'toxin_cloud', damage: 10, x: 300, y: 200 }],
-                    'stomach': [{ type: 'acid_wave', damage: 30, x: 400, y: 400 }]
+                    heart: [{ type: 'lava_vein', damage: 20, x: 100, y: 100 }],
+                    lung: [{ type: 'acid_pool', damage: 15, x: 200, y: 300 }],
+                    brain: [{ type: 'neural_blast', damage: 25, x: 150, y: 150 }],
+                    liver: [{ type: 'toxin_cloud', damage: 10, x: 300, y: 200 }],
+                    stomach: [{ type: 'acid_wave', damage: 30, x: 400, y: 400 }]
                 };
                 return hazards[this.type] || [];
             }
 
             generateResources() {
-                return Array(5).fill(null).map((_, i) => ({
+                return Array(5).fill(null).map(() => ({
                     type: ['seed', 'memory_fragment', 'flesh_chunk', 'neural_crystal'][Math.floor(Math.random() * 4)],
                     x: this.x + Math.random() * this.width,
                     y: this.y + Math.random() * this.height,
@@ -933,20 +1158,8 @@
 
             update(deltaTime, globalDecay) {
                 this.decayLevel += globalDecay * deltaTime;
-                
-                // Bioma morre se decair demais
-                if (this.decayLevel > 100) {
-                    return 'collapsed';
-                }
-
-                // Atualiza entidades
-                this.entities = this.entities.filter(e => {
-                    if (e instanceof DNA) {
-                        return e.isAlive;
-                    }
-                    return true;
-                });
-
+                if (this.decayLevel > 100) return 'collapsed';
+                this.entities = this.entities.filter(e => e instanceof DNA ? e.isAlive : true);
                 return 'active';
             }
 
@@ -960,17 +1173,16 @@
 
             getBiomeColor() {
                 const colors = {
-                    'heart': `hsl(0, ${70 - this.decayLevel}%, ${30 + this.decayLevel/3}%)`,
-                    'lung': `hsl(120, ${60 - this.decayLevel/2}%, ${25 + this.decayLevel/4}%)`,
-                    'brain': `hsl(220, ${80 - this.decayLevel}%, ${40 + this.decayLevel/5}%)`,
-                    'liver': `hsl(30, ${90 - this.decayLevel}%, ${20 + this.decayLevel/3}%)`,
-                    'stomach': `hsl(60, ${50 - this.decayLevel/2}%, ${15 + this.decayLevel/2}%)`
+                    heart: `hsl(0, ${70 - this.decayLevel}%, ${30 + this.decayLevel/3}%)`,
+                    lung: `hsl(120, ${60 - this.decayLevel/2}%, ${25 + this.decayLevel/4}%)`,
+                    brain: `hsl(220, ${80 - this.decayLevel}%, ${40 + this.decayLevel/5}%)`,
+                    liver: `hsl(30, ${90 - this.decayLevel}%, ${20 + this.decayLevel/3}%)`,
+                    stomach: `hsl(60, ${50 - this.decayLevel/2}%, ${15 + this.decayLevel/2}%)`
                 };
                 return colors[this.type] || '#333';
             }
 
             generateParticles() {
-                // Partículas baseadas no estado de decomposição
                 const count = Math.floor(this.decayLevel / 10);
                 return Array(count).fill(null).map(() => ({
                     x: this.x + Math.random() * this.width,
@@ -983,22 +1195,17 @@
             }
 
             generateBiomeSilhouette() {
-                // Gera formas orgânicas únicas para cada bioma
                 const points = [];
                 const segments = 20;
                 for (let i = 0; i < segments; i++) {
                     const angle = (i / segments) * Math.PI * 2;
                     const radius = 100 + Math.sin(angle * 3) * 30 + Math.random() * 20;
-                    points.push({
-                        x: Math.cos(angle) * radius,
-                        y: Math.sin(angle) * radius
-                    });
+                    points.push({ x: Math.cos(angle) * radius, y: Math.sin(angle) * radius });
                 }
                 return points;
             }
         }
 
-        // MOTOR DO JOGO PRINCIPAL
         class Game {
             constructor() {
                 this.canvas = document.getElementById('gameCanvas');
@@ -1030,9 +1237,10 @@
                 this.biomes = [];
                 this.corpses = [];
                 this.particles = [];
-                this.globalDecay = 0.001; // 72 horas para decomposição total
+                this.globalDecay = 0.001;
                 this.startTime = Date.now();
                 this.lastTime = Date.now();
+                this.currentBiomeType = 'heart';
 
                 this.keys = {};
                 this.mouse = { x: 0, y: 0, clicked: false };
@@ -1043,17 +1251,16 @@
             async init() {
                 this.generateWorld();
                 this.setupEventListeners();
-                this.startGameLoop();
                 
-                // Remove tela de loading
                 setTimeout(() => {
                     document.getElementById('loading-screen').classList.add('hidden');
+                    document.getElementById('audio-controls').style.display = 'flex';
                     this.showNotification('Bem-vindo ao Cadáver', 'Você acordou nas entranhas de um deus morto. Encontre um corpo antes que seu eco se dissipe.');
+                    this.startGameLoop();
                 }, 3500);
             }
 
             generateWorld() {
-                // Gera biomas (órgãos do deus)
                 const organLayout = [
                     { name: 'Coração Ardente', type: 'heart', x: 0, y: 0, w: 800, h: 600 },
                     { name: 'Pulmão do Pântano', type: 'lung', x: -1000, y: -500, w: 900, h: 700 },
@@ -1066,7 +1273,6 @@
                     this.biomes.push(new Biome(organ.name, organ.type, organ.x, organ.y, organ.w, organ.h));
                 });
 
-                // Gera 200+ NPCs com DNA único
                 for (let i = 0; i < 200; i++) {
                     const biome = this.biomes[Math.floor(Math.random() * this.biomes.length)];
                     const dna = new DNA(Math.random());
@@ -1084,7 +1290,6 @@
                     biome.entities.push(dna);
                 }
 
-                // Corpo inicial do jogador (cadáver aleatório)
                 const startBiome = this.biomes[0];
                 this.player.x = startBiome.x + startBiome.width / 2;
                 this.player.y = startBiome.y + startBiome.height / 2;
@@ -1093,7 +1298,6 @@
                 this.player.currentBody = initialBody;
                 this.player.bodies.push(initialBody);
 
-                // Gera alguns cadáveres iniciais
                 for (let i = 0; i < 10; i++) {
                     this.spawnCorpse();
                 }
@@ -1141,7 +1345,6 @@
                     this.canvas.height = this.height;
                 });
 
-                // Mapa de memória
                 const mapCanvas = document.getElementById('mapCanvas');
                 mapCanvas.width = 300;
                 mapCanvas.height = 200;
@@ -1185,7 +1388,6 @@
                 const corpseList = document.getElementById('corpse-list');
                 corpseList.innerHTML = '';
                 
-                // Mostra cadáveres próximos
                 const nearby = this.corpses.filter(c => {
                     const dist = Math.hypot(c.x - this.player.x, c.y - this.player.y);
                     return dist < 300 && c.decay < 80;
@@ -1213,33 +1415,18 @@
             }
 
             getBodyEmoji(type) {
-                const emojis = {
-                    human: '👤',
-                    wolf: '🐺',
-                    fungus: '🍄',
-                    fish: '🐟',
-                    bird: '🦅',
-                    golem_flesh: '🧟'
-                };
+                const emojis = { human: '👤', wolf: '🐺', fungus: '🍄', fish: '🐟', bird: '🦅', golem_flesh: '🧟' };
                 return emojis[type] || '👤';
             }
 
             possess(corpse) {
-                // Custa sanidade máxima permanente
                 this.player.maxSanity -= 5;
                 this.player.sanity = Math.min(this.player.sanity, this.player.maxSanity);
-                
-                // Adiciona corpo ao inventário
                 this.player.bodies.push(corpse.body);
                 this.player.currentBody = corpse.body;
-                
-                // Remove cadáver do mundo
                 this.corpses = this.corpses.filter(c => c !== corpse);
-                
-                // Atualiza progresso de caminho
                 this.player.pathProgress++;
                 this.updatePath();
-                
                 this.toggleEchoMode();
                 this.showNotification('Possessão Completa', `Você agora habita um ${corpse.type}. Sanidade máxima reduzida para ${this.player.maxSanity}.`);
                 this.updateUI();
@@ -1251,7 +1438,6 @@
                 else if (progress > 50) this.player.path = 'Colecionador de Vessels';
                 else if (progress > 20) this.player.path = 'Eco Faminto';
                 
-                // Verifica caminhos especiais
                 const fungusTime = this.player.bodies.filter(b => b.type === 'fungus').length;
                 if (fungusTime > 10) this.player.path = 'Sinfonia Fúngica';
                 
@@ -1261,17 +1447,14 @@
 
             cycleBody() {
                 if (this.player.bodies.length < 2) return;
-                
                 const currentIndex = this.player.bodies.indexOf(this.player.currentBody);
                 const nextIndex = (currentIndex + 1) % this.player.bodies.length;
                 this.player.currentBody = this.player.bodies[nextIndex];
-                
                 this.showNotification('Troca de Corpo', `Agora controlando: ${this.player.currentBody.type}`);
                 this.updateUI();
             }
 
             interact() {
-                // Verifica NPCs próximos
                 const nearby = this.npcs.filter(n => {
                     const dist = Math.hypot(n.x - this.player.x, n.y - this.player.y);
                     return dist < 100;
@@ -1288,10 +1471,8 @@
                 
                 document.getElementById('npc-name').textContent = npc.dna.name;
                 document.getElementById('npc-mood').style.background = 
-                    interaction.disposition > 70 ? '#22c55e' : 
-                    interaction.disposition > 40 ? '#eab308' : '#ef4444';
+                    interaction.disposition > 70 ? '#22c55e' : interaction.disposition > 40 ? '#eab308' : '#ef4444';
                 
-                // Mostra traços
                 const traitsDiv = document.getElementById('npc-traits');
                 traitsDiv.innerHTML = '';
                 Object.entries(npc.dna.traits).forEach(([trait, value]) => {
@@ -1336,7 +1517,6 @@
             }
 
             updateUI() {
-                // Barra de corpos
                 const bodyList = document.getElementById('body-list');
                 bodyList.innerHTML = '';
                 this.player.bodies.forEach((body, index) => {
@@ -1355,17 +1535,12 @@
                     bodyList.appendChild(div);
                 });
 
-                // Status do mundo
                 document.getElementById('seeds-count').textContent = this.player.seeds;
                 document.getElementById('memories-count').textContent = this.player.memoriesSold;
                 document.getElementById('current-path').textContent = this.player.path;
-                document.getElementById('path-progress').textContent = 
-                    `${this.player.pathProgress} corpos consumidos`;
-
-                // Corrupção
+                document.getElementById('path-progress').textContent = `${this.player.pathProgress} corpos consumidos`;
                 document.getElementById('corruption-fill').style.height = `${this.player.corruption}%`;
 
-                // Timer de decadência
                 const elapsed = (Date.now() - this.startTime) / 1000;
                 const remaining = Math.max(0, 72 * 3600 - elapsed);
                 const hours = Math.floor(remaining / 3600);
@@ -1383,7 +1558,6 @@
                     <div class="notification-text">${text}</div>
                 `;
                 document.body.appendChild(notif);
-                
                 setTimeout(() => notif.classList.add('show'), 100);
                 setTimeout(() => {
                     notif.classList.remove('show');
@@ -1392,7 +1566,6 @@
             }
 
             update(deltaTime) {
-                // Atualiza biomas (decadência)
                 this.biomes.forEach(biome => {
                     const status = biome.update(deltaTime, this.globalDecay);
                     if (status === 'collapsed') {
@@ -1400,37 +1573,29 @@
                     }
                 });
 
-                // Atualiza NPCs
                 this.npcs.forEach(npc => {
-                    // Movimento simples
                     if (Math.random() < 0.02) {
                         npc.vx = (Math.random() - 0.5) * 0.5;
                         npc.vy = (Math.random() - 0.5) * 0.5;
                     }
-                    
                     npc.x += npc.vx * deltaTime * 0.1;
                     npc.y += npc.vy * deltaTime * 0.1;
 
-                    // Mantém dentro do bioma
                     if (npc.x < npc.biome.x) npc.x = npc.biome.x;
                     if (npc.x > npc.biome.x + npc.biome.width) npc.x = npc.biome.x + npc.biome.width;
                     if (npc.y < npc.biome.y) npc.y = npc.biome.y;
                     if (npc.y > npc.biome.y + npc.biome.height) npc.y = npc.biome.y + npc.biome.height;
 
-                    // Atualiza DNA
                     npc.dna.update(deltaTime);
                 });
 
-                // Atualiza cadáveres (decomposição)
                 this.corpses.forEach(corpse => {
                     corpse.decay += this.globalDecay * deltaTime * 10;
                 });
                 this.corpses = this.corpses.filter(c => c.decay < 100);
 
-                // Spawn de novos cadáveres
                 if (Math.random() < 0.001) this.spawnCorpse();
 
-                // Movimento do jogador
                 if (!this.player.echoMode) {
                     const speed = this.player.currentBody ? this.player.currentBody.stats.speed * 2 : 1;
                     if (this.keys['w']) this.player.y -= speed;
@@ -1439,26 +1604,42 @@
                     if (this.keys['d']) this.player.x += speed;
                 }
 
-                // Atualiza câmera (parallax)
                 this.camera.x += (this.player.x - this.camera.x) * 0.1;
                 this.camera.y += (this.player.y - this.camera.y) * 0.1;
 
-                // Atualiza UI periodicamente
+                // Atualiza bioma atual para áudio
+                const currentBiome = this.getCurrentBiome();
+                if (currentBiome) {
+                    this.currentBiomeType = currentBiome.type;
+                    audioManager.updateBiome(currentBiome.type, currentBiome.decayLevel);
+                    
+                    // Atualiza UI de bioma
+                    document.getElementById('biome-indicator').innerHTML = `
+                        ◈ Bioma: ${currentBiome.name}<br>
+                        ◈ Decadência: ${Math.floor(currentBiome.decayLevel)}%<br>
+                        ◈ Tipo: ${currentBiome.type}
+                    `;
+                }
+
                 if (Math.random() < 0.05) this.updateUI();
             }
 
+            getCurrentBiome() {
+                return this.biomes.find(b => 
+                    this.player.x >= b.x && this.player.x <= b.x + b.width &&
+                    this.player.y >= b.y && this.player.y <= b.y + b.height
+                );
+            }
+
             render() {
-                // Limpa canvas
                 this.ctx.fillStyle = '#0a0a0f';
                 this.ctx.fillRect(0, 0, this.width, this.height);
 
-                // Renderiza biomas (camadas de parallax)
                 this.biomes.forEach((biome, index) => {
                     const parallax = 0.5 + index * 0.1;
                     const bx = (biome.x - this.camera.x) * parallax + this.width / 2;
                     const by = (biome.y - this.camera.y) * parallax + this.height / 2;
                     
-                    // Silhueta do bioma
                     this.ctx.save();
                     this.ctx.translate(bx, by);
                     this.ctx.fillStyle = biome.getBiomeColor();
@@ -1474,7 +1655,6 @@
                     this.ctx.fill();
                     this.ctx.restore();
 
-                    // Partículas
                     const particles = biome.generateParticles();
                     particles.forEach(p => {
                         this.ctx.fillStyle = biome.type === 'lung' ? 'rgba(57, 255, 20, 0.5)' : 'rgba(139, 38, 53, 0.3)';
@@ -1486,7 +1666,6 @@
                     });
                 });
 
-                // Renderiza cadáveres
                 this.corpses.forEach(corpse => {
                     const cx = (corpse.x - this.camera.x) + this.width / 2;
                     const cy = (corpse.y - this.camera.y) + this.height / 2;
@@ -1497,19 +1676,16 @@
                     this.ctx.fillText(this.getBodyEmoji(corpse.type), cx, cy);
                     this.ctx.globalAlpha = 1;
                     
-                    // Indicador de decomposição
                     this.ctx.fillStyle = `rgb(${corpse.decay * 2.55}, ${255 - corpse.decay * 2.55}, 0)`;
                     this.ctx.fillRect(cx - 15, cy + 20, 30 * (1 - corpse.decay / 100), 3);
                 });
 
-                // Renderiza NPCs
                 this.npcs.forEach(npc => {
                     if (!npc.dna.isAlive) return;
                     
                     const nx = (npc.x - this.camera.x) + this.width / 2;
                     const ny = (npc.y - this.camera.y) + this.height / 2;
                     
-                    // Silhueta procedural baseada no DNA
                     this.ctx.save();
                     this.ctx.translate(nx, ny);
                     
@@ -1522,7 +1698,6 @@
                     this.ctx.arc(0, 0, 20, 0, Math.PI * 2);
                     this.ctx.fill();
                     
-                    // Indicador de profissão
                     this.ctx.fillStyle = '#ffd700';
                     this.ctx.font = '12px Arial';
                     this.ctx.textAlign = 'center';
@@ -1531,12 +1706,10 @@
                     this.ctx.restore();
                 });
 
-                // Renderiza jogador
                 const px = this.width / 2;
                 const py = this.height / 2;
                 
                 if (this.player.echoMode) {
-                    // Visual de eco
                     this.ctx.save();
                     this.ctx.translate(px, py);
                     this.ctx.strokeStyle = '#9400d3';
@@ -1551,7 +1724,6 @@
                     this.ctx.fillText('◈', 0, 5);
                     this.ctx.restore();
                 } else {
-                    // Corpo atual
                     this.ctx.font = '40px Arial';
                     this.ctx.textAlign = 'center';
                     this.ctx.fillText(
@@ -1559,7 +1731,6 @@
                         px, py + 10
                     );
                     
-                    // Aura de corrupção
                     if (this.player.corruption > 20) {
                         this.ctx.save();
                         this.ctx.translate(px, py);
@@ -1572,7 +1743,6 @@
                     }
                 }
 
-                // Renderiza mapa de memória
                 this.renderMap();
             }
 
@@ -1587,7 +1757,6 @@
                 const offsetX = 150;
                 const offsetY = 100;
                 
-                // Biomas no mapa
                 this.biomes.forEach(biome => {
                     ctx.fillStyle = biome.getBiomeColor();
                     ctx.globalAlpha = 0.5;
@@ -1599,7 +1768,6 @@
                     );
                 });
                 
-                // Jogador
                 ctx.fillStyle = '#39ff14';
                 ctx.globalAlpha = 1;
                 ctx.beginPath();
@@ -1610,7 +1778,6 @@
                 );
                 ctx.fill();
                 
-                // Anotações
                 ctx.fillStyle = '#ffd700';
                 this.player.mapAnnotations.forEach(note => {
                     ctx.fillRect(note.x - 2, note.y - 2, 4, 4);
@@ -1647,7 +1814,6 @@
                     this.showNotification('Possessão Forçada', 'Você tomou o corpo do inimigo, mas sua sanidade está quebrada.');
                 }
 
-                // Recupera um corpo básico
                 const newBody = new Body('human');
                 this.player.bodies = [newBody];
                 this.player.currentBody = newBody;
@@ -1655,7 +1821,6 @@
             }
         }
 
-        // Inicia o jogo quando a página carregar
         window.onload = () => {
             window.game = new Game();
         };
