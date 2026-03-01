@@ -3,783 +3,1140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ECOS DO ABISMO - A Queda dos Titãs</title>
+    <title>NEURO: VERSE 3.0 - Ultimate Edition</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Noto+Serif+JP:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap');
         
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         :root {
-            --void: #0a0a0f;
-            --divine-gold: #ffd700;
-            --demon-red: #8b0000;
-            --holy-blue: #4169e1;
-            --corruption: #4b0082;
-            --ash: #2f4f4f;
-            --blood: #dc143c;
+            --neon-blue: #00d4ff;
+            --neon-purple: #7b2cbf;
+            --neon-pink: #ff006e;
+            --neon-green: #44ff44;
+            --neon-red: #ff4444;
+            --dark-bg: #050508;
+            --panel-bg: rgba(10, 10, 15, 0.95);
         }
-
+        
         body {
-            background: #000;
-            color: #fff;
-            font-family: 'Noto Serif JP', serif;
-            overflow: hidden;
-        }
-
-        /* CUTSCENE ESTILO NANATSU NO TAIZAI */
-        #epic-cutscene {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            z-index: 5000;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .epic-slide {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: opacity 2s ease;
-        }
-
-        .epic-slide.active {
-            display: flex;
-            opacity: 1;
-        }
-
-        /* Estilo das imagens épicas */
-        .epic-visual {
-            width: 100%;
-            height: 70%;
-            position: relative;
+            background: var(--dark-bg);
+            color: #e0e0ff;
+            font-family: 'Rajdhani', sans-serif;
             overflow: hidden;
             display: flex;
-            align-items: center;
-            justify-content: center;
+            height: 100vh;
         }
-
-        /* Céu de sangue */
-        .blood-sky {
-            background: linear-gradient(to bottom, #4a0000 0%, #8b0000 50%, #dc143c 100%);
+        
+        #ui-lateral {
+            width: 380px;
+            background: linear-gradient(180deg, rgba(10,10,18,0.98) 0%, rgba(20,20,35,0.95) 100%);
+            border-right: 3px solid var(--neon-blue);
+            box-shadow: 0 0 50px rgba(0,212,255,0.3);
+            padding: 25px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(0,212,255,0.05);
+            border: 1px solid rgba(0,212,255,0.2);
+            border-radius: 15px;
+        }
+        
+        .logo h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 32px;
+            font-weight: 900;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple), var(--neon-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+        }
+        
+        .logo span {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            color: var(--neon-purple);
+            letter-spacing: 10px;
+            display: block;
+            margin-top: 5px;
+        }
+        
+        .secao {
+            background: var(--panel-bg);
+            border: 1px solid rgba(0,212,255,0.2);
+            border-radius: 15px;
+            padding: 20px;
             position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
         }
-
-        .blood-sky::before {
+        
+        .secao:hover {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 20px rgba(0,212,255,0.2);
+        }
+        
+        .secao::before {
             content: '';
             position: absolute;
-            width: 200%;
-            height: 200%;
-            background: repeating-linear-gradient(
-                45deg,
-                transparent,
-                transparent 10px,
-                rgba(0,0,0,0.1) 10px,
-                rgba(0,0,0,0.1) 20px
-            );
-            animation: bloodRain 20s linear infinite;
-        }
-
-        @keyframes bloodRain {
-            0% { transform: translate(-50%, -50%); }
-            100% { transform: translate(0, 0); }
-        }
-
-        /* Deus caído */
-        .fallen-god-visual {
-            background: radial-gradient(ellipse at center, #1a1a2e 0%, #000 70%);
-        }
-
-        .god-silhouette-falling {
-            width: 400px;
-            height: 600px;
-            background: linear-gradient(to bottom, var(--divine-gold), transparent);
-            clip-path: polygon(30% 0%, 70% 0%, 100% 100%, 0% 100%);
-            position: relative;
-            animation: godFall 8s ease-in-out infinite;
-            filter: drop-shadow(0 0 50px var(--divine-gold));
-        }
-
-        @keyframes godFall {
-            0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.8; }
-            50% { transform: translateY(100px) rotate(5deg); opacity: 0.4; }
-        }
-
-        /* Exércitos em guerra */
-        .war-visual {
-            background: linear-gradient(to bottom, #2c1810 0%, #1a0f0a 100%);
-            position: relative;
-        }
-
-        .army-silhouette {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            height: 40%;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300"><path d="M0,300 L0,250 Q50,200 100,250 T200,250 T300,200 T400,250 T500,220 T600,250 T700,200 T800,240 T900,210 T1000,250 T1100,230 T1200,250 L1200,300 Z" fill="%23000"/></svg>') repeat-x;
-            background-size: 300px 100%;
-            opacity: 0.8;
-        }
-
-        .clash-effect {
-            position: absolute;
-            top: 30%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 200px;
-            height: 200px;
-            background: radial-gradient(circle, var(--divine-gold) 0%, var(--blood) 50%, transparent 70%);
-            animation: clashPulse 2s ease-in-out infinite;
-            filter: blur(20px);
-        }
-
-        @keyframes clashPulse {
-            0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.5; }
-            50% { transform: translateX(-50%) scale(1.5); opacity: 1; }
-        }
-
-        /* Corpo do deus como mundo */
-        .world-body-visual {
-            background: radial-gradient(ellipse at center bottom, #2d1810 0%, #000 60%);
-            position: relative;
-        }
-
-        .god-corpse-landscape {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            height: 60%;
-            background: linear-gradient(to top, #4a2c2a 0%, #2d1810 50%, transparent 100%);
-            clip-path: polygon(20% 100%, 25% 60%, 30% 80%, 40% 40%, 50% 70%, 60% 30%, 70% 60%, 80% 50%, 85% 100%);
-        }
-
-        .organ-lights {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-        }
-
-        .organ-light {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(30px);
-            animation: organPulse 4s ease-in-out infinite;
-        }
-
-        .heart-light { background: #ff0000; width: 100px; height: 100px; top: 60%; left: 50%; }
-        .brain-light { background: #4169e1; width: 80px; height: 80px; top: 40%; left: 60%; }
-        .lung-light { background: #00ff00; width: 120px; height: 60px; top: 50%; left: 30%; }
-
-        @keyframes organPulse {
-            0%, 100% { opacity: 0.3; transform: scale(1); }
-            50% { opacity: 0.8; transform: scale(1.2); }
-        }
-
-        /* Eco despertando */
-        .awakening-visual {
-            background: radial-gradient(circle at center, #1a0a1a 0%, #000 70%);
-        }
-
-        .echo-orb {
-            width: 150px;
-            height: 150px;
-            background: radial-gradient(circle at 30% 30%, var(--corruption), #000);
-            border-radius: 50%;
-            box-shadow: 0 0 100px var(--corruption), inset 0 0 50px rgba(255,255,255,0.1);
-            animation: echoAwaken 3s ease-in-out infinite;
-            position: relative;
-        }
-
-        .echo-orb::before {
-            content: '◈';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 60px;
-            color: #fff;
-            text-shadow: 0 0 30px #fff;
-        }
-
-        @keyframes echoAwaken {
-            0%, 100% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.1); opacity: 1; }
-        }
-
-        /* TEXTO EPICO ESTILO NANATSU */
-        .epic-text-container {
-            width: 100%;
-            height: 30%;
-            background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 50%, transparent 100%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-            position: relative;
-        }
-
-        .epic-title {
-            font-family: 'Cinzel', serif;
-            font-size: 48px;
-            font-weight: 900;
-            color: var(--divine-gold);
-            text-transform: uppercase;
-            letter-spacing: 8px;
-            margin-bottom: 20px;
-            text-shadow: 0 0 30px var(--divine-gold), 0 0 60px var(--divine-gold);
-            opacity: 0;
-            transform: translateY(30px);
-            animation: titleReveal 1s ease forwards;
-        }
-
-        @keyframes titleReveal {
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .epic-narration {
-            font-size: 20px;
-            line-height: 2;
-            text-align: center;
-            max-width: 900px;
-            color: rgba(255,255,255,0.9);
-            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
-            opacity: 0;
-            animation: textFadeIn 1s ease 0.5s forwards;
-        }
-
-        @keyframes textFadeIn {
-            to { opacity: 1; }
-        }
-
-        .epic-narration .highlight-gold {
-            color: var(--divine-gold);
-            font-weight: bold;
-            text-shadow: 0 0 20px var(--divine-gold);
-        }
-
-        .epic-narration .highlight-blood {
-            color: var(--blood);
-            font-weight: bold;
-            text-shadow: 0 0 20px var(--blood);
-        }
-
-        .epic-narration .highlight-blue {
-            color: var(--holy-blue);
-            font-weight: bold;
-            text-shadow: 0 0 20px var(--holy-blue);
-        }
-
-        .epic-narration .highlight-purple {
-            color: #9932cc;
-            font-weight: bold;
-            text-shadow: 0 0 20px #9932cc;
-        }
-
-        /* Números de capítulo */
-        .chapter-number {
-            position: absolute;
-            top: 40px;
-            right: 60px;
-            font-family: 'Cinzel', serif;
-            font-size: 72px;
-            color: rgba(255,255,255,0.1);
-            font-weight: 900;
-        }
-
-        /* Barra de progresso épica */
-        .epic-progress {
-            position: absolute;
-            bottom: 0;
+            top: 0;
             left: 0;
-            width: 100%;
-            height: 4px;
-            background: rgba(255,255,255,0.1);
-        }
-
-        .epic-progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--blood), var(--divine-gold));
-            width: 0%;
-            transition: width 0.1s linear;
-        }
-
-        /* Skip button estilizado */
-        .epic-skip {
-            position: absolute;
-            bottom: 40px;
-            right: 40px;
-            background: rgba(0,0,0,0.6);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: rgba(255,255,255,0.6);
-            padding: 12px 24px;
-            font-family: 'Cinzel', serif;
-            font-size: 12px;
-            letter-spacing: 2px;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-        }
-
-        .epic-skip:hover {
-            border-color: var(--divine-gold);
-            color: var(--divine-gold);
-            background: rgba(255,215,0,0.1);
-        }
-
-        /* Música visual */
-        .music-visualizer-epic {
-            position: absolute;
-            bottom: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 4px;
-            opacity: 0.3;
-        }
-
-        .music-bar-epic {
             width: 4px;
-            background: var(--divine-gold);
-            animation: musicDance 1s ease-in-out infinite;
-        }
-
-        @keyframes musicDance {
-            0%, 100% { height: 20px; }
-            50% { height: 60px; }
-        }
-
-        /* Efeito de vinheta */
-        .vignette {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
             height: 100%;
-            background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.8) 100%);
-            pointer-events: none;
+            background: linear-gradient(180deg, var(--neon-blue), var(--neon-purple));
         }
-
-        /* Flash de transição */
-        .flash-transition {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #fff;
-            opacity: 0;
-            pointer-events: none;
-            z-index: 100;
-        }
-
-        .flash-transition.active {
-            animation: flash 0.5s ease;
-        }
-
-        @keyframes flash {
-            0% { opacity: 0; }
-            50% { opacity: 0.8; }
-            100% { opacity: 0; }
-        }
-
-        /* GAME UI (restante do CSS permanece similar) */
-        #game-container {
-            display: none;
-            width: 100%;
-            height: 100%;
-        }
-
-        #gameCanvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #0a0a0f;
-        }
-
-        /* ... (restante do CSS do jogo) ... */
         
-        /* Loading após cutscene */
-        #game-loading {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
+        .secao h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--neon-blue);
+            font-size: 14px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,212,255,0.1));
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid rgba(0,212,255,0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--neon-blue);
+            box-shadow: 0 10px 30px rgba(0,212,255,0.3);
+        }
+        
+        .stat-icon { font-size: 28px; margin-bottom: 8px; }
+        
+        .stat-label {
+            font-size: 10px;
+            color: var(--neon-purple);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+        }
+        
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--neon-blue);
+            text-shadow: 0 0 10px rgba(0,212,255,0.5);
+        }
+        
+        .barra-container { margin: 12px 0; }
+        
+        .barra-label {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .barra-fundo {
+            background: rgba(0,0,0,0.5);
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .barra-preenchimento {
             height: 100%;
-            background: #000;
-            display: none;
+            border-radius: 6px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .barra-vida { background: linear-gradient(90deg, #ff2244, #ff4466); }
+        .barra-energia { background: linear-gradient(90deg, #ffaa00, #ffcc00); }
+        .barra-fome { background: linear-gradient(90deg, #44ff44, #66ff66); }
+        
+        .btn-acao {
+            background: linear-gradient(135deg, rgba(30,60,114,0.8), rgba(42,82,152,0.8));
+            border: 2px solid rgba(0,212,255,0.3);
+            color: white;
+            padding: 14px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin: 6px 0;
+        }
+        
+        .btn-acao:hover {
+            transform: translateY(-3px);
+            border-color: var(--neon-blue);
+            box-shadow: 0 10px 30px rgba(0,212,255,0.4);
+        }
+        
+        .btn-acao.ativo {
+            background: linear-gradient(135deg, var(--neon-blue), #0099cc);
+            color: #000;
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 30px rgba(0,212,255,0.6);
+        }
+        
+        .btn-perigoso {
+            background: linear-gradient(135deg, rgba(114,30,30,0.8), rgba(152,42,42,0.8));
+            border-color: rgba(255,68,68,0.3);
+        }
+        
+        .btn-perigoso:hover {
+            border-color: var(--neon-red);
+            box-shadow: 0 10px 30px rgba(255,0,0,0.4);
+        }
+        
+        #area-jogo {
+            flex: 1;
+            display: flex;
             flex-direction: column;
+            position: relative;
+            background: radial-gradient(ellipse at center, #0a0a15 0%, #050508 100%);
+        }
+        
+        #barra-superior {
+            height: 80px;
+            background: linear-gradient(90deg, rgba(15,15,26,0.95), rgba(26,26,46,0.95));
+            border-bottom: 2px solid rgba(0,212,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 0 40px;
+        }
+        
+        .indicador {
+            text-align: center;
+            padding: 0 30px;
+        }
+        
+        .indicador-label {
+            font-size: 11px;
+            color: var(--neon-purple);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-weight: 700;
+        }
+        
+        .indicador-valor {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--neon-blue);
+            text-shadow: 0 0 20px rgba(0,212,255,0.6);
+        }
+        
+        #canvas-container {
+            flex: 1;
+            position: relative;
+            display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 4000;
-        }
-
-        #game-loading.active {
-            display: flex;
-        }
-
-        .loading-epic-text {
-            font-family: 'Cinzel', serif;
-            font-size: 36px;
-            color: var(--divine-gold);
-            margin-bottom: 30px;
-            animation: loadingPulse 2s infinite;
-        }
-
-        @keyframes loadingPulse {
-            0%, 100% { opacity: 0.3; text-shadow: 0 0 20px var(--divine-gold); }
-            50% { opacity: 1; text-shadow: 0 0 50px var(--divine-gold); }
-        }
-
-        .loading-bar-epic {
-            width: 500px;
-            height: 3px;
-            background: rgba(255,255,255,0.1);
-            position: relative;
             overflow: hidden;
         }
-
-        .loading-bar-epic-fill {
+        
+        canvas {
+            border: 2px solid rgba(0,212,255,0.3);
+            border-radius: 10px;
+            box-shadow: 0 0 60px rgba(0,212,255,0.2);
+            background: #0a0a0f;
+        }
+        
+        #tooltip {
             position: absolute;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, var(--blood), var(--divine-gold));
-            animation: loadingFill 3s ease forwards;
+            background: linear-gradient(135deg, rgba(10,10,20,0.98), rgba(20,20,40,0.98));
+            border: 2px solid var(--neon-blue);
+            border-radius: 15px;
+            padding: 20px;
+            font-size: 13px;
+            pointer-events: none;
+            display: none;
+            z-index: 1000;
+            max-width: 300px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
         }
-
-        @keyframes loadingFill {
-            to { width: 100%; }
+        
+        #painel-interacao {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, rgba(10,10,20,0.98), rgba(26,26,46,0.98));
+            border: 2px solid var(--neon-purple);
+            border-radius: 20px;
+            padding: 25px;
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+            min-width: 400px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.8);
         }
+        
+        #painel-titulo {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--neon-purple);
+            text-align: center;
+            font-size: 20px;
+            text-shadow: 0 0 20px rgba(123,44,191,0.5);
+        }
+        
+        .acoes-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        
+        #legendas {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: rgba(0,0,0,0.9);
+            border: 1px solid rgba(0,212,255,0.3);
+            border-radius: 15px;
+            padding: 20px;
+            font-size: 12px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .legenda-titulo {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--neon-blue);
+            margin-bottom: 15px;
+            font-size: 14px;
+            letter-spacing: 2px;
+        }
+        
+        .legenda-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 8px 0;
+        }
+        
+        .legenda-cor {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid;
+            box-shadow: 0 0 10px currentColor;
+        }
+        
+        #log-eventos {
+            height: 200px;
+            overflow-y: auto;
+            font-size: 12px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid rgba(0,212,255,0.1);
+        }
+        
+        .evento {
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            border-left: 4px solid;
+            background: rgba(255,255,255,0.03);
+            animation: eventIn 0.5s ease;
+        }
+        
+        @keyframes eventIn {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .evento-guerra { border-left-color: var(--neon-red); background: linear-gradient(90deg, rgba(255,0,0,0.1), transparent); }
+        .evento-religiao { border-left-color: #ffaa00; background: linear-gradient(90deg, rgba(255,170,0,0.1), transparent); }
+        .evento-economia { border-left-color: var(--neon-green); background: linear-gradient(90deg, rgba(0,255,0,0.1), transparent); }
+        .evento-social { border-left-color: var(--neon-blue); background: linear-gradient(90deg, rgba(0,212,255,0.1), transparent); }
+        .evento-morte { border-left-color: #888; background: linear-gradient(90deg, rgba(100,100,100,0.2), transparent); }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--neon-blue), var(--neon-purple)); border-radius: 4px; }
     </style>
 </head>
 <body>
-    <!-- CUTSCENE EPICA ESTILO NANATSU NO TAIZAI -->
-    <div id="epic-cutscene">
-        <!-- SLIDE 1: O INÍCIO -->
-        <div class="epic-slide active" id="epic-slide-1">
-            <div class="chapter-number">I</div>
-            <div class="epic-visual blood-sky">
-                <div class="vignette"></div>
-                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
-                    <div style="font-size: 120px; color: var(--divine-gold); text-shadow: 0 0 100px var(--divine-gold); animation: godFall 6s ease-in-out;">☥</div>
-                </div>
-            </div>
-            <div class="epic-text-container">
-                <div class="epic-title">A Era dos Titãs</div>
-                <div class="epic-narration">
-                    Há milênios, quando o mundo ainda era jovem,<br>
-                    <span class="highlight-gold">Deuses Antigos</span> caminhavam entre as montanhas.<br>
-                    Suas formas eram tão vastas que confundiam-se com o próprio horizonte.
-                </div>
-                <div class="music-visualizer-epic">
-                    <div class="music-bar-epic" style="animation-delay: 0s;"></div>
-                    <div class="music-bar-epic" style="animation-delay: 0.1s;"></div>
-                    <div class="music-bar-epic" style="animation-delay: 0.2s;"></div>
-                    <div class="music-bar-epic" style="animation-delay: 0.3s;"></div>
-                    <div class="music-bar-epic" style="animation-delay: 0.4s;"></div>
-                </div>
-            </div>
-            <div class="epic-progress">
-                <div class="epic-progress-fill" id="progress-1"></div>
-            </div>
+    <div id="ui-lateral">
+        <div class="logo">
+            <h1>NEURO: VERSE</h1>
+            <span>3.0 ULTIMATE</span>
         </div>
-
-        <!-- SLIDE 2: A GUERRA -->
-        <div class="epic-slide" id="epic-slide-2">
-            <div class="chapter-number">II</div>
-            <div class="epic-visual war-visual">
-                <div class="vignette"></div>
-                <div class="army-silhouette"></div>
-                <div class="clash-effect"></div>
-                <div style="position: absolute; top: 20%; width: 100%; display: flex; justify-content: space-around; padding: 0 100px;">
-                    <div style="text-align: center;">
-                        <div style="font-size: 80px; color: var(--holy-blue); text-shadow: 0 0 50px var(--holy-blue);">⚔</div>
-                        <div style="font-family: 'Cinzel'; color: var(--holy-blue); margin-top: 10px;">CLÃ DIVINO</div>
-                    </div>
-                    <div style="font-size: 60px; color: #fff; animation: clashPulse 2s infinite;">VS</div>
-                    <div style="text-align: center;">
-                        <div style="font-size: 80px; color: var(--blood); text-shadow: 0 0 50px var(--blood);">⚔</div>
-                        <div style="font-family: 'Cinzel'; color: var(--blood); margin-top: 10px;">CLÃ DEMONÍACO</div>
+        
+        <div class="secao">
+            <h3>👤 Seu Personagem</h3>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">❤️</div>
+                    <div class="stat-label">Saúde</div>
+                    <div class="stat-value" id="stat-saude">100%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⚡</div>
+                    <div class="stat-label">Energia</div>
+                    <div class="stat-value" id="stat-energia">100%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🍞</div>
+                    <div class="stat-label">Comida</div>
+                    <div class="stat-value" id="stat-comida">30</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-label">Ouro</div>
+                    <div class="stat-value" id="stat-ouro">50</div>
+                </div>
+            </div>
+            <div style="margin-top:15px;">
+                <div class="barra-container">
+                    <div class="barra-label"><span>Saúde</span><span id="barra-saude-texto">100%</span></div>
+                    <div class="barra-fundo">
+                        <div class="barra-preenchimento barra-vida" id="barra-saude" style="width:100%"></div>
                     </div>
                 </div>
-            </div>
-            <div class="epic-text-container">
-                <div class="epic-title">A Grande Guerra</div>
-                <div class="epic-narration">
-                    Mas até entre imortais, nasce a <span class="highlight-blood">ambição</span>.<br>
-                    <span class="highlight-gold">Atherion</span>, o Titã do Amanhecer, desejou ser Único.<br>
-                    Desencadeou uma guerra que durou <span class="highlight-purple">três milênios</span>.
+                <div class="barra-container">
+                    <div class="barra-label"><span>Energia</span><span id="barra-energia-texto">100%</span></div>
+                    <div class="barra-fundo">
+                        <div class="barra-preenchimento barra-energia" id="barra-energia" style="width:100%"></div>
+                    </div>
                 </div>
-            </div>
-            <div class="epic-progress">
-                <div class="epic-progress-fill" id="progress-2"></div>
+                <div class="barra-container">
+                    <div class="barra-label"><span>Fome</span><span id="barra-fome-texto">0%</span></div>
+                    <div class="barra-fundo">
+                        <div class="barra-preenchimento barra-fome" id="barra-fome" style="width:0%"></div>
+                    </div>
+                </div>
             </div>
         </div>
-
-        <!-- SLIDE 3: A TRAIÇÃO -->
-        <div class="epic-slide" id="epic-slide-3">
-            <div class="chapter-number">III</div>
-            <div class="epic-visual fallen-god-visual">
-                <div class="vignette"></div>
-                <div class="god-silhouette-falling"></div>
-                <div style="position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%);">
-                    <div style="font-size: 100px; color: var(--blood); animation: godFall 4s ease-in;">✟</div>
+        
+        <div class="secao">
+            <h3>🎮 Modo de Ação</h3>
+            <button class="btn-acao ativo" onclick="jogo.setModo('observar')" id="btn-observar">👁️ Observar</button>
+            <button class="btn-acao" onclick="jogo.setModo('mover')" id="btn-mover">🚶 Mover</button>
+            <button class="btn-acao" onclick="jogo.setModo('interagir')" id="btn-interagir">🤝 Interagir</button>
+            <button class="btn-acao btn-perigoso" onclick="jogo.setModo('atacar')" id="btn-atacar">⚔️ Atacar</button>
+        </div>
+        
+        <div class="secao">
+            <h3>🌍 Estado do Mundo</h3>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-label">População</div>
+                    <div class="stat-value" id="info-pop">40</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🛡️</div>
+                    <div class="stat-label">Facções</div>
+                    <div class="stat-value" id="info-fac">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✨</div>
+                    <div class="stat-label">Religiões</div>
+                    <div class="stat-value" id="info-rel">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⚔️</div>
+                    <div class="stat-label">Guerras</div>
+                    <div class="stat-value" id="info-guer">0</div>
                 </div>
             </div>
-            <div class="epic-text-container">
-                <div class="epic-title">A Queda do Orgulho</div>
-                <div class="epic-narration">
-                    Derrotado por seus próprios irmãos,<br>
-                    <span class="highlight-gold">Atherion</span> caiu dos céus como um <span class="highlight-blood">meteoro de luz</span>.<br>
-                    Seu impacto criou oceanos. Sua morte, criou vida.
-                </div>
-            </div>
-            <div class="epic-progress">
-                <div class="epic-progress-fill" id="progress-3"></div>
+            <div style="margin-top:15px; text-align:center;">
+                <span style="color:#888; font-size:11px;">TURNO ATUAL</span>
+                <div style="font-family:Orbitron; font-size:24px; color:var(--neon-blue);" id="info-turno">0</div>
             </div>
         </div>
-
-        <!-- SLIDE 4: O MUNDO NOVO -->
-        <div class="epic-slide" id="epic-slide-4">
-            <div class="chapter-number">IV</div>
-            <div class="epic-visual world-body-visual">
-                <div class="vignette"></div>
-                <div class="god-corpse-landscape"></div>
-                <div class="organ-lights">
-                    <div class="organ-light heart-light"></div>
-                    <div class="organ-light brain-light"></div>
-                    <div class="organ-light lung-light"></div>
-                </div>
-            </div>
-            <div class="epic-text-container">
-                <div class="epic-title">O Cadáver Divino</div>
-                <div class="epic-narration">
-                    Seu corpo tornou-se este <span class="highlight-purple">mundo</span>.<br>
-                    Seu sangue, rios. Seus ossos, montanhas.<br>
-                    E em suas entranhas em decomposição, nasceram os <span class="highlight-gold">Ecos</span>.
-                </div>
-            </div>
-            <div class="epic-progress">
-                <div class="epic-progress-fill" id="progress-4"></div>
+        
+        <div class="secao">
+            <h3>⏱️ Controles de Tempo</h3>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <button class="btn-acao" onclick="jogo.pausar()" id="btn-pausa">⏸️ Pausar</button>
+                <button class="btn-acao" onclick="jogo.umTurno()">⏭️ 1 Turno</button>
+                <button class="btn-acao" onclick="jogo.acelerar()">⏩ 1x</button>
+                <button class="btn-acao" onclick="jogo.resetar()">🔄 Reset</button>
             </div>
         </div>
-
-        <!-- SLIDE 5: O DESPERTAR -->
-        <div class="epic-slide" id="epic-slide-5">
-            <div class="chapter-number">V</div>
-            <div class="epic-visual awakening-visual">
-                <div class="vignette"></div>
-                <div class="echo-orb"></div>
-                <div style="position: absolute; bottom: 150px; font-family: 'Cinzel'; font-size: 24px; color: var(--corruption); letter-spacing: 10px; animation: echoAwaken 3s infinite;">
-                    VOCÊ DESPERTA
-                </div>
+        
+        <div class="secao">
+            <h3>📜 Crônicas do Mundo</h3>
+            <div id="log-eventos">
+                <div style="color:#666; font-style:italic; text-align:center; padding:20px;">O universo aguarda suas escolhas...</div>
             </div>
-            <div class="epic-text-container">
-                <div class="epic-title" style="color: var(--corruption); text-shadow: 0 0 30px var(--corruption);">Ecos do Abismo</div>
-                <div class="epic-narration">
-                    Você não lembra quem foi.<br>
-                    Não sabe por que está aqui.<br>
-                    Mas sente — <span class="highlight-purple">instintivamente</span> — que deve <span class="highlight-blood">possuir</span>, <span class="highlight-blood">consumir</span>, <span class="highlight-blood">sobreviver</span>.
-                </div>
-            </div>
-            <div class="epic-progress">
-                <div class="epic-progress-fill" id="progress-5"></div>
-            </div>
-        </div>
-
-        <div class="flash-transition" id="flash-transition"></div>
-        <button class="epic-skip" onclick="skipEpicCutscene()">Pular História [ESC]</button>
-    </div>
-
-    <!-- LOADING DO JOGO -->
-    <div id="game-loading">
-        <div class="loading-epic-text">CARREGANDO MUNDO...</div>
-        <div class="loading-bar-epic">
-            <div class="loading-bar-epic-fill"></div>
-        </div>
-        <div style="margin-top: 20px; font-size: 12px; color: rgba(255,255,255,0.5);">
-            Gerando 200+ almas únicas... Criando órgãos divinos...
         </div>
     </div>
-
-    <!-- CONTAINER DO JOGO -->
-    <div id="game-container">
-        <canvas id="gameCanvas"></canvas>
-        <!-- ... (resto da UI do jogo) ... -->
+    
+    <div id="area-jogo">
+        <div id="barra-superior">
+            <div class="indicador">
+                <div class="indicador-label">Era Cósmica</div>
+                <div class="indicador-valor" id="ind-era">PRIMORDIAL</div>
+            </div>
+            <div class="indicador">
+                <div class="indicador-label">Turno</div>
+                <div class="indicador-valor" id="ind-turno">0</div>
+            </div>
+            <div class="indicador">
+                <div class="indicador-label">Sobreviventes</div>
+                <div class="indicador-valor" id="ind-pop">40</div>
+            </div>
+            <div class="indicador">
+                <div class="indicador-label">Eventos</div>
+                <div class="indicador-valor" id="ind-eventos" style="color:var(--neon-pink);">0</div>
+            </div>
+        </div>
+        
+        <div id="canvas-container">
+            <canvas id="gameCanvas" width="700" height="700"></canvas>
+            
+            <div id="tooltip"></div>
+            
+            <div id="painel-interacao">
+                <div id="painel-titulo">AGENTE</div>
+                <div class="acoes-grid">
+                    <button class="btn-acao" onclick="jogo.acaoAgente('conversar')">💬 Conversar</button>
+                    <button class="btn-acao" onclick="jogo.acaoAgente('dar_comida')">🍞 Dar Comida</button>
+                    <button class="btn-acao" onclick="jogo.acaoAgente('dar_ouro')">💰 Dar Ouro</button>
+                    <button class="btn-acao" onclick="jogo.acaoAgente('recrutar')">🛡️ Recrutar</button>
+                    <button class="btn-acao btn-perigoso" onclick="jogo.acaoAgente('atacar')">⚔️ Atacar</button>
+                    <button class="btn-acao" onclick="jogo.fecharPainel()">❌ Fechar</button>
+                </div>
+            </div>
+            
+            <div id="legendas">
+                <div class="legenda-titulo">PROFISSÕES</div>
+                <div class="legenda-item"><div class="legenda-cor" style="background:#44ff44; border-color:#44ff44;"></div> Agricultor 🌾</div>
+                <div class="legenda-item"><div class="legenda-cor" style="background:#ff4444; border-color:#ff4444;"></div> Guerreiro ⚔️</div>
+                <div class="legenda-item"><div class="legenda-cor" style="background:#ffaa00; border-color:#ffaa00;"></div> Mercador 💰</div>
+                <div class="legenda-item"><div class="legenda-cor" style="background:#4488ff; border-color:#4488ff;"></div> Artesão 🔨</div>
+                <div class="legenda-item"><div class="legenda-cor" style="background:#aa44ff; border-color:#aa44ff;"></div> Sábio 📜</div>
+                <div class="legenda-item"><div class="legenda-cor" style="background:#888888; border-color:#888888;"></div> Ladrão 🗡️</div>
+                <div style="margin-top:15px; padding-top:15px; border-top:1px solid rgba(255,255,255,0.1);">
+                    <div class="legenda-item"><div class="legenda-cor" style="background:#00d4ff; border-color:#00d4ff;"></div> Você 🧭</div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <script>
-        // CONTROLE DA CUTSCENE EPICA
-        let currentEpicSlide = 1;
-        const totalEpicSlides = 5;
-        const slideDuration = 8000; // 8 segundos por slide
-        let epicInterval;
-        let progressInterval;
-
-        const slideTexts = [
-            "Há milênios, quando o mundo ainda era jovem...",
-            "Mas até entre imortais, nasce a ambição...",
-            "Derrotado por seus próprios irmãos...",
-            "Seu corpo tornou-se este mundo...",
-            "Você não lembra quem foi..."
-        ];
-
-        function startEpicCutscene() {
-            // Música épica procedural começa aqui
-            playEpicMusic();
-            
-            // Inicia primeira slide
-            updateEpicProgress();
-            
-            epicInterval = setInterval(() => {
-                nextEpicSlide();
-            }, slideDuration);
-        }
-
-        function nextEpicSlide() {
-            if (currentEpicSlide < totalEpicSlides) {
-                // Flash de transição
-                const flash = document.getElementById('flash-transition');
-                flash.classList.add('active');
-                setTimeout(() => flash.classList.remove('active'), 500);
-                
-                // Troca slide
-                document.getElementById(`epic-slide-${currentEpicSlide}`).classList.remove('active');
-                currentEpicSlide++;
-                document.getElementById(`epic-slide-${currentEpicSlide}`).classList.add('active');
-                
-                updateEpicProgress();
-            } else {
-                endEpicCutscene();
-            }
-        }
-
-        function updateEpicProgress() {
-            const startTime = Date.now();
-            
-            progressInterval = setInterval(() => {
-                const elapsed = Date.now() - startTime;
-                const progress = (elapsed / slideDuration) * 100;
-                
-                document.getElementById(`progress-${currentEpicSlide}`).style.width = progress + '%';
-                
-                if (progress >= 100) {
-                    clearInterval(progressInterval);
-                }
-            }, 100);
-        }
-
-        function skipEpicCutscene() {
-            clearInterval(epicInterval);
-            clearInterval(progressInterval);
-            endEpicCutscene();
-        }
-
-        function endEpicCutscene() {
-            document.getElementById('epic-cutscene').style.display = 'none';
-            document.getElementById('game-loading').classList.add('active');
-            
-            // Para música épica
-            stopEpicMusic();
-            
-            // Inicia jogo após loading
-            setTimeout(() => {
-                document.getElementById('game-loading').classList.remove('active');
-                document.getElementById('game-container').style.display = 'block';
-                initGame();
-            }, 3500);
-        }
-
-        // MÚSICA EPICA PROCEDURAL
-        let epicAudioContext;
-        let epicOscillators = [];
-
-        function playEpicMusic() {
-            epicAudioContext = new (window.AudioContext || window.webkitAudioContext)();
-            
-            // Cria uma orquestra procedural épica
-            const now = epicAudioContext.currentTime;
-            
-            // Cordas graves (fundamento épico)
-            for (let i = 0; i < 3; i++) {
-                const osc = epicAudioContext.createOscillator();
-                const gain = epicAudioContext.createGain();
-                
-                osc.type = 'sawtooth';
-                osc.frequency.value = 110 + (i * 55); // Notas graves
-                
-                const filter = epicAudioContext.createBiquadFilter();
-                filter.type = 'lowpass';
-                filter.frequency.value = 400;
-                
-                gain.gain.value = 0.05;
-                
-                osc.connect(filter);
-                filter.connect(gain);
-                gain.connect(epicAudioContext.destination);
-                
-                osc.start(now);
-                epicOscillators.push(osc);
-            }
-            
-            // Melodia épica (soprano)
-            const melodyOsc = epicAudioContext.createOscillator();
-            const melodyGain = epicAudioContext.createGain();
-            
-            melodyOsc.type = 'square';
-            melodyOsc.frequency.setValueAtTime(440, now);
-            melodyOsc.frequency.exponentialRampToValueAtTime(880, now + 2);
-            melodyOsc.frequency.exponentialRampToValueAtTime(440, now + 4);
-            
-            melodyGain.gain.value = 0.03;
-            
-            melodyOsc.connect(melodyGain);
-            melodyGain.connect(epicAudioContext.destination);
-            
-            melodyOsc.start(now);
-            epicOscillators.push(melodyOsc);
-        }
-
-        function stopEpicMusic() {
-            epicOscillators.forEach(osc => {
-                try { osc.stop(); } catch(e) {}
+<script>
+// Sistema de Partículas
+class Particulas {
+    constructor() {
+        this.lista = [];
+    }
+    
+    criar(x, y, cor, qtd = 10) {
+        for (let i = 0; i < qtd; i++) {
+            this.lista.push({
+                x: x, y: y,
+                vx: (Math.random() - 0.5) * 4,
+                vy: (Math.random() - 0.5) * 4,
+                vida: 1,
+                cor: cor,
+                tam: Math.random() * 4 + 2
             });
-            epicOscillators = [];
         }
+    }
+    
+    atualizar() {
+        for (let i = this.lista.length - 1; i >= 0; i--) {
+            const p = this.lista[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += 0.1;
+            p.vida -= 0.02;
+            if (p.vida <= 0) this.lista.splice(i, 1);
+        }
+    }
+    
+    desenhar(ctx) {
+        for (const p of this.lista) {
+            ctx.globalAlpha = p.vida;
+            ctx.fillStyle = p.cor;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.tam, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+    }
+}
 
-        // Controles de teclado
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                skipEpicCutscene();
+class Agente {
+    constructor(dados) {
+        Object.assign(this, dados);
+        this.fome = this.fome || 0;
+        this.faccao = this.faccao || null;
+        this.religiao = this.religiao || null;
+        this.humor = this.humor || 'neutro';
+        this.idade = this.idade || 20;
+        
+        this.animX = this.x;
+        this.animY = this.y;
+        this.escala = 1;
+        this.pulso = Math.random() * Math.PI * 2;
+        
+        this.cores = {
+            agricultor: '#44ff44', guerreiro: '#ff4444', mercador: '#ffaa00',
+            artesao: '#4488ff', sabio: '#aa44ff', ladrao: '#888888', viajante: '#00d4ff'
+        };
+        this.icones = {
+            agricultor: '🌾', guerreiro: '⚔️', mercador: '💰',
+            artesao: '🔨', sabio: '📜', ladrao: '🗡️', viajante: '🧭'
+        };
+    }
+    
+    atualizarAnim() {
+        this.animX += (this.x - this.animX) * 0.1;
+        this.animY += (this.y - this.animY) * 0.1;
+        this.pulso += 0.05;
+        
+        if (this.humor === 'alegria') this.escala = 1 + Math.sin(this.pulso) * 0.08;
+        else if (this.humor === 'raiva') this.escala = 1 + Math.sin(this.pulso * 3) * 0.05;
+        else this.escala = 1;
+    }
+    
+    desenhar(ctx, tam, selecionado, tempo) {
+        if (!this.vivo) return;
+        
+        const px = this.animX * tam + tam/2;
+        const py = this.animY * tam + tam/2;
+        const r = (tam * 0.35) * this.escala;
+        
+        ctx.save();
+        ctx.translate(px, py);
+        
+        if (selecionado) {
+            const grad = ctx.createRadialGradient(0, 0, r, 0, 0, r + 15);
+            grad.addColorStop(0, 'rgba(0,212,255,0.6)');
+            grad.addColorStop(1, 'rgba(0,212,255,0)');
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(0, 0, r + 15, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.strokeStyle = '#00d4ff';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.arc(0, 0, r + 12, tempo * 0.003, tempo * 0.003 + Math.PI * 2);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+        
+        const auras = { alegria: 'rgba(255,221,0,0.4)', raiva: 'rgba(255,0,0,0.4)', medo: 'rgba(136,0,255,0.4)', neutro: 'rgba(136,136,136,0.2)' };
+        const gradAura = ctx.createRadialGradient(0, 0, r * 0.5, 0, 0, r + 8);
+        gradAura.addColorStop(0, auras[this.humor] || auras.neutro);
+        gradAura.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = gradAura;
+        ctx.beginPath();
+        ctx.arc(0, 0, r + 8, 0, Math.PI * 2);
+        ctx.fill();
+        
+        ctx.fillStyle = 'rgba(0,0,0,0.3)';
+        ctx.beginPath();
+        ctx.ellipse(0, r + 5, r * 0.8, r * 0.3, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        const grad = ctx.createRadialGradient(-r*0.3, -r*0.3, 0, 0, 0, r);
+        grad.addColorStop(0, '#ffffff');
+        grad.addColorStop(0.3, this.cores[this.profissao]);
+        grad.addColorStop(1, this.cores[this.profissao]);
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(0, 0, r, 0, Math.PI * 2);
+        ctx.fill();
+        
+        ctx.strokeStyle = this.saude > 0.7 ? '#44ff44' : this.saude > 0.4 ? '#ffaa00' : '#ff4444';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        
+        if (this.faccao) {
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowColor = '#ffffff';
+            ctx.shadowBlur = 10;
+            ctx.beginPath();
+            ctx.arc(r*0.7, -r*0.7, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        }
+        
+        if (this.religiao) {
+            ctx.fillStyle = '#ffdd00';
+            ctx.shadowColor = '#ffdd00';
+            ctx.shadowBlur = 10;
+            ctx.beginPath();
+            ctx.arc(-r*0.7, -r*0.7, 4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        }
+        
+        ctx.restore();
+        
+        ctx.font = `bold ${tam * 0.5}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(this.icones[this.profissao] || '👤', px, py);
+        
+        ctx.font = 'bold 11px Rajdhani';
+        ctx.shadowColor = 'rgba(0,0,0,0.8)';
+        ctx.shadowBlur = 4;
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(this.nome, px, py - r - 18);
+        ctx.shadowBlur = 0;
+        
+        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        ctx.fillRect(px - 15, py + r + 8, 30, 4);
+        ctx.fillStyle = this.saude > 0.7 ? '#44ff44' : this.saude > 0.4 ? '#ffaa00' : '#ff4444';
+        ctx.fillRect(px - 15, py + r + 8, 30 * this.saude, 4);
+    }
+}
+
+class Jogo {
+    constructor() {
+        this.canvas = document.getElementById('gameCanvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.grid = 20;
+        this.tam = 35;
+        this.agentes = [];
+        this.jogador = null;
+        this.sel = null;
+        this.modo = 'observar';
+        this.turno = 0;
+        this.pausado = false;
+        this.vel = 1;
+        this.faccoes = [];
+        this.religioes = [];
+        this.guerras = [];
+        this.particulas = new Particulas();
+        this.tempo = 0;
+        this.era = 'PRIMORDIAL';
+        
+        this.biomas = this.gerarBiomas();
+        this.gerarAgentes(35);
+        this.setupEventos();
+        this.loop();
+    }
+    
+    gerarBiomas() {
+        const b = [];
+        for (let y = 0; y < this.grid; y++) {
+            for (let x = 0; x < this.grid; x++) {
+                let tipo = 'planicie', cor = '#3d5c3d';
+                if (x < 10 && y < 10) { tipo = 'floresta'; cor = '#2d5016'; }
+                else if (x >= 10 && y < 10) { tipo = 'deserto'; cor = '#c2b280'; }
+                else if (x < 10 && y >= 10) { tipo = 'montanha'; cor = '#4a4a4a'; }
+                b.push({x, y, tipo, cor});
+            }
+        }
+        return b;
+    }
+    
+    gerarAgentes(qtd) {
+        const nomes = ['Aria','Kael','Mira','Thorn','Luna','Sol','Nyx','Orion','Vesper','Dawn','Ash','Ember','River','Stone','Sky','Flame','Shadow','Light','Storm','Calm','Zephyr','Frost','Iron','Gold','Silver','Copper','Lead','Mercury','Sulfur','Salt','Echo','Silence','Noise','Music','Rhythm','Blues','Jazz','Rock','Pop','Folk'];
+        const profs = ['agricultor','guerreiro','mercador','artesao','sabio','ladrao'];
+        
+        for (let i = 0; i < qtd; i++) {
+            const x = Math.floor(Math.random() * this.grid);
+            const y = Math.floor(Math.random() * this.grid);
+            const bio = this.biomas.find(b => b.x === x && b.y === y);
+            
+            let p = profs[Math.floor(Math.random() * profs.length)];
+            if (bio.tipo === 'floresta' && Math.random() < 0.6) p = 'agricultor';
+            else if (bio.tipo === 'deserto' && Math.random() < 0.5) p = Math.random() < 0.5 ? 'mercador' : 'guerreiro';
+            else if (bio.tipo === 'montanha' && Math.random() < 0.5) p = Math.random() < 0.5 ? 'artesao' : 'guerreiro';
+            
+            this.agentes.push(new Agente({
+                id: `NPC_${i}`, nome: nomes[i % nomes.length], x, y,
+                profissao: p, bioma: bio.tipo, vivo: true,
+                saude: 0.7 + Math.random() * 0.3,
+                energia: 0.6 + Math.random() * 0.4,
+                fome: Math.random() * 0.3,
+                humor: ['alegria','raiva','medo','neutro'][Math.floor(Math.random() * 4)],
+                idade: 18 + Math.floor(Math.random() * 40)
+            }));
+        }
+        
+        this.jogador = new Agente({
+            id: 'JOGADOR', nome: 'Você', x: 10, y: 10,
+            profissao: 'viajante', bioma: 'planicie',
+            vivo: true, saude: 1, energia: 1, fome: 0,
+            humor: 'curiosidade', idade: 25
+        });
+        this.agentes.push(this.jogador);
+        this.atualizarUI();
+    }
+    
+    setupEventos() {
+        this.canvas.addEventListener('click', (e) => {
+            const rect = this.canvas.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left) / this.tam);
+            const y = Math.floor((e.clientY - rect.top) / this.tam);
+            
+            if (this.modo === 'mover') {
+                this.jogador.x = x;
+                this.jogador.y = y;
+                return;
+            }
+            
+            const ag = this.agentes.find(a => a.vivo && a.x === x && a.y === y);
+            if (ag && ag.id !== 'JOGADOR') {
+                if (this.modo === 'atacar') this.atacar(ag);
+                else this.selecionar(ag);
             }
         });
-
-        function initGame() {
-            // Aqui inicializa o jogo completo
-            console.log('Jogo iniciado!');
-            // ... código do jogo ...
+        
+        this.canvas.addEventListener('mousemove', (e) => {
+            const rect = this.canvas.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left) / this.tam);
+            const y = Math.floor((e.clientY - rect.top) / this.tam);
+            
+            const ag = this.agentes.find(a => a.vivo && a.x === x && a.y === y);
+            const tt = document.getElementById('tooltip');
+            
+            if (ag) {
+                tt.style.display = 'block';
+                tt.style.left = (e.clientX + 15) + 'px';
+                tt.style.top = (e.clientY + 15) + 'px';
+                const bio = this.biomas.find(b => b.x === ag.x && b.y === ag.y);
+                tt.innerHTML = `
+                    <strong style="color:#00d4ff; font-size:16px;">${ag.icones[ag.profissao]} ${ag.nome}</strong><br>
+                    <span style="color:#888;">Prof:</span> <span style="color:${ag.cores[ag.profissao]}">${ag.profissao}</span><br>
+                    <span style="color:#888;">Bioma:</span> ${bio ? bio.tipo : '?' }<br>
+                    <span style="color:#888;">Saúde:</span> <span style="color:${ag.saude > 0.7 ? '#44ff44' : ag.saude > 0.4 ? '#ffaa00' : '#ff4444'}">${Math.floor(ag.saude * 100)}%</span><br>
+                    <span style="color:#888;">Humor:</span> ${ag.humor}<br>
+                    <span style="color:#888;">Idade:</span> ${Math.floor(ag.idade)}<br>
+                    ${ag.faccao ? `<span style="color:#888;">Facção:</span> ${ag.faccao}<br>` : ''}
+                    ${ag.religiao ? `<span style="color:#888;">Religião:</span> <span style="color:#ffdd00">${ag.religiao}</span>` : ''}
+                `;
+            } else {
+                tt.style.display = 'none';
+            }
+        });
+    }
+    
+    loop() {
+        this.tempo += 16;
+        
+        for (const a of this.agentes) if (a.vivo) a.atualizarAnim();
+        this.particulas.atualizar();
+        
+        if (!this.pausado && this.tempo % Math.floor(1000 / this.vel) < 16) {
+            this.simular();
         }
+        
+        this.desenhar();
+        requestAnimationFrame(() => this.loop());
+    }
+    
+    desenhar() {
+        const grad = this.ctx.createRadialGradient(350, 350, 0, 350, 350, 350);
+        grad.addColorStop(0, '#0a0a15');
+        grad.addColorStop(1, '#050508');
+        this.ctx.fillStyle = grad;
+        this.ctx.fillRect(0, 0, 700, 700);
+        
+        for (const b of this.biomas) {
+            this.ctx.fillStyle = b.cor;
+            this.ctx.globalAlpha = 0.3;
+            this.ctx.fillRect(b.x * this.tam, b.y * this.tam, this.tam, this.tam);
+        }
+        this.ctx.globalAlpha = 1;
+        
+        this.ctx.strokeStyle = 'rgba(0,212,255,0.05)';
+        for (let i = 0; i <= this.grid; i++) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(i * this.tam, 0);
+            this.ctx.lineTo(i * this.tam, 700);
+            this.ctx.stroke();
+            this.ctx.beginPath();
+            this.ctx.moveTo(0, i * this.tam);
+            this.ctx.lineTo(700, i * this.tam);
+            this.ctx.stroke();
+        }
+        
+        this.particulas.desenhar(this.ctx);
+        
+        const ordenados = [...this.agentes].sort((a, b) => a.animY - b.animY);
+        for (const a of ordenados) {
+            a.desenhar(this.ctx, this.tam, a === this.jogador, this.tempo);
+        }
+    }
+    
+    simular() {
+        this.turno++;
+        let evt = 0;
+        
+        if (this.turno === 100) this.era = 'DESPERTAR';
+        else if (this.turno === 300) this.era = 'CONQUISTA';
+        else if (this.turno === 600) this.era = 'ILUMINAÇÃO';
+        document.getElementById('ind-era').textContent = this.era;
+        
+        for (const a of this.agentes) {
+            if (!a.vivo || a.id === 'JOGADOR') continue;
+            
+            if (Math.random() < 0.3) {
+                let dx = Math.floor(Math.random() * 3) - 1;
+                let dy = Math.floor(Math.random() * 3) - 1;
+                
+                if (a.profissao === 'guerreiro' && a.humor === 'raiva') {
+                    const inim = this.agentes.find(x => x.vivo && x.id !== a.id && x.faccao && x.faccao !== a.faccao);
+                    if (inim) { dx = Math.sign(inim.x - a.x); dy = Math.sign(inim.y - a.y); }
+                }
+                
+                const nx = Math.max(0, Math.min(this.grid - 1, a.x + dx));
+                const ny = Math.max(0, Math.min(this.grid - 1, a.y + dy));
+                
+                if (nx !== a.x || ny !== a.y) {
+                    a.x = nx; a.y = ny;
+                    const nb = this.biomas.find(b => b.x === a.x && b.y === a.y);
+                    if (nb) a.bioma = nb.tipo;
+                }
+            }
+            
+            if (a.fome > 0.8) a.humor = 'medo';
+            else if (Math.random() < 0.05) {
+                a.humor = ['alegria','raiva','medo','neutro'][Math.floor(Math.random() * 4)];
+            }
+            
+            a.fome += 0.015;
+            a.energia -= 0.008;
+            if (a.fome > 0.7) a.saude -= 0.015;
+            if (a.energia < 0.2) a.saude -= 0.01;
+            a.idade += 0.001;
+            
+            if (a.saude <= 0 || a.idade > 80) {
+                a.vivo = false;
+                const px = a.x * this.tam + this.tam/2;
+                const py = a.y * this.tam + this.tam/2;
+                this.particulas.criar(px, py, '#ff4444', 20);
+                this.log('morte', `${a.nome} (${a.profissao}) faleceu aos ${Math.floor(a.idade)} anos.`);
+                evt++;
+            }
+            
+            if (!a.faccao && Math.random() < 0.015) {
+                const al = this.agentes.find(x => x.vivo && x.id !== a.id && !x.faccao && Math.abs(x.x - a.x) <= 2 && Math.abs(x.y - a.y) <= 2 && x.humor === a.humor);
+                if (al) {
+                    const nf = `Ordem_${['Dourada','Sombria','Eterna','Radiante'][Math.floor(Math.random()*4)]}`;
+                    a.faccao = nf; al.faccao = nf;
+                    this.faccoes.push(nf);
+                    const px = a.x * this.tam + this.tam/2;
+                    const py = a.y * this.tam + this.tam/2;
+                    this.particulas.criar(px, py, '#00d4ff', 15);
+                    this.log('social', `🏛️ ${nf} fundada por ${a.nome} e ${al.nome}!`);
+                    evt++;
+                }
+            }
+            
+            if (Math.random() < 0.003 && !a.religiao) {
+                const deuses = ['Sol','Lua','Terra','Fogo','Água','Vento','Tempo'];
+                const d = deuses[Math.floor(Math.random() * deuses.length)];
+                a.religiao = d;
+                if (!this.religioes.includes(d)) {
+                    this.religioes.push(d);
+                    const px = a.x * this.tam + this.tam/2;
+                    const py = a.y * this.tam + this.tam/2;
+                    this.particulas.criar(px, py, '#ffdd00', 25);
+                    this.log('religiao', `✨ ${a.nome} teve visão de ${d}! Nova religião!`);
+                    evt++;
+                }
+            }
+            
+            if (a.faccao && Math.random() < 0.01) {
+                const ini = this.agentes.find(x => x.vivo && x.id !== a.id && x.faccao && x.faccao !== a.faccao && Math.abs(x.x - a.x) <= 1 && Math.abs(x.y - a.y) <= 1);
+                if (ini) {
+                    ini.saude -= 0.2;
+                    ini.humor = 'raiva';
+                    a.humor = 'raiva';
+                    const px = ini.x * this.tam + this.tam/2;
+                    const py = ini.y * this.tam + this.tam/2;
+                    this.particulas.criar(px, py, '#ff4444', 10);
+                    if (!this.guerras.find(g => g.f1 === a.faccao && g.f2 === ini.faccao)) {
+                        this.guerras.push({ f1: a.faccao, f2: ini.faccao, turno: this.turno });
+                        this.log('guerra', `⚔️ Conflito: ${a.faccao} vs ${ini.faccao}!`);
+                        evt++;
+                    }
+                }
+            }
+        }
+        
+        if (Math.random() < 0.02) {
+            const evts = [
+                '🌾 Colheita abundante!',
+                '☀️ O Sol brilha intensamente!',
+                '🌑 Eclipse! Temor nas religiões!',
+                '💰 Comerciantes distribuem ouro!',
+                '⚔️ Torneio de guerreiros!'
+            ];
+            this.log('economia', evts[Math.floor(Math.random() * evts.length)]);
+            evt++;
+        }
+        
+        this.atualizarUI();
+        document.getElementById('ind-eventos').textContent = evt;
+    }
+    
+    log(tipo, msg) {
+        const log = document.getElementById('log-eventos');
+        const div = document.createElement('div');
+        div.className = `evento evento-${tipo}`;
+        div.innerHTML = `<strong>[T${this.turno}]</strong> ${msg}`;
+        log.insertBefore(div, log.firstChild);
+        if (log.children.length > 20) log.removeChild(log.lastChild);
+    }
+    
+    atualizarUI() {
+        const vivos = this.agentes.filter(a => a.vivo).length;
+        document.getElementById('info-pop').textContent = vivos;
+        document.getElementById('info-fac').textContent = new Set(this.agentes.map(a => a.faccao).filter(f => f)).size;
+        document.getElementById('info-rel').textContent = this.religioes.length;
+        document.getElementById('info-guer').textContent = this.guerras.length;
+        document.getElementById('info-turno').textContent = this.turno;
+        document.getElementById('ind-turno').textContent = this.turno;
+        document.getElementById('ind-pop').textContent = vivos;
+        
+        if (this.jogador) {
+            document.getElementById('stat-saude').textContent = Math.floor(this.jogador.saude * 100) + '%';
+            document.getElementById('stat-energia').textContent = Math.floor(this.jogador.energia * 100) + '%';
+            document.getElementById('barra-saude').style.width = (this.jogador.saude * 100) + '%';
+            document.getElementById('barra-energia').style.width = (this.jogador.energia * 100) + '%';
+            document.getElementById('barra-fome').style.width = (this.jogador.fome * 100) + '%';
+        }
+    }
+    
+    setModo(m) {
+        this.modo = m;
+        document.querySelectorAll('.btn-acao').forEach(b => b.classList.remove('ativo'));
+        document.getElementById(`btn-${m}`).classList.add('ativo');
+    }
+    
+    pausar() {
+        this.pausado = !this.pausado;
+        document.getElementById('btn-pausa').innerHTML = this.pausado ? '▶️ Continuar' : '⏸️ Pausar';
+    }
+    
+    umTurno() {
+        const p = this.pausado;
+        this.pausado = false;
+        this.simular();
+        this.pausado = p;
+    }
+    
+    acelerar() {
+        this.vel = this.vel === 1 ? 2 : this.vel === 2 ? 5 : 1;
+        event.target.innerHTML = `⏩ ${this.vel}x`;
+    }
+    
+    resetar() {
+        this.agentes = [];
+        this.faccoes = [];
+        this.religioes = [];
+        this.guerras = [];
+        this.turno = 0;
+        this.era = 'PRIMORDIAL';
+        this.pausado = false;
+        document.getElementById('log-eventos').innerHTML = '<div style="color:#666; font-style:italic; text-align:center; padding:20px;">Mundo reiniciado...</div>';
+        this.gerarAgentes(35);
+    }
+    
+    selecionar(ag) {
+        this.sel = ag;
+        document.getElementById('painel-titulo').innerHTML = `${ag.icones[ag.profissao]} ${ag.nome}`;
+        document.getElementById('painel-interacao').style.display = 'flex';
+    }
+    
+    fecharPainel() {
+        document.getElementById('painel-interacao').style.display = 'none';
+        this.sel = null;
+    }
+    
+    acaoAgente(acao) {
+        if (!this.sel) return;
+        const alvo = this.sel;
+        
+        switch(acao) {
+            case 'conversar':
+                alvo.humor = 'alegria';
+                this.log('social', `Você conversou com ${alvo.nome}.`);
+                break;
+            case 'dar_comida':
+                alvo.fome = Math.max(0, alvo.fome - 0.3);
+                alvo.humor = 'alegria';
+                this.log('social', `Você deu comida para ${alvo.nome}.`);
+                break;
+            case 'dar_ouro':
+                alvo.humor = 'curiosidade';
+                this.log('economia', `Você deu ouro para ${alvo.nome}.`);
+                break;
+            case 'recrutar':
+                if (!alvo.faccao && !this.jogador.faccao) {
+                    const nf = `Ordem_de_${this.jogador.nome}`;
+                    this.jogador.faccao = nf;
+                    alvo.faccao = nf;
+                    this.faccoes.push(nf);
+                    this.log('social', `${alvo.nome} se juntou à ${nf}!`);
+                } else if (this.jogador.faccao && !alvo.faccao) {
+                    alvo.faccao = this.jogador.faccao;
+                    this.log('social', `${alvo.nome} se juntou à sua facção!`);
+                }
+                break;
+            case 'atacar':
+                this.atacar(alvo);
+                return;
+        }
+        
+        this.fecharPainel();
+        this.atualizarUI();
+    }
+    
+    atacar(alvo) {
+        alvo.saude -= 0.4;
+        alvo.humor = 'raiva';
+        
+        const px = alvo.x * this.tam + this.tam/2;
+        const py = alvo.y * this.tam + this.tam/2;
+        this.particulas.criar(px, py, '#ff4444', 15);
+        
+        this.log('guerra', `Você atacou ${alvo.nome}!`);
+        
+        if (alvo.saude <= 0) {
+            alvo.vivo = false;
+            this.particulas.criar(px, py, '#ff0000', 30);
+            this.log('morte', `${alvo.nome} foi morto por você!`);
+            
+            const amigos = this.agentes.filter(a => a.vivo && a.faccao === alvo.faccao && a.id !== alvo.id);
+            for (const a of amigos) a.humor = 'raiva';
+            if (amigos.length > 0) this.log('guerra', `Aliados de ${alvo.nome} estão furiosos!`);
+        }
+        
+        this.fecharPainel();
+        this.atualizarUI();
+    }
+}
 
-        // Inicia automaticamente
-        window.onload = () => {
-            startEpicCutscene();
-        };
-    </script>
+const jogo = new Jogo();
+</script>
 </body>
 </html>
