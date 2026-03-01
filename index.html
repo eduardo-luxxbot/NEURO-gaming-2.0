@@ -3,1227 +3,1370 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CHRONOS ECHO - Parte 1: O Despertar [CORRIGIDO]</title>
+    <title>A Última Chama de Veldora</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Cinzel:wght@400;700&display=swap');
 
-        :root {
-            --valthoria-blue: #1a237e;
-            --valthoria-silver: #c0c0c0;
-            --eco-blue: #00bfff;
-            --eco-gray: #a0a0a0;
-            --fissure-black: #0a0a0f;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; image-rendering: pixelated; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background: #000;
-            color: #e0e0e0;
-            font-family: 'Press Start 2P', cursive;
-            overflow: hidden;
-            height: 100vh;
+            background: #050505;
             display: flex;
             justify-content: center;
             align-items: center;
-        }
-
-        #game-container {
-            width: 1024px;
-            height: 576px;
-            background: #000;
-            position: relative;
-            box-shadow: 0 0 50px rgba(0, 191, 255, 0.3);
-            border: 4px solid var(--valthoria-silver);
+            min-height: 100vh;
             overflow: hidden;
         }
 
-        /* TELA DE TÍTULO */
-        #title-screen {
+        #gameContainer {
+            position: relative;
+            box-shadow: 0 0 100px rgba(255, 100, 0, 0.2);
+        }
+
+        canvas {
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            border: 4px solid #2a1810;
+        }
+
+        #cutsceneOverlay {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(180deg, var(--fissure-black) 0%, #1a1a2e 50%, var(--valthoria-blue) 100%);
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #000;
+            z-index: 1000;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
-            transition: opacity 0.5s ease-out;
+            transition: opacity 2s;
         }
 
-        #title-screen.hidden { 
-            opacity: 0; 
-            pointer-events: none;
-            visibility: hidden;
+        #eyeCanvas {
+            width: 400px;
+            height: 300px;
+            image-rendering: pixelated;
         }
 
-        .game-title {
-            font-size: 48px;
-            color: var(--eco-blue);
-            text-shadow: 0 0 20px var(--eco-blue), 0 0 40px var(--eco-blue);
-            margin-bottom: 20px;
-            animation: pulse 3s ease-in-out infinite;
-            letter-spacing: 4px;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.8; transform: scale(1.02); }
-        }
-
-        .subtitle { 
-            font-size: 14px; 
-            color: var(--valthoria-silver); 
-            margin-bottom: 40px; 
+        #cutsceneText {
+            color: #8b7355;
+            font-family: 'Cinzel', serif;
+            font-size: 18px;
             text-align: center;
+            margin-top: 30px;
+            max-width: 600px;
+            line-height: 1.8;
+            text-shadow: 0 0 10px rgba(139, 115, 85, 0.5);
+            min-height: 80px;
         }
 
-        .menu-option {
-            font-size: 12px;
-            color: #888;
-            margin: 12px 0;
-            cursor: pointer;
-            transition: all 0.3s;
-            padding: 10px 20px;
-            border: 2px solid transparent;
-            background: transparent;
-            font-family: 'Press Start 2P', cursive;
-        }
-
-        .menu-option:hover, .menu-option.selected {
-            color: var(--eco-blue);
-            border-color: var(--eco-blue);
-            text-shadow: 0 0 10px var(--eco-blue);
-            transform: translateX(10px);
-            background: rgba(0,0,0,0.3);
-        }
-
-        /* ÁREA DO JOGO */
-        #game-area {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: none;
-            background: #000;
-        }
-
-        #game-area.active { 
-            display: block !important;
-            z-index: 100;
-        }
-
-        /* CENÁRIOS */
-        #scene {
-            width: 100%;
-            height: 70%;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            transition: opacity 0.5s;
-        }
-
-        .bg-valthoria {
-            background: linear-gradient(180deg, #2a2a4a 0%, #1a1a3e 50%, #0f0f1f 100%);
-        }
-
-        .bg-valthoria::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(90deg, transparent 0px, transparent 80px, rgba(192,192,192,0.1) 80px, rgba(192,192,192,0.1) 100px);
-        }
-
-        .throne {
-            position: absolute;
-            bottom: 20%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 120px;
-            height: 160px;
-            background: radial-gradient(circle at 20% 20%, #4a4a4a 0%, #2a2a2a 30%, transparent 31%),
-                        radial-gradient(circle at 80% 20%, #4a4a4a 0%, #2a2a2a 30%, transparent 31%),
-                        radial-gradient(circle at 50% 80%, #3a3a3a 0%, #1a1a1a 40%, transparent 41%);
-            border: 3px solid #5a5a5a;
-            box-shadow: 0 0 30px rgba(0,0,0,0.8);
-        }
-
-        .throne::after {
-            content: '👑';
-            position: absolute;
-            top: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 30px;
-            filter: grayscale(100%) brightness(0.7);
-        }
-
-        .bg-fissure {
-            background: var(--fissure-black);
-            position: relative;
-        }
-
-        .bg-fissure::before {
-            content: '';
-            position: absolute;
-            width: 200%;
-            height: 200%;
-            background: conic-gradient(from 0deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3, #ff0000);
-            opacity: 0.1;
-            animation: rotate 15s linear infinite;
-        }
-
-        @keyframes rotate {
-            0% { transform: translate(-25%, -25%) rotate(0deg); }
-            100% { transform: translate(-25%, -25%) rotate(360deg); }
-        }
-
-        .clock-pile {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            height: 40%;
-            background: repeating-radial-gradient(circle at 30% 80%, #4a3a2a 0px, #2a1a0a 15px, transparent 16px);
-            opacity: 0.6;
-        }
-
-        /* PERSONAGENS */
-        .character {
-            position: absolute;
-            transition: all 0.3s;
-            cursor: pointer;
-            z-index: 50;
-        }
-
-        .character:hover { 
-            filter: brightness(1.2); 
-            transform: scale(1.05);
-        }
-
-        /* ECO-ZERO */
-        .eco-zero {
-            width: 60px;
-            height: 100px;
-            bottom: 25%;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .eco-zero-body {
-            width: 100%;
-            height: 100%;
-            background: var(--eco-gray);
-            border-radius: 10px 10px 20px 20px;
-            position: relative;
-            box-shadow: inset -10px 0 20px rgba(0,0,0,0.5), 0 0 20px rgba(0,191,255,0.3);
-            animation: glitch 4s infinite;
-        }
-
-        @keyframes glitch {
-            0%, 90%, 100% { transform: translate(0); }
-            91% { transform: translate(-2px, 1px); }
-            92% { transform: translate(2px, -1px); }
-            93% { transform: translate(0); }
-        }
-
-        .eco-zero-head {
-            position: absolute;
-            top: -25px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 40px;
-            height: 40px;
-            background: var(--eco-gray);
-            border-radius: 50%;
-        }
-
-        .eco-zero-eyes {
-            position: absolute;
-            top: 12px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100%;
-            display: flex;
-            justify-content: space-around;
-            padding: 0 5px;
-        }
-
-        .eco-eye {
-            width: 10px;
-            height: 10px;
-            background: #fff;
-            border-radius: 50%;
-            box-shadow: 0 0 10px #fff;
-            animation: blink 5s infinite;
+        #cutsceneText.typing::after {
+            content: '|';
+            animation: blink 1s infinite;
         }
 
         @keyframes blink {
-            0%, 48%, 52%, 100% { transform: scaleY(1); }
-            50% { transform: scaleY(0.1); }
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
         }
 
-        .eco-zero-hair {
+        #gameUI {
             position: absolute;
-            top: -35px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 50px;
-            height: 30px;
-            background: #f0f0f0;
-            border-radius: 50% 50% 0 0;
-            clip-path: polygon(20% 100%, 0% 50%, 10% 0%, 30% 30%, 50% 0%, 70% 30%, 90% 0%, 100% 50%, 80% 100%);
-        }
-
-        .eco-tears {
-            position: absolute;
-            top: 25px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100%;
-            display: flex;
-            justify-content: space-around;
-            padding: 0 8px;
-        }
-
-        .eco-tear {
-            width: 3px;
-            height: 8px;
-            background: #1a1a1a;
-            border-radius: 0 0 50% 50%;
-            animation: drop 3s infinite;
-        }
-
-        @keyframes drop {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(5px); }
-        }
-
-        .eco-clock {
-            position: absolute;
-            top: 30%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 20px;
-            height: 20px;
-            background: #4a3a2a;
-            border: 2px solid #ffd700;
-            border-radius: 50%;
-        }
-
-        /* REI ALDRIC */
-        .aldrich {
-            width: 70px;
-            height: 110px;
-            bottom: 25%;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .aldrich-body {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(180deg, #1a237e 0%, #0f0f3e 100%);
-            border-radius: 15px;
-            position: relative;
-            box-shadow: 0 0 30px rgba(26,35,126,0.5);
-        }
-
-        .aldrich-head {
-            position: absolute;
-            top: -30px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 45px;
-            height: 50px;
-            background: linear-gradient(180deg, #d4a574 0%, #c49464 50%, #8b7355 100%);
-            border-radius: 50%;
-            overflow: hidden;
-        }
-
-        .aldrich-crown {
-            position: absolute;
-            top: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 25px;
-            filter: brightness(1.5);
-        }
-
-        .aldrich-eyes {
-            position: absolute;
-            top: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100%;
-            display: flex;
-            justify-content: space-around;
-            padding: 0 8px;
-        }
-
-        .aldrich-eye {
-            width: 8px;
-            height: 8px;
-            background: #4a90e2;
-            border-radius: 50%;
-            box-shadow: 0 0 5px #4a90e2;
-        }
-
-        /* PRÍNCIPE KAEL */
-        .kael {
-            width: 55px;
-            height: 95px;
-            bottom: 20%;
-            right: 25%;
-        }
-
-        .kael-body {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
-            border-radius: 10px;
-            position: relative;
-        }
-
-        .kael-head {
-            position: absolute;
-            top: -25px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 35px;
-            height: 40px;
-            background: #d4a574;
-            border-radius: 50%;
-        }
-
-        .kael-hair {
-            position: absolute;
-            top: -30px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 40px;
-            height: 25px;
-            background: #f0f0f0;
-            border-radius: 50% 50% 0 0;
-            clip-path: polygon(10% 100%, 0% 30%, 20% 0%, 40% 40%, 60% 0%, 80% 30%, 100% 100%);
-        }
-
-        .kael-scar {
-            position: absolute;
-            top: 40%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 15px;
-            height: 20px;
-            background: #8b0000;
-            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-            opacity: 0.8;
-        }
-
-        /* JOGADOR */
-        .player {
-            width: 50px;
-            height: 80px;
-            bottom: 20%;
-            left: 20%;
-            z-index: 100;
-            transition: left 0.3s ease;
-        }
-
-        .player-body {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(180deg, #4a5568 0%, #2d3748 100%);
-            border-radius: 10px;
-            position: relative;
-            box-shadow: 0 0 20px rgba(0,191,255,0.5);
-        }
-
-        .player-head {
-            position: absolute;
-            top: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 35px;
-            height: 35px;
-            background: #d4a574;
-            border-radius: 50%;
-        }
-
-        .player-hair {
-            position: absolute;
-            top: -25px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 40px;
-            height: 20px;
-            background: #2d3748;
-            border-radius: 50% 50% 0 0;
-        }
-
-        /* DIÁLOGO */
-        #dialogue-box {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 30%;
-            background: linear-gradient(180deg, rgba(0,0,0,0.95) 0%, rgba(10,10,15,0.98) 100%);
-            border-top: 3px solid var(--valthoria-silver);
-            padding: 20px;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
             display: none;
-            z-index: 500;
         }
 
-        #dialogue-box.active { 
-            display: block !important;
-        }
+        #gameUI.active { display: block; }
 
-        .speaker-name {
-            color: var(--eco-blue);
-            font-size: 10px;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .dialogue-text {
-            color: #e0e0e0;
-            font-size: 10px;
-            line-height: 1.8;
-            margin-bottom: 15px;
-            min-height: 60px;
-        }
-
-        .dialogue-choices {
+        #hud {
+            position: absolute;
+            top: 15px; left: 15px;
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
 
-        .choice-btn {
-            background: rgba(0,0,0,0.5);
-            border: 2px solid #444;
-            color: #888;
-            padding: 8px 15px;
+        .bar {
+            width: 200px;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #4a4a4a;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bar-fill { height: 100%; transition: width 0.3s; }
+        #hpBar { background: linear-gradient(90deg, #8b0000, #ff4444); }
+        #manaBar { background: linear-gradient(90deg, #004488, #4488ff); }
+        #flameBar { background: linear-gradient(90deg, #ff6600, #ffcc00); }
+
+        .bar-text {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
             font-family: 'Press Start 2P', cursive;
-            font-size: 9px;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: left;
+            font-size: 8px;
+            text-shadow: 1px 1px 0 #000;
+            z-index: 10;
         }
 
-        .choice-btn:hover, .choice-btn.selected {
-            border-color: var(--eco-blue);
-            color: var(--eco-blue);
-            text-shadow: 0 0 10px var(--eco-blue);
-            transform: translateX(10px);
-            background: rgba(0,191,255,0.1);
-        }
-
-        /* HUD */
-        #hud {
+        #spellBar {
             position: absolute;
-            top: 10px;
-            left: 10px;
-            display: flex;
-            gap: 15px;
-            z-index: 200;
-        }
-
-        .hud-item {
-            background: rgba(0,0,0,0.8);
-            border: 2px solid var(--valthoria-silver);
-            padding: 8px 12px;
-            font-size: 9px;
-            color: var(--eco-blue);
-        }
-
-        .hud-label {
-            color: #666;
-            font-size: 7px;
-            display: block;
-            margin-bottom: 4px;
-        }
-
-        /* BOTÃO REWIND */
-        #time-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(0,0,0,0.8);
-            border: 2px solid var(--eco-blue);
-            color: var(--eco-blue);
-            padding: 10px 15px;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 9px;
-            cursor: pointer;
-            z-index: 200;
-            transition: all 0.3s;
-        }
-
-        #time-btn:hover {
-            background: var(--eco-blue);
-            color: #000;
-        }
-
-        #time-btn:disabled { 
-            opacity: 0.3; 
-            cursor: not-allowed;
-            background: rgba(0,0,0,0.5);
-        }
-
-        /* INDICADOR */
-        .interaction-indicator {
-            position: absolute;
-            top: -30px;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            color: var(--eco-blue);
-            font-size: 20px;
-            animation: bounce 1s infinite;
-            display: none;
-            text-shadow: 0 0 10px var(--eco-blue);
+            display: flex;
+            gap: 10px;
         }
 
-        .character:hover .interaction-indicator { 
-            display: block; 
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateX(-50%) translateY(0); }
-            50% { transform: translateX(-50%) translateY(-8px); }
-        }
-
-        /* TRANSICAO */
-        #transition-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--fissure-black);
-            display: none;
-            justify-content: center;
+        .spellSlot {
+            width: 48px;
+            height: 48px;
+            background: rgba(20, 10, 30, 0.9);
+            border: 3px solid #4a3c5a;
+            display: flex;
             align-items: center;
-            z-index: 999;
-            flex-direction: column;
+            justify-content: center;
+            font-size: 24px;
+            position: relative;
+            transition: all 0.2s;
         }
 
-        #transition-screen.active { 
-            display: flex !important;
+        .spellSlot.selected {
+            border-color: #ffd700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            transform: scale(1.1);
         }
 
-        .transition-text {
-            color: var(--eco-blue);
-            font-size: 16px;
-            text-align: center;
-            line-height: 2;
-            text-shadow: 0 0 20px var(--eco-blue);
-        }
+        .spellSlot.cooldown { opacity: 0.5; }
 
-        /* NOTIFICAÇÃO */
-        #notification {
+        .cooldownOverlay {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.95);
-            border: 3px solid var(--eco-blue);
-            padding: 25px;
-            font-size: 10px;
-            color: var(--eco-blue);
-            text-align: center;
-            display: none;
-            z-index: 1001;
-            max-width: 450px;
-            box-shadow: 0 0 30px rgba(0,191,255,0.3);
+            bottom: 0; left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            transition: height 0.1s;
         }
 
-        #notification.active { 
-            display: block !important;
-            animation: popIn 0.3s ease-out;
-        }
-
-        @keyframes popIn {
-            0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
-            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-        }
-
-        /* MAPA */
-        #quick-map {
+        .keyHint {
             position: absolute;
-            bottom: 10px;
-            right: 10px;
-            background: rgba(0,0,0,0.9);
-            border: 2px solid var(--valthoria-silver);
-            padding: 12px;
+            top: -15px;
+            color: #888;
+            font-family: 'Press Start 2P', cursive;
             font-size: 8px;
-            z-index: 200;
         }
 
-        .map-location {
+        #dialogBox {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 700px;
+            background: linear-gradient(180deg, rgba(20, 10, 30, 0.98), rgba(10, 5, 15, 0.98));
+            border: 4px solid #6b4c3a;
+            border-radius: 8px;
+            padding: 20px;
+            display: none;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+        }
+
+        #dialogBox.active { display: block; }
+
+        #dialogPortrait {
+            width: 80px;
+            height: 80px;
+            background: #2a1f3d;
+            border: 3px solid #4a3c5a;
+            float: left;
+            margin-right: 20px;
+        }
+
+        #dialogContent {
+            color: #e0d0c0;
+            font-family: 'Cinzel', serif;
+            font-size: 16px;
+            line-height: 1.6;
+            min-height: 80px;
+        }
+
+        #dialogName {
+            color: #ffd700;
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        #flashbackOverlay {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: radial-gradient(circle, transparent 30%, rgba(139, 0, 0, 0.3) 100%);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s;
+            z-index: 100;
+        }
+
+        #flashbackOverlay.active { opacity: 1; }
+
+        #memoryText {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ff4444;
+            font-family: 'Cinzel', serif;
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+            text-shadow: 0 0 20px rgba(255, 68, 68, 0.8);
+            opacity: 0;
+            transition: opacity 0.5s;
+            max-width: 80%;
+            z-index: 101;
+        }
+
+        #memoryText.active { opacity: 1; }
+
+        #questLog {
+            position: absolute;
+            top: 15px; right: 15px;
+            width: 250px;
+            background: rgba(10, 5, 15, 0.95);
+            border: 3px solid #4a3c5a;
+            padding: 15px;
+            display: none;
+        }
+
+        #questLog.active { display: block; }
+
+        #questLog h3 {
+            color: #ffd700;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #4a3c5a;
+            padding-bottom: 5px;
+        }
+
+        .questItem {
+            color: #aaa;
+            font-family: 'Cinzel', serif;
+            font-size: 12px;
+            margin-bottom: 8px;
+            padding-left: 15px;
+            position: relative;
+        }
+
+        .questItem::before {
+            content: '◆';
+            position: absolute;
+            left: 0;
             color: #666;
-            margin: 5px 0;
-            cursor: pointer;
-            transition: all 0.3s;
-            padding: 3px;
         }
 
-        .map-location:hover, .map-location.active { 
-            color: var(--eco-blue);
-            text-shadow: 0 0 5px var(--eco-blue);
+        .questItem.active::before { color: #ffd700; }
+        .questItem.completed {
+            color: #448844;
+            text-decoration: line-through;
         }
 
-        .typing::after {
-            content: '▋';
-            animation: cursor 1s infinite;
+        #controls {
+            position: absolute;
+            bottom: 10px; right: 15px;
+            color: #444;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 8px;
+            text-align: right;
         }
 
-        @keyframes cursor {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0; }
+        @keyframes shake {
+            0%, 100% { transform: translate(0, 0); }
+            10% { transform: translate(-5px, -5px); }
+            20% { transform: translate(5px, 5px); }
+            30% { transform: translate(-5px, 5px); }
+            40% { transform: translate(5px, -5px); }
+            50% { transform: translate(-3px, 3px); }
+            60% { transform: translate(3px, -3px); }
         }
+
+        .shake { animation: shake 0.5s; }
     </style>
 <base target="_blank">
 </head>
 <body>
-    <div id="game-container">
-        <!-- NOTIFICAÇÃO -->
-        <div id="notification"></div>
+    <div id="gameContainer">
+        <canvas id="gameCanvas" width="960" height="720"></canvas>
 
-        <!-- TELA DE TÍTULO -->
-        <div id="title-screen">
-            <h1 class="game-title">CHRONOS ECHO</h1>
-            <p class="subtitle">Parte 1: O Despertar</p>
-            <button class="menu-option selected" onclick="startGame()">► NOVO JOGO</button>
-            <button class="menu-option" onclick="loadGame()">CARREGAR JOGO</button>
-            <button class="menu-option" onclick="showTutorial()">TUTORIAL</button>
-            <button class="menu-option" onclick="showCredits()">CRÉDITOS</button>
+        <div id="cutsceneOverlay">
+            <canvas id="eyeCanvas" width="200" height="150"></canvas>
+            <div id="cutsceneText" class="typing"></div>
         </div>
 
-        <!-- TELA DE TRANSICAO -->
-        <div id="transition-screen">
-            <p class="transition-text"></p>
-        </div>
-
-        <!-- ÁREA DO JOGO -->
-        <div id="game-area">
+        <div id="gameUI">
             <div id="hud">
-                <div class="hud-item">
-                    <span class="hud-label">LOCAL</span>
-                    <span id="location-name">VALTHORIA</span>
+                <div class="bar">
+                    <div class="bar-fill" id="hpBar" style="width: 100%"></div>
+                    <div class="bar-text">❤️ <span id="hpText">100/100</span></div>
                 </div>
-                <div class="hud-item">
-                    <span class="hud-label">ECO-ZERO</span>
-                    <span id="eco-status">DESCONHECIDO</span>
+                <div class="bar">
+                    <div class="bar-fill" id="manaBar" style="width: 100%"></div>
+                    <div class="bar-text">✨ <span id="manaText">100/100</span></div>
                 </div>
-                <div class="hud-item">
-                    <span class="hud-label">KAEL</span>
-                    <span id="kael-mood">NEUTRO</span>
-                </div>
-            </div>
-
-            <button id="time-btn" onclick="rewindTime()">⏪ REWIND (3)</button>
-
-            <div id="quick-map">
-                <div class="map-location active" onclick="travelTo('valthoria')">🏰 VALTHORIA</div>
-                <div class="map-location" onclick="travelTo('fissure')">🌌 FISSURAS</div>
-            </div>
-
-            <div id="scene">
-                <div class="background bg-valthoria" id="bg-valthoria">
-                    <div class="throne"></div>
-
-                    <div class="character player" id="player" onclick="movePlayer()">
-                        <div class="player-body">
-                            <div class="player-head"><div class="player-hair"></div></div>
-                        </div>
-                        <div class="interaction-indicator">▼</div>
-                    </div>
-
-                    <div class="character aldrich" id="aldrich" onclick="interactWith('aldrich')">
-                        <div class="aldrich-body">
-                            <div class="aldrich-head">
-                                <div class="aldrich-crown">👑</div>
-                                <div class="aldrich-eyes">
-                                    <div class="aldrich-eye"></div>
-                                    <div class="aldrich-eye"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="interaction-indicator">!</div>
-                    </div>
-
-                    <div class="character kael" id="kael" onclick="interactWith('kael')">
-                        <div class="kael-body">
-                            <div class="kael-scar"></div>
-                            <div class="kael-head"><div class="kael-hair"></div></div>
-                        </div>
-                        <div class="interaction-indicator">!</div>
-                    </div>
-                </div>
-
-                <div class="background bg-fissure" id="bg-fissure" style="display:none">
-                    <div class="clock-pile"></div>
-
-                    <div class="character eco-zero" id="eco-zero" onclick="interactWith('eco-zero')">
-                        <div class="eco-zero-body">
-                            <div class="eco-zero-head">
-                                <div class="eco-zero-hair"></div>
-                                <div class="eco-zero-eyes">
-                                    <div class="eco-eye"></div>
-                                    <div class="eco-eye"></div>
-                                </div>
-                                <div class="eco-tears">
-                                    <div class="eco-tear"></div>
-                                    <div class="eco-tear"></div>
-                                </div>
-                            </div>
-                            <div class="eco-clock"></div>
-                        </div>
-                        <div class="interaction-indicator">!</div>
-                    </div>
+                <div class="bar">
+                    <div class="bar-fill" id="flameBar" style="width: 100%"></div>
+                    <div class="bar-text">🔥 CHAMA INTERNA</div>
                 </div>
             </div>
 
-            <div id="dialogue-box">
-                <div class="speaker-name" id="speaker">???</div>
-                <div class="dialogue-text" id="dialogue-text"></div>
-                <div class="dialogue-choices" id="choices"></div>
+            <div id="spellBar">
+                <div class="spellSlot selected" data-spell="0">
+                    <span class="keyHint">1</span>
+                    🔥
+                    <div class="cooldownOverlay" style="height: 0%"></div>
+                </div>
+                <div class="spellSlot" data-spell="1">
+                    <span class="keyHint">2</span>
+                    ❄️
+                    <div class="cooldownOverlay" style="height: 0%"></div>
+                </div>
+                <div class="spellSlot" data-spell="2">
+                    <span class="keyHint">3</span>
+                    ⚡
+                    <div class="cooldownOverlay" style="height: 0%"></div>
+                </div>
+                <div class="spellSlot" data-spell="3">
+                    <span class="keyHint">4</span>
+                    🌟
+                    <div class="cooldownOverlay" style="height: 0%"></div>
+                </div>
+            </div>
+
+            <div id="dialogBox">
+                <canvas id="dialogPortrait"></canvas>
+                <div id="dialogContent">
+                    <div id="dialogName">Nome</div>
+                    <div id="dialogText">Texto do diálogo...</div>
+                </div>
+            </div>
+
+            <div id="flashbackOverlay"></div>
+            <div id="memoryText"></div>
+
+            <div id="questLog">
+                <h3>📜 MISSÕES</h3>
+                <div id="questList"></div>
+            </div>
+
+            <div id="controls">
+                WASD: Mover | SPACE: Rolar<br>
+                E: Interagir | Q: Missões<br>
+                1-4: Magias | CLICK: Atacar
             </div>
         </div>
     </div>
 
-    <script>
-        // ESTADO DO JOGO
-        const gameState = {
-            location: 'valthoria',
-            ecoZeroVisits: 0,
-            ecoZeroPhase: 0,
-            kaelMood: 50,
-            aldrichState: 1,
-            playerChoices: [],
-            timeRewinds: 3,
-            typingSpeed: 35,
-            gameStarted: false
-        };
 
-        // DIÁLOGOS
-        const dialogues = {
-            aldrich: {
-                name: 'REI ALDRIC III',
-                text: 'Valthoria prospera. O Rei ama sua Rainha. O Rei ama seu povo... [a ilusão treme]',
-                choices: [
-                    { text: 'Vossa Majestade, posso falar?', next: 'aldrich_lucid' },
-                    { text: '[Observar de perto]', next: 'aldrich_see' },
-                    { text: '[Ir embora]', next: null }
-                ]
-            },
-            aldrich_lucid: {
-                name: 'REI ALDRIC III',
-                text: '[Olhos focam em você por um segundo] Ajude-me. Por favor. Me mate. Eu não deveria existir. Ela me mantém preso.',
-                choices: [
-                    { text: 'Quem?', next: 'aldrich_explain' },
-                    { text: 'Como posso ajudar?', next: 'aldrich_help' }
-                ]
-            },
-            aldrich_see: {
-                name: 'NARRADOR',
-                text: 'Você observa: o pescoço do Rei é translúcido por instantes. Você vê... ossos? Ilusão mágica falhando.',
-                choices: [
-                    { text: 'O que é você?', next: 'aldrich_lucid' },
-                    { text: '[Recuar]', next: null }
-                ]
-            },
-            aldrich_explain: {
-                name: 'REI ALDRIC III',
-                text: 'Seraphina. Minha esposa. Ela tem medo de ficar sozinha. Então me preserva. Com magia proibida. Com minha alma presa nesta podridão.',
-                choices: [
-                    { text: 'Isso é terrível...', next: 'aldrich_quest' }
-                ]
-            },
-            aldrich_help: {
-                name: 'REI ALDRIC III',
-                text: 'Fale com Kael. Meu filho. Ele sabe a verdade há dez anos. Ou... destrua o anel em meu dedo. Mas isso me mataria de verdade.',
-                choices: [
-                    { text: 'Falarei com Kael', next: null, action: () => startQuest('kael') },
-                    { text: 'Destruirei o anel', next: null, action: () => startQuest('kill') }
-                ]
-            },
-            aldrich_quest: {
-                name: 'REI ALDRIC III',
-                text: '[Sorriso triste] Obrigado. Alguém que ouve. Alguém que vê. Vá. Antes que a lucidez passe.',
-                choices: [
-                    { text: '[Sair]', next: null }
-                ]
-            },
-            kael: {
-                name: 'PRÍNCIPE KAEL',
-                text: '[Sentado nos degraus, não no trono. Espada cravada no chão entre ele e o assento] Você é o Eco. O profetizado. Ou a maldição. Ainda não decidi.',
-                choices: [
-                    { text: 'Posso me sentar?', next: 'kael_sit' },
-                    { text: 'Por que não no trono?', next: 'kael_throne' },
-                    { text: 'Seu pai pediu para falar contigo', next: 'kael_dad', condition: () => hasQuest('kael') }
-                ]
-            },
-            kael_sit: {
-                name: 'PRÍNCIPE KAEL',
-                text: '[Risada seca] Sente. O chão é mais honesto que o trono. Mais frio também. Mas honesto.',
-                choices: [
-                    { text: '[Sentar ao lado]', next: null, effect: () => changeKaelMood(10) },
-                    { text: 'Prefiro ficar de pé', next: null }
-                ]
-            },
-            kael_throne: {
-                name: 'PRÍNCIPE KAEL',
-                text: '[Toca a queimadura em forma de coração no peito] Porque lá em cima está meu pai. Ou o que resta. E eu... não consigo olhar para ele sem querer quebrar tudo.',
-                choices: [
-                    { text: 'Você sabe a verdade?', next: 'kael_truth' },
-                    { text: 'Conte-me sobre a queimadura', next: 'kael_scar' }
-                ]
-            },
-            kael_truth: {
-                name: 'PRÍNCIPE KAEL',
-                text: 'Sei há dez anos. Aos quinze, entrei sem bater. Vi... o que ela fez. O que ele se tornou. E o pior? Entendo. Ela tem medo. Ele deixou. Eu faria o mesmo?',
-                choices: [
-                    { text: 'Não sei', next: null, effect: () => changeKaelMood(10) },
-                    { text: 'Não. Morte é parte da vida', next: null, effect: () => changeKaelMood(5) },
-                    { text: 'Se amasse tanto... talvez', next: null, effect: () => changeKaelMood(15) }
-                ]
-            },
-            kael_scar: {
-                name: 'PRÍNCIPE KAEL',
-                text: 'Fiz aos quinze. Quando descobri. Quis me punir por não ter percebido antes. Por não ter salvado ele. Agora é... lembrança. De quem eu era. Do que perdi.',
-                choices: [
-                    { text: 'Você não podia saber', next: null, effect: () => changeKaelMood(10) },
-                    { text: 'A dor molda', next: null, effect: () => changeKaelMood(5) }
-                ]
-            },
-            kael_dad: {
-                name: 'PRÍNCIPE KAEL',
-                text: '[Espada treme na mão] Ele... ele falou? Depois de dez anos de silêncio? O que disse?',
-                choices: [
-                    { text: 'Pediu para ser libertado', next: 'kael_free' }
-                ]
-            },
-            kael_free: {
-                name: 'PRÍNCIPE KAEL',
-                text: 'Libertado. Morte. Ele quer morte. E eu... eu quero negar. Quero mantê-lo. Como ela. Sou igual a ela. [voz quebra] Ou sou pior? Porque eu sei. E ainda assim...',
-                choices: [
-                    { text: 'Você não é sua mãe', next: null, effect: () => changeKaelMood(20) },
-                    { text: 'Mas entende o sofrimento dele', next: null, effect: () => changeKaelMood(10) }
-                ]
+<script>
+// =====================================================
+// A ÚLTIMA CHAMA DE VELDORA - ENGINE COMPLETA
+// =====================================================
+
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+ctx.imageSmoothingEnabled = false;
+
+const TILE_SIZE = 48;
+const MAP_WIDTH = 20;
+const MAP_HEIGHT = 15;
+
+// PALETA DE CORES PREMIUM
+const COLORS = {
+    stoneDark: '#2a2a35',
+    stoneLight: '#3a3a45',
+    stoneHighlight: '#4a4a55',
+    crystalBlue: '#4488ff',
+    crystalCyan: '#00ffff',
+    crystalGlow: 'rgba(68, 136, 255, 0.3)',
+    flameCore: '#ffff00',
+    flameMid: '#ff8800',
+    flameOuter: '#ff4400',
+    skin: '#d4a574',
+    hair: '#2c1810',
+    tunic: '#8b4513',
+    tunicDark: '#5d2e0c',
+    pants: '#2a2a3a',
+    boots: '#1a1a1a',
+    shadowBody: '#1a0a2e',
+    shadowEyes: '#ff0044',
+    shadowGlow: 'rgba(255, 0, 68, 0.2)',
+    gold: '#ffd700',
+    health: '#ff4444',
+    mana: '#4488ff'
+};
+
+const TILES = { floor: 0, wall: 1, crystal: 2, torch: 3, grass: 4, water: 5, door: 6 };
+
+// MAPA DA CAVERNA INICIAL
+let gameMap = [];
+for (let y = 0; y < MAP_HEIGHT; y++) {
+    gameMap[y] = [];
+    for (let x = 0; x < MAP_WIDTH; x++) {
+        const distFromCenter = Math.sqrt((x - 10)**2 + (y - 7)**2);
+        if (distFromCenter > 8) {
+            gameMap[y][x] = TILES.wall;
+        } else if (distFromCenter > 7 && Math.random() > 0.3) {
+            gameMap[y][x] = TILES.wall;
+        } else {
+            gameMap[y][x] = TILES.floor;
+        }
+        if (gameMap[y][x] === TILES.floor && Math.random() < 0.05) {
+            gameMap[y][x] = TILES.crystal;
+        }
+    }
+}
+
+// Área limpa no spawn
+for (let y = 6; y <= 8; y++) {
+    for (let x = 9; x <= 11; x++) {
+        gameMap[y][x] = TILES.floor;
+    }
+}
+
+gameMap[5][5] = TILES.torch;
+gameMap[5][15] = TILES.torch;
+gameMap[10][10] = TILES.torch;
+
+// JOGADOR
+const player = {
+    x: 10 * TILE_SIZE, y: 7 * TILE_SIZE,
+    width: 32, height: 48,
+    vx: 0, vy: 0, speed: 4,
+    hp: 100, maxHp: 100,
+    mana: 100, maxMana: 100,
+    flame: 100,
+    direction: 'down',
+    frame: 0, isMoving: false,
+    isRolling: false, rollCooldown: 0,
+    attackCooldown: 0, selectedSpell: 0
+};
+
+// MAGIAS
+const spells = [
+    { name: 'Orbe Ígneo', damage: 25, cost: 15, cooldown: 0, maxCooldown: 60, color: '#ff6600', icon: '🔥' },
+    { name: 'Lança Gélida', damage: 20, cost: 12, cooldown: 0, maxCooldown: 45, color: '#00ffff', icon: '❄️' },
+    { name: 'Raio Rúnico', damage: 40, cost: 25, cooldown: 0, maxCooldown: 90, color: '#ffff00', icon: '⚡' },
+    { name: 'Cura Sagrada', heal: 30, cost: 20, cooldown: 0, maxCooldown: 120, color: '#00ff88', icon: '🌟' }
+];
+
+// INIMIGOS
+const enemies = [
+    { x: 5 * TILE_SIZE, y: 5 * TILE_SIZE, hp: 60, maxHp: 60, type: 'shadow', state: 'idle', targetX: 0, targetY: 0, attackCooldown: 0 },
+    { x: 15 * TILE_SIZE, y: 10 * TILE_SIZE, hp: 60, maxHp: 60, type: 'shadow', state: 'idle', targetX: 0, targetY: 0, attackCooldown: 0 },
+    { x: 8 * TILE_SIZE, y: 12 * TILE_SIZE, hp: 80, maxHp: 80, type: 'shadow', state: 'idle', targetX: 0, targetY: 0, attackCooldown: 0, isElite: true }
+];
+
+// NPCs
+const npcs = [{
+    x: 12 * TILE_SIZE, y: 6 * TILE_SIZE,
+    name: 'Lyra', title: 'Vidente das Sombras',
+    dialogs: [
+        { text: "Kael... você finalmente despertou. Dormiu por 87 anos.", portrait: 'lyra' },
+        { text: "A Chama Interior ainda queima em você. Isso é... impossível.", portrait: 'lyra' },
+        { text: "Morvath sentiu seu despertar. Os Vultos já procuram por você.", portrait: 'lyra' },
+        { text: "Você precisa reacender as Chamas Eternas. Comece pela Chama do Leste, nas ruínas de Ashford.", portrait: 'lyra', givesQuest: 'first_flame' }
+    ],
+    currentDialog: 0, questGiven: false
+}];
+
+// SISTEMA DE MEMÓRIAS
+const memories = [
+    { id: 'memory1', text: "Agora eu me lembro... o Lich...", trigger: 'kill_first_enemy' },
+    { id: 'memory2', text: "UHHH ESSA COISA FICA SEMPRE ACABANDO COM O MUNDO!", trigger: 'kill_third_enemy' },
+    { id: 'memory3', text: "Eu preciso detê-lo... custe o que custar.", trigger: 'find_crystal' }
+];
+
+let unlockedMemories = [];
+let killCount = 0;
+
+// QUESTS
+const quests = {
+    first_flame: { title: 'A Primeira Chama', desc: 'Reacenda a Chama do Leste nas ruínas de Ashford', completed: false, active: false }
+};
+
+let activeQuests = [];
+let particles = [];
+let projectiles = [];
+const keys = {};
+const mouse = { x: 0, y: 0, clicked: false };
+
+let gameState = 'cutscene';
+let inDialog = false;
+let currentNPC = null;
+let currentDialogIndex = 0;
+
+// =====================================================
+// CUTSCENE
+// =====================================================
+const eyeCanvas = document.getElementById('eyeCanvas');
+const eyeCtx = eyeCanvas.getContext('2d');
+eyeCtx.imageSmoothingEnabled = false;
+
+let cutscenePhase = 0;
+let cutsceneTimer = 0;
+let eyeOpenness = 0;
+
+const cutsceneTexts = [
+    "Kael... Kael, desperta...",
+    "A última chama ainda queima dentro de você...",
+    "87 anos você dormiu, guardião...",
+    "Ele está vindo... Morvath sentiu seu despertar...",
+    "Abra os olhos... Veldora precisa de você..."
+];
+
+function drawEye() {
+    eyeCtx.fillStyle = '#000';
+    eyeCtx.fillRect(0, 0, 200, 150);
+
+    const centerX = 100, centerY = 75;
+    const eyeWidth = 80;
+    const eyeHeight = 40 * eyeOpenness;
+
+    if (eyeHeight > 2) {
+        eyeCtx.fillStyle = '#e8d5c4';
+        eyeCtx.beginPath();
+        eyeCtx.ellipse(centerX, centerY, eyeWidth/2, eyeHeight/2, 0, 0, Math.PI * 2);
+        eyeCtx.fill();
+
+        const irisSize = 25 * eyeOpenness;
+        if (irisSize > 2) {
+            eyeCtx.fillStyle = '#ff6600';
+            eyeCtx.beginPath();
+            eyeCtx.ellipse(centerX, centerY, irisSize/2, irisSize/2, 0, 0, Math.PI * 2);
+            eyeCtx.fill();
+
+            eyeCtx.fillStyle = '#000';
+            eyeCtx.beginPath();
+            eyeCtx.ellipse(centerX, centerY, 8, 8, 0, 0, Math.PI * 2);
+            eyeCtx.fill();
+
+            eyeCtx.fillStyle = '#fff';
+            eyeCtx.beginPath();
+            eyeCtx.ellipse(centerX - 5, centerY - 5, 3, 3, 0, 0, Math.PI * 2);
+            eyeCtx.fill();
+        }
+
+        eyeCtx.fillStyle = '#1a0f0a';
+        eyeCtx.fillRect(centerX - eyeWidth/2 - 5, centerY - eyeHeight/2 - 10, eyeWidth + 10, 10);
+        eyeCtx.fillRect(centerX - eyeWidth/2 - 5, centerY + eyeHeight/2, eyeWidth + 10, 10);
+    }
+
+    const gradient = eyeCtx.createRadialGradient(centerX, centerY, 20, centerX, centerY, 100);
+    gradient.addColorStop(0, 'transparent');
+    gradient.addColorStop(1, 'rgba(0,0,0,0.8)');
+    eyeCtx.fillStyle = gradient;
+    eyeCtx.fillRect(0, 0, 200, 150);
+}
+
+function typeWriter(text, element, speed = 50) {
+    element.textContent = '';
+    element.classList.add('typing');
+    let i = 0;
+    function type() {
+        if (i < text.length) {
+            element.textContent += text.charAt(i);
+            i++;
+            setTimeout(type, speed);
+        } else {
+            element.classList.remove('typing');
+        }
+    }
+    type();
+}
+
+function updateCutscene() {
+    cutsceneTimer++;
+
+    if (cutscenePhase === 0 && cutsceneTimer > 60) {
+        cutscenePhase = 1;
+        typeWriter(cutsceneTexts[0], document.getElementById('cutsceneText'));
+    }
+
+    if (cutscenePhase >= 1 && cutscenePhase <= 5) {
+        const targetOpenness = cutscenePhase / 5;
+        eyeOpenness += (targetOpenness - eyeOpenness) * 0.02;
+
+        if (cutsceneTimer % 180 === 0 && cutscenePhase < 5) {
+            cutscenePhase++;
+            typeWriter(cutsceneTexts[cutscenePhase - 1], document.getElementById('cutsceneText'));
+        }
+    }
+
+    if (cutscenePhase === 5 && cutsceneTimer > 900 && eyeOpenness > 0.95) {
+        document.getElementById('cutsceneOverlay').style.opacity = 0;
+        setTimeout(() => {
+            document.getElementById('cutsceneOverlay').style.display = 'none';
+            document.getElementById('gameUI').classList.add('active');
+            gameState = 'playing';
+            startDialog(npcs[0]);
+        }, 2000);
+        cutscenePhase = 6;
+    }
+
+    drawEye();
+}
+
+// =====================================================
+// FUNÇÕES DE RENDERIZAÇÃO
+// =====================================================
+function drawTile(x, y, type) {
+    const px = x * TILE_SIZE;
+    const py = y * TILE_SIZE;
+
+    switch(type) {
+        case TILES.floor:
+            ctx.fillStyle = ((x + y) % 2 === 0) ? COLORS.stoneDark : COLORS.stoneLight;
+            ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+            if ((x * 7 + y * 13) % 5 === 0) {
+                ctx.fillStyle = COLORS.stoneHighlight;
+                ctx.fillRect(px + 10, py + 10, 4, 4);
             }
-        };
-
-        const ecoZeroDialogues = {
-            0: {
-                name: 'ECO-ZERO',
-                text: '[Não olha para você. Costas curvadas, sentado em pilha de relógios quebrados] Você demorou. Eu te esperei em oitocentas e quarenta e sete linhas temporais.',
-                choices: [
-                    { text: 'Como sabe quem sou?', next: 'eco_know' },
-                    { text: 'Por que me esperava?', next: 'eco_why' },
-                    { text: '[Sair em silêncio]', next: null, effect: () => { gameState.ecoZeroPhase = -1; } }
-                ]
-            },
-            1: {
-                name: 'ECO-ZERO',
-                text: '[Sorriso torto, olhos brancos vazios] Olha só. O herói. O escolhido. Quer saber o que acontece com especiais? EU SEI. EU SEI PORQUE EU FUI VOCÊ.',
-                choices: [
-                    { text: 'Você foi eu?', next: 'eco_was' },
-                    { text: 'Não me chame de especial', next: 'eco_special' }
-                ]
-            },
-            5: {
-                name: 'ECO-ZERO',
-                text: '[Sorriso genuíno, quase humano] Você voltou. De novo. Mesmo sabendo o que eu sou. O que eu fiz. [estende mão] Obrigado. Por não me deixar esquecer de mim.',
-                choices: [
-                    { text: 'Vamos juntos da próxima vez', next: null, action: () => alert('ECO-ZERO agora é seu companheiro!') },
-                    { text: 'Sempre volto', next: null }
-                ]
+            break;
+        case TILES.wall:
+            ctx.fillStyle = '#1a1a25';
+            ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+            ctx.fillStyle = '#0f0f15';
+            for (let i = 0; i < 3; i++) {
+                const wx = (x * 3 + i * 7) % TILE_SIZE;
+                const wy = (y * 5 + i * 11) % TILE_SIZE;
+                ctx.fillRect(px + wx, py + wy, 8, 6);
             }
-        };
+            break;
+        case TILES.crystal:
+            drawTile(x, y, TILES.floor);
+            const glow = Math.sin(Date.now() / 200) * 0.3 + 0.7;
+            ctx.fillStyle = `rgba(68, 136, 255, ${glow * 0.3})`;
+            ctx.beginPath();
+            ctx.arc(px + TILE_SIZE/2, py + TILE_SIZE/2, 20, 0, Math.PI * 2);
+            ctx.fill();
 
-        // FUNÇÕES CORRIGIDAS
-        function startGame() {
-            console.log('Iniciando jogo...');
+            ctx.fillStyle = COLORS.crystalBlue;
+            ctx.beginPath();
+            ctx.moveTo(px + TILE_SIZE/2, py + 5);
+            ctx.lineTo(px + TILE_SIZE - 10, py + TILE_SIZE/2);
+            ctx.lineTo(px + TILE_SIZE/2, py + TILE_SIZE - 5);
+            ctx.lineTo(px + 10, py + TILE_SIZE/2);
+            ctx.closePath();
+            ctx.fill();
 
-            // Esconder tela de título
-            const titleScreen = document.getElementById('title-screen');
-            titleScreen.classList.add('hidden');
+            ctx.fillStyle = COLORS.crystalCyan;
+            ctx.beginPath();
+            ctx.arc(px + TILE_SIZE/2, py + TILE_SIZE/2, 6, 0, Math.PI * 2);
+            ctx.fill();
+            break;
+        case TILES.torch:
+            drawTile(x, y, TILES.floor);
+            ctx.fillStyle = '#4a3c2a';
+            ctx.fillRect(px + 20, py + 20, 8, 28);
+            const flicker = Math.random() * 0.4 + 0.6;
+            const flameH = 15 + Math.sin(Date.now() / 100) * 5;
 
-            // Mostrar área do jogo
-            const gameArea = document.getElementById('game-area');
-            gameArea.style.display = 'block';
+            const lightGrad = ctx.createRadialGradient(px + TILE_SIZE/2, py + 15, 5, px + TILE_SIZE/2, py + 15, 60);
+            lightGrad.addColorStop(0, `rgba(255, 136, 0, ${0.4 * flicker})`);
+            lightGrad.addColorStop(1, 'transparent');
+            ctx.fillStyle = lightGrad;
+            ctx.fillRect(px - 30, py - 30, TILE_SIZE + 60, TILE_SIZE + 60);
 
-            // Forçar reflow
-            void gameArea.offsetWidth;
+            ctx.fillStyle = COLORS.flameOuter;
+            ctx.beginPath();
+            ctx.moveTo(px + 24, py + 20);
+            ctx.lineTo(px + 32, py + 20 - flameH * 0.7);
+            ctx.lineTo(px + 28, py + 20 - flameH);
+            ctx.lineTo(px + 20, py + 20 - flameH * 0.7);
+            ctx.closePath();
+            ctx.fill();
 
-            gameArea.classList.add('active');
-            gameState.gameStarted = true;
+            ctx.fillStyle = COLORS.flameMid;
+            ctx.beginPath();
+            ctx.moveTo(px + 24, py + 20);
+            ctx.lineTo(px + 30, py + 20 - flameH * 0.5);
+            ctx.lineTo(px + 24, py + 20 - flameH * 0.8);
+            ctx.lineTo(px + 18, py + 20 - flameH * 0.5);
+            ctx.closePath();
+            ctx.fill();
+            break;
+    }
+}
 
-            console.log('Game area ativa:', gameArea.classList.contains('active'));
+function drawPlayer() {
+    const x = player.x;
+    const y = player.y;
+    const bounce = player.isMoving ? Math.sin(Date.now() / 100) * 2 : 0;
 
-            // Mostrar transição
-            showTransition('Valthoria
-Reino do Crepúsculo Eterno
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.beginPath();
+    ctx.ellipse(x + 16, y + 44, 12, 4, 0, 0, Math.PI * 2);
+    ctx.fill();
 
-Ano 847 da Era do Relógio', () => {
-                updateHUD();
-                showNotification('Bem-vindo a CHRONOS ECHO!
+    if (player.flame < 30) {
+        const auraAlpha = (30 - player.flame) / 30 * 0.3;
+        ctx.fillStyle = `rgba(255, 100, 0, ${auraAlpha})`;
+        ctx.beginPath();
+        ctx.arc(x + 16, y + 24, 30, 0, Math.PI * 2);
+        ctx.fill();
+    }
 
-🎮 CLIQUE nos personagens para falar
-🗺️ Use o MAPA (canto inferior direito) para viajar
-⏪ REWIND reverte escolhas (3 usos)
+    ctx.fillStyle = COLORS.tunic;
+    ctx.fillRect(x + 4, y + 16 + bounce, 24, 20);
+    ctx.fillStyle = COLORS.tunicDark;
+    ctx.fillRect(x + 4, y + 16 + bounce, 24, 4);
 
-DICA: Visite Eco-Zero 10 vezes nas Fissuras!');
-            });
+    ctx.fillStyle = COLORS.pants;
+    ctx.fillRect(x + 6, y + 36 + bounce, 8, 10);
+    ctx.fillRect(x + 18, y + 36 + bounce, 8, 10);
+
+    ctx.fillStyle = COLORS.boots;
+    ctx.fillRect(x + 5, y + 44, 10, 4);
+    ctx.fillRect(x + 17, y + 44, 10, 4);
+
+    ctx.fillStyle = COLORS.skin;
+    ctx.fillRect(x + 8, y + 4 + bounce, 16, 14);
+
+    ctx.fillStyle = COLORS.hair;
+    if (player.direction === 'down' || player.direction === 'left' || player.direction === 'right') {
+        ctx.fillRect(x + 6, y + 2 + bounce, 20, 6);
+        ctx.fillRect(x + 6, y + 2 + bounce, 4, 12);
+        ctx.fillRect(x + 22, y + 2 + bounce, 4, 12);
+    }
+    if (player.direction === 'up') {
+        ctx.fillRect(x + 6, y + 2 + bounce, 20, 16);
+    }
+
+    if (player.direction !== 'up') {
+        ctx.fillStyle = '#ff6600';
+        if (player.direction === 'down') {
+            ctx.fillRect(x + 11, y + 10 + bounce, 3, 3);
+            ctx.fillRect(x + 18, y + 10 + bounce, 3, 3);
+        } else if (player.direction === 'left') {
+            ctx.fillRect(x + 10, y + 10 + bounce, 3, 3);
+        } else if (player.direction === 'right') {
+            ctx.fillRect(x + 19, y + 10 + bounce, 3, 3);
+        }
+    }
+
+    ctx.fillStyle = COLORS.skin;
+    const armOffset = player.isMoving ? Math.sin(Date.now() / 80) * 3 : 0;
+    if (player.direction === 'down') {
+        ctx.fillRect(x - 2 + armOffset, y + 18, 6, 12);
+        ctx.fillRect(x + 26 - armOffset, y + 18, 6, 12);
+    } else {
+        ctx.fillRect(x - 2, y + 18, 6, 12);
+        ctx.fillRect(x + 20, y + 18, 6, 12);
+    }
+
+    ctx.fillStyle = '#4a3c2a';
+    ctx.fillRect(x + 28, y + 20, 4, 20);
+    const flameFlicker = Math.random() > 0.5;
+    ctx.fillStyle = flameFlicker ? COLORS.flameMid : COLORS.flameOuter;
+    ctx.beginPath();
+    ctx.arc(x + 30, y + 18, 5, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+function drawEnemy(enemy) {
+    const x = enemy.x;
+    const y = enemy.y;
+    const float = Math.sin(Date.now() / 300) * 3;
+
+    ctx.fillStyle = COLORS.shadowGlow;
+    ctx.beginPath();
+    ctx.arc(x + 16, y + 24, 25 + Math.sin(Date.now() / 200) * 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = COLORS.shadowBody;
+    ctx.beginPath();
+    ctx.moveTo(x + 16, y + 5 + float);
+    ctx.lineTo(x + 28, y + 15 + float);
+    ctx.lineTo(x + 26, y + 35 + float);
+    ctx.lineTo(x + 6, y + 35 + float);
+    ctx.lineTo(x + 4, y + 15 + float);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = COLORS.shadowEyes;
+    const eyeGlow = Math.sin(Date.now() / 150) * 0.3 + 0.7;
+    ctx.globalAlpha = eyeGlow;
+    ctx.beginPath();
+    ctx.ellipse(x + 11, y + 18 + float, 4, 6, 0, 0, Math.PI * 2);
+    ctx.ellipse(x + 21, y + 18 + float, 4, 6, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+
+    if (enemy.hp < enemy.maxHp) {
+        const hpPercent = enemy.hp / enemy.maxHp;
+        ctx.fillStyle = '#330000';
+        ctx.fillRect(x + 4, y - 8 + float, 24, 4);
+        ctx.fillStyle = hpPercent > 0.5 ? '#00ff00' : hpPercent > 0.25 ? '#ffff00' : '#ff0000';
+        ctx.fillRect(x + 4, y - 8 + float, 24 * hpPercent, 4);
+    }
+}
+
+function drawNPC(npc) {
+    const x = npc.x;
+    const y = npc.y;
+    const breathe = Math.sin(Date.now() / 400) * 1;
+
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.beginPath();
+    ctx.ellipse(x + 16, y + 44, 10, 3, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#4a306d';
+    ctx.fillRect(x + 4, y + 16 + breathe, 24, 22);
+    ctx.fillStyle = '#3d2055';
+    ctx.beginPath();
+    ctx.moveTo(x + 4, y + 16 + breathe);
+    ctx.lineTo(x + 16, y + 2 + breathe);
+    ctx.lineTo(x + 28, y + 16 + breathe);
+    ctx.fill();
+
+    ctx.fillStyle = '#1a0f2e';
+    ctx.fillRect(x + 10, y + 8 + breathe, 12, 10);
+
+    ctx.fillStyle = '#9966ff';
+    ctx.globalAlpha = 0.8 + Math.sin(Date.now() / 200) * 0.2;
+    ctx.fillRect(x + 12, y + 11 + breathe, 2, 2);
+    ctx.fillRect(x + 18, y + 11 + breathe, 2, 2);
+    ctx.globalAlpha = 1;
+
+    if (Math.abs(npc.x - player.x) < 60 && Math.abs(npc.y - player.y) < 60) {
+        ctx.fillStyle = '#ffd700';
+        ctx.font = '12px "Press Start 2P"';
+        ctx.fillText('!', x + 12, y - 10 + Math.sin(Date.now() / 200) * 3);
+    }
+}
+
+function createParticle(x, y, type, color) {
+    particles.push({
+        x, y,
+        vx: (Math.random() - 0.5) * 4,
+        vy: (Math.random() - 0.5) * 4 - 2,
+        life: 30 + Math.random() * 20,
+        maxLife: 30 + Math.random() * 20,
+        type, color,
+        size: Math.random() * 4 + 2
+    });
+}
+
+function updateParticles() {
+    for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life--;
+
+        if (p.life <= 0) {
+            particles.splice(i, 1);
+            continue;
         }
 
-        function showTransition(text, callback) {
-            const screen = document.getElementById('transition-screen');
-            const textEl = screen.querySelector('.transition-text');
+        const alpha = p.life / p.maxLife;
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = p.color;
 
-            textEl.innerHTML = text.replace(/\n/g, '<br>');
-            screen.style.display = 'flex';
-            screen.classList.add('active');
-
-            console.log('Transição ativa');
-
-            setTimeout(() => {
-                screen.classList.remove('active');
-                screen.style.display = 'none';
-                console.log('Transição terminada');
-                if (callback) callback();
-            }, 3000);
+        if (p.type === 'fire') {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size * alpha, 0, Math.PI * 2);
+            ctx.fill();
+        } else if (p.type === 'spark') {
+            ctx.fillRect(p.x, p.y, p.size/2, p.size/2);
         }
 
-        function showNotification(text) {
-            const notif = document.getElementById('notification');
-            notif.innerHTML = text.replace(/\n/g, '<br>');
-            notif.style.display = 'block';
-            notif.classList.add('active');
+        ctx.globalAlpha = 1;
+    }
+}
 
-            setTimeout(() => {
-                notif.classList.remove('active');
-                notif.style.display = 'none';
-            }, 6000);
+
+// =====================================================
+// SISTEMA DE DIÁLOGO
+// =====================================================
+function startDialog(npc) {
+    inDialog = true;
+    currentNPC = npc;
+    currentDialogIndex = 0;
+    document.getElementById('dialogBox').classList.add('active');
+    showCurrentDialog();
+}
+
+function showCurrentDialog() {
+    const dialog = currentNPC.dialogs[currentDialogIndex];
+    document.getElementById('dialogName').textContent = currentNPC.name;
+    document.getElementById('dialogText').textContent = dialog.text;
+
+    const pCanvas = document.getElementById('dialogPortrait');
+    const pCtx = pCanvas.getContext('2d');
+    pCanvas.width = 80;
+    pCanvas.height = 80;
+
+    if (dialog.portrait === 'lyra') {
+        pCtx.fillStyle = '#2a1f3d';
+        pCtx.fillRect(0, 0, 80, 80);
+        pCtx.fillStyle = '#4a306d';
+        pCtx.fillRect(20, 30, 40, 40);
+        pCtx.fillStyle = '#1a0f2e';
+        pCtx.fillRect(30, 20, 20, 20);
+        pCtx.fillStyle = '#9966ff';
+        pCtx.fillRect(35, 30, 3, 3);
+        pCtx.fillRect(45, 30, 3, 3);
+    }
+}
+
+function advanceDialog() {
+    const dialog = currentNPC.dialogs[currentDialogIndex];
+
+    if (dialog.givesQuest && !currentNPC.questGiven) {
+        quests[dialog.givesQuest].active = true;
+        activeQuests.push(dialog.givesQuest);
+        currentNPC.questGiven = true;
+        updateQuestLog();
+    }
+
+    currentDialogIndex++;
+    if (currentDialogIndex >= currentNPC.dialogs.length) {
+        endDialog();
+    } else {
+        showCurrentDialog();
+    }
+}
+
+function endDialog() {
+    inDialog = false;
+    currentNPC = null;
+    document.getElementById('dialogBox').classList.remove('active');
+}
+
+// =====================================================
+// SISTEMA DE MEMÓRIAS (FLASHBACKS)
+// =====================================================
+function triggerMemory(memoryId) {
+    if (unlockedMemories.includes(memoryId)) return;
+
+    const memory = memories.find(m => m.id === memoryId);
+    if (!memory) return;
+
+    unlockedMemories.push(memoryId);
+
+    const overlay = document.getElementById('flashbackOverlay');
+    const text = document.getElementById('memoryText');
+
+    text.textContent = memory.text;
+    overlay.classList.add('active');
+    text.classList.add('active');
+
+    canvas.classList.add('shake');
+
+    for (let i = 0; i < 20; i++) {
+        createParticle(
+            canvas.width/2 + (Math.random() - 0.5) * 200,
+            canvas.height/2 + (Math.random() - 0.5) * 100,
+            'spark', '#ff4444'
+        );
+    }
+
+    setTimeout(() => {
+        overlay.classList.remove('active');
+        text.classList.remove('active');
+        canvas.classList.remove('shake');
+    }, 4000);
+}
+
+// =====================================================
+// ATUALIZAÇÃO DO JOGO
+// =====================================================
+function updatePlayer() {
+    if (player.isRolling) {
+        player.x += player.vx * 2;
+        player.y += player.vy * 2;
+        player.rollCooldown--;
+        if (player.rollCooldown <= 0) {
+            player.isRolling = false;
+            player.vx = 0;
+            player.vy = 0;
         }
+        return;
+    }
 
-        function updateHUD() {
-            document.getElementById('location-name').textContent = gameState.location === 'valthoria' ? 'VALTHORIA' : 'FISSURAS';
+    player.vx = 0;
+    player.vy = 0;
+    player.isMoving = false;
 
-            const ecoStatuses = ['DESCONHECIDO', 'HOSTIL', 'IRA', 'VAZIO', 'ANSIOSO', 'COMPANHEIRO', 'PERDIDO'];
-            document.getElementById('eco-status').textContent = ecoStatuses[gameState.ecoZeroPhase] || '???';
+    if (keys['w'] || keys['arrowup']) {
+        player.vy = -player.speed;
+        player.direction = 'up';
+        player.isMoving = true;
+    }
+    if (keys['s'] || keys['arrowdown']) {
+        player.vy = player.speed;
+        player.direction = 'down';
+        player.isMoving = true;
+    }
+    if (keys['a'] || keys['arrowleft']) {
+        player.vx = -player.speed;
+        player.direction = 'left';
+        player.isMoving = true;
+    }
+    if (keys['d'] || keys['arrowright']) {
+        player.vx = player.speed;
+        player.direction = 'right';
+        player.isMoving = true;
+    }
 
-            const kaelStatus = gameState.kaelMood < 30 ? 'HOSTIL' : 
-                              gameState.kaelMood < 50 ? 'CÉTICO' :
-                              gameState.kaelMood < 70 ? 'NEUTRO' :
-                              gameState.kaelMood < 90 ? 'AMIGO' : 'LEAL';
-            document.getElementById('kael-mood').textContent = kaelStatus;
+    const newX = player.x + player.vx;
+    const newY = player.y + player.vy;
 
-            const btn = document.getElementById('time-btn');
-            btn.textContent = '⏪ REWIND (' + gameState.timeRewinds + ')';
-            btn.disabled = gameState.timeRewinds <= 0;
+    if (!checkCollision(newX, player.y)) player.x = newX;
+    if (!checkCollision(player.x, newY)) player.y = newY;
+
+    if (keys[' '] && !player.isRolling && player.rollCooldown <= 0) {
+        player.isRolling = true;
+        player.rollCooldown = 30;
+        for (let i = 0; i < 5; i++) {
+            createParticle(player.x + 16, player.y + 24, 'spark', '#ffffff');
         }
+    }
+    if (player.rollCooldown > 0) player.rollCooldown--;
 
-        function travelTo(location) {
-            if (location === gameState.location) return;
+    if (mouse.clicked && player.attackCooldown <= 0) {
+        playerAttack();
+        player.attackCooldown = 20;
+    }
+    if (player.attackCooldown > 0) player.attackCooldown--;
 
-            gameState.location = location;
-
-            document.getElementById('bg-valthoria').style.display = location === 'valthoria' ? 'block' : 'none';
-            document.getElementById('bg-fissure').style.display = location === 'fissure' ? 'block' : 'none';
-
-            document.querySelectorAll('.map-location').forEach(el => el.classList.remove('active'));
-            event.target.classList.add('active');
-
-            const locName = location === 'valthoria' ? 'Valthoria' : 'As Fissuras';
-            showTransition(locName, () => {
-                updateHUD();
-                if (location === 'fissure' && gameState.ecoZeroVisits === 0) {
-                    gameState.ecoZeroVisits++;
-                    setTimeout(() => startDialogue('eco-zero'), 800);
-                }
-            });
+    for (let i = 0; i < 4; i++) {
+        if (keys[(i + 1).toString()] && spells[i].cooldown <= 0 && player.mana >= spells[i].cost) {
+            castSpell(i);
         }
+        if (spells[i].cooldown > 0) spells[i].cooldown--;
+    }
 
-        function startDialogue(character) {
-            console.log('Iniciando diálogo:', character);
+    if (player.mana < player.maxMana && Math.random() < 0.02) {
+        player.mana++;
+        updateUI();
+    }
 
-            const box = document.getElementById('dialogue-box');
-            const speaker = document.getElementById('speaker');
-            const text = document.getElementById('dialogue-text');
-            const choices = document.getElementById('choices');
+    if (player.flame > 0) player.flame -= 0.01;
+}
 
-            box.style.display = 'block';
-            box.classList.add('active');
+function checkCollision(x, y) {
+    const tileX = Math.floor((x + 16) / TILE_SIZE);
+    const tileY = Math.floor((y + 24) / TILE_SIZE);
 
-            let data;
-            if (character === 'eco-zero') {
-                data = ecoZeroDialogues[gameState.ecoZeroPhase] || ecoZeroDialogues[0];
-            } else {
-                data = dialogues[character];
-            }
+    if (tileX < 0 || tileX >= MAP_WIDTH || tileY < 0 || tileY >= MAP_HEIGHT) return true;
 
-            if (!data) {
-                closeDialogue();
-                return;
-            }
+    return gameMap[tileY][tileX] === TILES.wall;
+}
 
-            speaker.textContent = data.name;
-            text.textContent = '';
-            text.classList.add('typing');
+function playerAttack() {
+    const dx = mouse.x - (player.x + 16);
+    const dy = mouse.y - (player.y + 24);
+    const dist = Math.sqrt(dx * dx + dy * dy);
 
-            let i = 0;
-            const interval = setInterval(() => {
-                text.textContent += data.text[i];
-                i++;
-                if (i >= data.text.length) {
-                    clearInterval(interval);
-                    text.classList.remove('typing');
-                    showChoices(data.choices);
-                }
-            }, gameState.typingSpeed);
-        }
+    projectiles.push({
+        x: player.x + 16,
+        y: player.y + 24,
+        vx: (dx / dist) * 8,
+        vy: (dy / dist) * 8,
+        damage: 15,
+        life: 60,
+        type: 'sword',
+        color: '#ffaa00'
+    });
 
-        function showChoices(choices) {
-            const container = document.getElementById('choices');
-            container.innerHTML = '';
+    for (let i = 0; i < 3; i++) {
+        createParticle(player.x + 16, player.y + 24, 'spark', '#ffaa00');
+    }
+}
 
-            choices.forEach((choice, idx) => {
-                if (choice.condition && !choice.condition()) return;
+function castSpell(spellIndex) {
+    const spell = spells[spellIndex];
+    player.mana -= spell.cost;
+    spell.cooldown = spell.maxCooldown;
+    player.selectedSpell = spellIndex;
 
-                const btn = document.createElement('button');
-                btn.className = 'choice-btn' + (idx === 0 ? ' selected' : '');
-                btn.textContent = '> ' + choice.text;
-                btn.onclick = () => selectChoice(choice);
-                container.appendChild(btn);
-            });
-        }
+    const dx = mouse.x - (player.x + 16);
+    const dy = mouse.y - (player.y + 24);
+    const dist = Math.sqrt(dx * dx + dy * dy);
 
-        function selectChoice(choice) {
-            if (choice.effect) choice.effect();
-            if (choice.action) choice.action();
-
-            if (choice.next && dialogues[choice.next]) {
-                // Continuar diálogo
-                const data = dialogues[choice.next];
-                document.getElementById('speaker').textContent = data.name;
-                const text = document.getElementById('dialogue-text');
-                text.textContent = '';
-                text.classList.add('typing');
-
-                let i = 0;
-                const interval = setInterval(() => {
-                    text.textContent += data.text[i];
-                    i++;
-                    if (i >= data.text.length) {
-                        clearInterval(interval);
-                        text.classList.remove('typing');
-                        showChoices(data.choices);
-                    }
-                }, gameState.typingSpeed);
-            } else {
-                closeDialogue();
-            }
-
-            updateHUD();
-            saveGame();
-        }
-
-        function closeDialogue() {
-            const box = document.getElementById('dialogue-box');
-            box.classList.remove('active');
-            box.style.display = 'none';
-        }
-
-        function interactWith(char) {
-            console.log('Interagindo com:', char);
-            if (char === 'eco-zero') {
-                gameState.ecoZeroVisits++;
-                if (gameState.ecoZeroVisits === 2) gameState.ecoZeroPhase = 1;
-                if (gameState.ecoZeroVisits >= 10) gameState.ecoZeroPhase = 5;
-            }
-            startDialogue(char);
-        }
-
-        function rewindTime() {
-            if (gameState.timeRewinds <= 0) return;
-            gameState.timeRewinds--;
-            showNotification('⏪ TEMPO REVERTIDO!\n\nRewinds restantes: ' + gameState.timeRewinds);
-            updateHUD();
-        }
-
-        function movePlayer() {
-            const player = document.getElementById('player');
-            const current = player.style.left || '20%';
-            player.style.left = current === '50%' ? '20%' : '50%';
-        }
-
-        function changeKaelMood(amount) {
-            gameState.kaelMood = Math.max(0, Math.min(100, gameState.kaelMood + amount));
-            showNotification('Kael: ' + (amount > 0 ? '+' : '') + amount + ' de afinidade');
-        }
-
-        function startQuest(id) {
-            gameState.playerChoices.push(id);
-            showNotification('QUEST INICIADA!\nVerifique seu progresso no HUD.');
-        }
-
-        function hasQuest(id) {
-            return gameState.playerChoices.includes(id);
-        }
-
-        function saveGame() {
-            localStorage.setItem('chronos_echo_save', JSON.stringify(gameState));
-        }
-
-        function loadGame() {
-            const save = localStorage.getItem('chronos_echo_save');
-            if (save) {
-                Object.assign(gameState, JSON.parse(save));
-                document.getElementById('title-screen').classList.add('hidden');
-                document.getElementById('game-area').style.display = 'block';
-                document.getElementById('game-area').classList.add('active');
-                updateHUD();
-                showNotification('Jogo carregado!');
-            } else {
-                alert('Nenhum save encontrado');
-            }
-        }
-
-        function showTutorial() {
-            showNotification('TUTORIAL:\n\n🎮 CLIQUE nos personagens para falar\n🗺️ MAPA (canto inferior direito) para viajar\n⏪ REWIND reverte escolhas (3x)\n💾 F5 = Salvar | F9 = Carregar\n\nDICA: Visite Eco-Zero 10x nas Fissuras para companheiro!');
-        }
-
-        function showCredits() {
-            showNotification('CHRONOS ECHO - Parte 1\n\n🎨 Conceito: Usuário + IA\n💻 Código: HTML5/CSS/JS\n\nPersonagens:\n• Eco-Zero: O Eco Quebrado\n• Aldric III: O Morto-Vivo\n• Kael: O Herdeiro de Cinzas\n• Seraphina: A Viúva de Gelo');
-        }
-
-        // Auto-save
-        setInterval(saveGame, 30000);
-
-        // Teclas
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeDialogue();
-            if (e.key === 'F5') { e.preventDefault(); saveGame(); showNotification('Jogo salvo!'); }
-            if (e.key === 'F9') { e.preventDefault(); loadGame(); }
+    if (spell.damage) {
+        projectiles.push({
+            x: player.x + 16,
+            y: player.y + 24,
+            vx: (dx / dist) * 6,
+            vy: (dy / dist) * 6,
+            damage: spell.damage,
+            life: 90,
+            type: 'magic',
+            color: spell.color,
+            size: 12
         });
+    } else if (spell.heal) {
+        player.hp = Math.min(player.maxHp, player.hp + spell.heal);
+        for (let i = 0; i < 15; i++) {
+            createParticle(player.x + 16 + (Math.random() - 0.5) * 32, 
+                          player.y + 24 + (Math.random() - 0.5) * 32, 
+                          'spark', spell.color);
+        }
+    }
 
-        console.log('CHRONOS ECHO carregado. Pronto para jogar!');
-    </script>
+    updateUI();
+    updateSpellBar();
+}
+
+function updateEnemies() {
+    for (let enemy of enemies) {
+        const dx = player.x - enemy.x;
+        const dy = player.y - enemy.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < 200 && distance > 30) {
+            enemy.x += (dx / distance) * 1.5;
+            enemy.y += (dy / distance) * 1.5;
+            enemy.state = 'chase';
+        } else if (distance <= 30) {
+            if (enemy.attackCooldown <= 0) {
+                player.hp -= 10;
+                enemy.attackCooldown = 60;
+                updateUI();
+
+                for (let i = 0; i < 5; i++) {
+                    createParticle(player.x + 16, player.y + 24, 'spark', '#ff0000');
+                }
+            }
+        } else {
+            enemy.state = 'idle';
+        }
+
+        if (enemy.attackCooldown > 0) enemy.attackCooldown--;
+    }
+}
+
+function updateProjectiles() {
+    for (let i = projectiles.length - 1; i >= 0; i--) {
+        const p = projectiles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life--;
+
+        if (Math.random() < 0.3) {
+            createParticle(p.x, p.y, 'spark', p.color);
+        }
+
+        if (p.life <= 0) {
+            projectiles.splice(i, 1);
+            continue;
+        }
+
+        for (let j = enemies.length - 1; j >= 0; j--) {
+            const enemy = enemies[j];
+            const dx = p.x - (enemy.x + 16);
+            const dy = p.y - (enemy.y + 24);
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < 20) {
+                enemy.hp -= p.damage;
+
+                for (let k = 0; k < 8; k++) {
+                    createParticle(enemy.x + 16, enemy.y + 24, 'spark', p.color);
+                }
+
+                if (enemy.hp <= 0) {
+                    killCount++;
+
+                    if (killCount === 1) triggerMemory('memory1');
+                    if (killCount === 3) triggerMemory('memory2');
+
+                    for (let k = 0; k < 20; k++) {
+                        createParticle(enemy.x + 16, enemy.y + 24, 'fire', '#800080');
+                    }
+
+                    enemies.splice(j, 1);
+                }
+
+                projectiles.splice(i, 1);
+                break;
+            }
+        }
+    }
+}
+
+function updateUI() {
+    document.getElementById('hpText').textContent = `${Math.max(0, player.hp)}/${player.maxHp}`;
+    document.getElementById('manaText').textContent = `${player.mana}/${player.maxMana}`;
+    document.getElementById('hpBar').style.width = `${(player.hp / player.maxHp) * 100}%`;
+    document.getElementById('manaBar').style.width = `${(player.mana / player.maxMana) * 100}%`;
+    document.getElementById('flameBar').style.width = `${player.flame}%`;
+}
+
+function updateSpellBar() {
+    const slots = document.querySelectorAll('.spellSlot');
+    slots.forEach((slot, i) => {
+        const spell = spells[i];
+        const overlay = slot.querySelector('.cooldownOverlay');
+
+        slot.classList.toggle('selected', i === player.selectedSpell);
+        slot.classList.toggle('cooldown', spell.cooldown > 0);
+
+        if (spell.cooldown > 0) {
+            const percent = (spell.cooldown / spell.maxCooldown) * 100;
+            overlay.style.height = `${percent}%`;
+        } else {
+            overlay.style.height = '0%';
+        }
+    });
+}
+
+function updateQuestLog() {
+    const list = document.getElementById('questList');
+    list.innerHTML = '';
+
+    activeQuests.forEach(questId => {
+        const quest = quests[questId];
+        const div = document.createElement('div');
+        div.className = 'questItem active';
+        div.innerHTML = `<strong>${quest.title}</strong><br><small>${quest.desc}</small>`;
+        list.appendChild(div);
+    });
+}
+
+// =====================================================
+// RENDERIZAÇÃO PRINCIPAL
+// =====================================================
+function render() {
+    ctx.fillStyle = '#0a0a0f';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const darkness = 1 - (player.flame / 100) * 0.7;
+
+    for (let y = 0; y < MAP_HEIGHT; y++) {
+        for (let x = 0; x < MAP_WIDTH; x++) {
+            drawTile(x, y, gameMap[y][x]);
+        }
+    }
+
+    npcs.forEach(npc => drawNPC(npc));
+    enemies.forEach(enemy => drawEnemy(enemy));
+    drawPlayer();
+
+    projectiles.forEach(p => {
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size || 6, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = p.color + '44';
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, (p.size || 6) * 2, 0, Math.PI * 2);
+        ctx.fill();
+    });
+
+    updateParticles();
+
+    if (darkness > 0.1) {
+        ctx.fillStyle = `rgba(0, 0, 0, ${darkness})`;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    const playerLight = ctx.createRadialGradient(
+        player.x + 16, player.y + 24, 20,
+        player.x + 16, player.y + 24, 150
+    );
+    playerLight.addColorStop(0, 'rgba(255, 136, 0, 0.3)');
+    playerLight.addColorStop(1, 'transparent');
+    ctx.fillStyle = playerLight;
+    ctx.globalCompositeOperation = 'screen';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.globalCompositeOperation = 'source-over';
+}
+
+// =====================================================
+// GAME LOOP
+// =====================================================
+function gameLoop() {
+    if (gameState === 'cutscene') {
+        updateCutscene();
+    } else if (gameState === 'playing') {
+        if (!inDialog) {
+            updatePlayer();
+            updateEnemies();
+            updateProjectiles();
+            updateSpellBar();
+        }
+        render();
+    }
+
+    requestAnimationFrame(gameLoop);
+}
+
+// =====================================================
+// INPUT HANDLING
+// =====================================================
+document.addEventListener('keydown', (e) => {
+    keys[e.key.toLowerCase()] = true;
+
+    if (gameState === 'cutscene' && cutscenePhase >= 5) {
+        document.getElementById('cutsceneOverlay').style.opacity = 0;
+        setTimeout(() => {
+            document.getElementById('cutsceneOverlay').style.display = 'none';
+            document.getElementById('gameUI').classList.add('active');
+            gameState = 'playing';
+            startDialog(npcs[0]);
+        }, 1000);
+    }
+
+    if (inDialog && e.key === ' ') {
+        advanceDialog();
+    }
+
+    if (e.key.toLowerCase() === 'q') {
+        document.getElementById('questLog').classList.toggle('active');
+    }
+
+    if (e.key.toLowerCase() === 'e') {
+        // Interagir com NPCs próximos
+        for (let npc of npcs) {
+            const dist = Math.abs(npc.x - player.x) + Math.abs(npc.y - player.y);
+            if (dist < 80) {
+                startDialog(npc);
+                break;
+            }
+        }
+    }
+});
+
+document.addEventListener('keyup', (e) => {
+    keys[e.key.toLowerCase()] = false;
+});
+
+canvas.addEventListener('mousemove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = e.clientX - rect.left;
+    mouse.y = e.clientY - rect.top;
+});
+
+canvas.addEventListener('mousedown', () => {
+    mouse.clicked = true;
+});
+
+canvas.addEventListener('mouseup', () => {
+    mouse.clicked = false;
+});
+
+// Iniciar jogo
+updateUI();
+updateQuestLog();
+gameLoop();
+</script>
 </body>
 </html>
