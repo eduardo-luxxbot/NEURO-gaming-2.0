@@ -3,1370 +3,925 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A Última Chama de Veldora</title>
+    <title>SANGUE DE TITÃ</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Cinzel:wght@400;700&display=swap');
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            image-rendering: pixelated;
+            font-family: 'Courier New', monospace;
+        }
 
         body {
-            background: #050505;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            background: #0a0a0a;
+            color: #e0e0e0;
             overflow: hidden;
-        }
-
-        #gameContainer {
-            position: relative;
-            box-shadow: 0 0 100px rgba(255, 100, 0, 0.2);
-        }
-
-        canvas {
-            image-rendering: pixelated;
-            image-rendering: crisp-edges;
-            border: 4px solid #2a1810;
-        }
-
-        #cutsceneOverlay {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: #000;
-            z-index: 1000;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            transition: opacity 2s;
+            height: 100vh;
         }
 
-        #eyeCanvas {
-            width: 400px;
-            height: 300px;
-            image-rendering: pixelated;
+        #game-container {
+            width: 800px;
+            height: 600px;
+            position: relative;
+            background: #1a1a2e;
+            border: 3px solid #333;
         }
 
-        #cutsceneText {
-            color: #8b7355;
-            font-family: 'Cinzel', serif;
-            font-size: 18px;
-            text-align: center;
-            margin-top: 30px;
-            max-width: 600px;
-            line-height: 1.8;
-            text-shadow: 0 0 10px rgba(139, 115, 85, 0.5);
-            min-height: 80px;
+        #canvas {
+            display: block;
+            background: #0f0f1a;
         }
 
-        #cutsceneText.typing::after {
-            content: '|';
-            animation: blink 1s infinite;
-        }
-
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0; }
-        }
-
-        #gameUI {
+        /* UI Overlay */
+        #ui-layer {
             position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             pointer-events: none;
-            display: none;
         }
 
-        #gameUI.active { display: block; }
-
+        /* HUD */
         #hud {
             position: absolute;
-            top: 15px; left: 15px;
+            top: 10px;
+            left: 10px;
             display: flex;
-            flex-direction: column;
-            gap: 8px;
+            gap: 20px;
+            font-size: 12px;
+            text-shadow: 2px 2px 0 #000;
         }
 
-        .bar {
-            width: 200px;
-            height: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            border: 2px solid #4a4a4a;
+        .hud-stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .hud-bar {
+            width: 100px;
+            height: 12px;
+            background: #333;
+            border: 1px solid #555;
             position: relative;
-            overflow: hidden;
         }
 
-        .bar-fill { height: 100%; transition: width 0.3s; }
-        #hpBar { background: linear-gradient(90deg, #8b0000, #ff4444); }
-        #manaBar { background: linear-gradient(90deg, #004488, #4488ff); }
-        #flameBar { background: linear-gradient(90deg, #ff6600, #ffcc00); }
-
-        .bar-text {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            color: #fff;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 8px;
-            text-shadow: 1px 1px 0 #000;
-            z-index: 10;
+        .hud-fill {
+            height: 100%;
+            transition: width 0.3s;
         }
 
-        #spellBar {
+        .hp-fill { background: #c0392b; }
+        .mp-fill { background: #2980b9; }
+        .essence-fill { background: #8e44ad; }
+
+        /* Inventário de Ossos (Estômago) */
+        #bone-inventory {
             position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+            bottom: 10px;
+            left: 10px;
             display: flex;
             gap: 10px;
         }
 
-        .spellSlot {
-            width: 48px;
-            height: 48px;
-            background: rgba(20, 10, 30, 0.9);
-            border: 3px solid #4a3c5a;
+        .bone-slot {
+            width: 50px;
+            height: 50px;
+            background: #2c2c3a;
+            border: 2px solid #444;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            cursor: pointer;
+            pointer-events: auto;
             position: relative;
             transition: all 0.2s;
         }
 
-        .spellSlot.selected {
-            border-color: #ffd700;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        .bone-slot:hover {
+            border-color: #666;
             transform: scale(1.1);
         }
 
-        .spellSlot.cooldown { opacity: 0.5; }
+        .bone-slot.active {
+            border-color: #e74c3c;
+            box-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+        }
 
-        .cooldownOverlay {
+        .bone-slot .essence-glow {
             position: absolute;
-            bottom: 0; left: 0;
             width: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            transition: height 0.1s;
+            height: 100%;
+            opacity: 0.3;
+            animation: pulse 2s infinite;
         }
 
-        .keyHint {
-            position: absolute;
-            top: -15px;
-            color: #888;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 8px;
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
         }
 
-        #dialogBox {
+        /* Diálogo das Vozes */
+        #voice-dialogue {
             position: absolute;
-            bottom: 100px;
+            bottom: 80px;
             left: 50%;
             transform: translateX(-50%);
             width: 700px;
-            background: linear-gradient(180deg, rgba(20, 10, 30, 0.98), rgba(10, 5, 15, 0.98));
-            border: 4px solid #6b4c3a;
-            border-radius: 8px;
-            padding: 20px;
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid;
+            padding: 15px;
             display: none;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+            pointer-events: auto;
         }
 
-        #dialogBox.active { display: block; }
+        #voice-dialogue.fome { border-color: #2c3e50; color: #95a5a6; }
+        #voice-dialogue.memoria { border-color: #27ae60; color: #2ecc71; }
+        #voice-dialogue.gravidade { border-color: #8e44ad; color: #9b59b6; }
 
-        #dialogPortrait {
-            width: 80px;
-            height: 80px;
-            background: #2a1f3d;
-            border: 3px solid #4a3c5a;
-            float: left;
-            margin-right: 20px;
+        .voice-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
-        #dialogContent {
-            color: #e0d0c0;
-            font-family: 'Cinzel', serif;
-            font-size: 16px;
+        .voice-text {
             line-height: 1.6;
-            min-height: 80px;
+            font-style: italic;
         }
 
-        #dialogName {
-            color: #ffd700;
-            font-weight: 700;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        #flashbackOverlay {
+        /* Tela de Corrupção */
+        #corruption-overlay {
             position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: radial-gradient(circle, transparent 30%, rgba(139, 0, 0, 0.3) 100%);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, transparent 0%, rgba(142, 68, 173, 0) 100%);
             pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.5s;
+            transition: all 1s;
+        }
+
+        /* Menu de Pausa */
+        #pause-menu {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            border: 3px solid #444;
+            padding: 30px;
+            display: none;
+            pointer-events: auto;
+            text-align: center;
+        }
+
+        .menu-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #e74c3c;
+            text-transform: uppercase;
+        }
+
+        .menu-option {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            border: 1px solid #444;
+            transition: all 0.2s;
+        }
+
+        .menu-option:hover {
+            background: #e74c3c;
+            color: #000;
+        }
+
+        /* Tutorial/Intro */
+        #intro-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            pointer-events: auto;
             z-index: 100;
         }
 
-        #flashbackOverlay.active { opacity: 1; }
-
-        #memoryText {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            color: #ff4444;
-            font-family: 'Cinzel', serif;
-            font-size: 24px;
-            font-weight: 700;
+        .intro-text {
+            max-width: 600px;
             text-align: center;
-            text-shadow: 0 0 20px rgba(255, 68, 68, 0.8);
-            opacity: 0;
-            transition: opacity 0.5s;
-            max-width: 80%;
-            z-index: 101;
+            line-height: 2;
+            font-size: 14px;
+            margin-bottom: 30px;
         }
 
-        #memoryText.active { opacity: 1; }
+        .intro-title {
+            font-size: 48px;
+            color: #c0392b;
+            margin-bottom: 20px;
+            text-shadow: 4px 4px 0 #000;
+            letter-spacing: 10px;
+        }
 
-        #questLog {
+        .start-btn {
+            padding: 15px 40px;
+            font-size: 18px;
+            background: #c0392b;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            transition: all 0.3s;
+        }
+
+        .start-btn:hover {
+            background: #e74c3c;
+            transform: scale(1.05);
+        }
+
+        /* Notificações */
+        #notification {
             position: absolute;
-            top: 15px; right: 15px;
-            width: 250px;
-            background: rgba(10, 5, 15, 0.95);
-            border: 3px solid #4a3c5a;
-            padding: 15px;
+            top: 50px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.9);
+            border-left: 3px solid #e74c3c;
+            padding: 10px 15px;
+            max-width: 250px;
             display: none;
+            font-size: 11px;
         }
 
-        #questLog.active { display: block; }
-
-        #questLog h3 {
-            color: #ffd700;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 10px;
-            margin-bottom: 10px;
-            border-bottom: 2px solid #4a3c5a;
-            padding-bottom: 5px;
+        /* Efeito de glitch */
+        .glitch {
+            animation: glitch 0.3s infinite;
         }
 
-        .questItem {
-            color: #aaa;
-            font-family: 'Cinzel', serif;
-            font-size: 12px;
-            margin-bottom: 8px;
-            padding-left: 15px;
-            position: relative;
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
         }
-
-        .questItem::before {
-            content: '◆';
-            position: absolute;
-            left: 0;
-            color: #666;
-        }
-
-        .questItem.active::before { color: #ffd700; }
-        .questItem.completed {
-            color: #448844;
-            text-decoration: line-through;
-        }
-
-        #controls {
-            position: absolute;
-            bottom: 10px; right: 15px;
-            color: #444;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 8px;
-            text-align: right;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translate(0, 0); }
-            10% { transform: translate(-5px, -5px); }
-            20% { transform: translate(5px, 5px); }
-            30% { transform: translate(-5px, 5px); }
-            40% { transform: translate(5px, -5px); }
-            50% { transform: translate(-3px, 3px); }
-            60% { transform: translate(3px, -3px); }
-        }
-
-        .shake { animation: shake 0.5s; }
     </style>
-<base target="_blank">
 </head>
 <body>
-    <div id="gameContainer">
-        <canvas id="gameCanvas" width="960" height="720"></canvas>
+    <div id="game-container">
+        <canvas id="canvas" width="800" height="600"></canvas>
+        
+        <div id="ui-layer">
+            <div id="hud">
+                <div class="hud-stat">
+                    <span>HP</span>
+                    <div class="hud-bar">
+                        <div class="hud-fill hp-fill" id="hp-bar" style="width: 100%"></div>
+                    </div>
+                </div>
+                <div class="hud-stat">
+                    <span>MP</span>
+                    <div class="hud-bar">
+                        <div class="hud-fill mp-fill" id="mp-bar" style="width: 100%"></div>
+                    </div>
+                </div>
+                <div class="hud-stat">
+                    <span>ESSÊNCIA</span>
+                    <div class="hud-bar">
+                        <div class="hud-fill essence-fill" id="essence-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
 
-        <div id="cutsceneOverlay">
-            <canvas id="eyeCanvas" width="200" height="150"></canvas>
-            <div id="cutsceneText" class="typing"></div>
+            <div id="bone-inventory">
+                <div class="bone-slot" id="slot-0" onclick="selectBone(0)"></div>
+                <div class="bone-slot" id="slot-1" onclick="selectBone(1)"></div>
+                <div class="bone-slot" id="slot-2" onclick="selectBone(2)"></div>
+            </div>
+
+            <div id="voice-dialogue">
+                <div class="voice-name" id="voice-name"></div>
+                <div class="voice-text" id="voice-text"></div>
+            </div>
+
+            <div id="corruption-overlay"></div>
+            <div id="notification"></div>
+
+            <div id="pause-menu">
+                <div class="menu-title">PAUSA</div>
+                <div class="menu-option" onclick="resumeGame()">Continuar</div>
+                <div class="menu-option" onclick="showControls()">Controles</div>
+            </div>
         </div>
 
-        <div id="gameUI">
-            <div id="hud">
-                <div class="bar">
-                    <div class="bar-fill" id="hpBar" style="width: 100%"></div>
-                    <div class="bar-text">❤️ <span id="hpText">100/100</span></div>
-                </div>
-                <div class="bar">
-                    <div class="bar-fill" id="manaBar" style="width: 100%"></div>
-                    <div class="bar-text">✨ <span id="manaText">100/100</span></div>
-                </div>
-                <div class="bar">
-                    <div class="bar-fill" id="flameBar" style="width: 100%"></div>
-                    <div class="bar-text">🔥 CHAMA INTERNA</div>
-                </div>
+        <div id="intro-screen">
+            <div class="intro-title">SANGUE DE TITÃ</div>
+            <div class="intro-text">
+                <p>15 anos após a Guerra do Fraturamento.</p>
+                <p>Você é um Caçador de Relíquias. Mercenário. Predador.</p>
+                <p>Hoje, você roubou um Osso de Titã. E ele está <strong>acordado</strong>.</p>
+                <p style="margin-top: 20px; color: #888; font-size: 12px;">WASD - Mover | E - Interagir | 1-3 - Ossos | ESPAÇO - Magia | ESC - Pausa</p>
             </div>
-
-            <div id="spellBar">
-                <div class="spellSlot selected" data-spell="0">
-                    <span class="keyHint">1</span>
-                    🔥
-                    <div class="cooldownOverlay" style="height: 0%"></div>
-                </div>
-                <div class="spellSlot" data-spell="1">
-                    <span class="keyHint">2</span>
-                    ❄️
-                    <div class="cooldownOverlay" style="height: 0%"></div>
-                </div>
-                <div class="spellSlot" data-spell="2">
-                    <span class="keyHint">3</span>
-                    ⚡
-                    <div class="cooldownOverlay" style="height: 0%"></div>
-                </div>
-                <div class="spellSlot" data-spell="3">
-                    <span class="keyHint">4</span>
-                    🌟
-                    <div class="cooldownOverlay" style="height: 0%"></div>
-                </div>
-            </div>
-
-            <div id="dialogBox">
-                <canvas id="dialogPortrait"></canvas>
-                <div id="dialogContent">
-                    <div id="dialogName">Nome</div>
-                    <div id="dialogText">Texto do diálogo...</div>
-                </div>
-            </div>
-
-            <div id="flashbackOverlay"></div>
-            <div id="memoryText"></div>
-
-            <div id="questLog">
-                <h3>📜 MISSÕES</h3>
-                <div id="questList"></div>
-            </div>
-
-            <div id="controls">
-                WASD: Mover | SPACE: Rolar<br>
-                E: Interagir | Q: Missões<br>
-                1-4: Magias | CLICK: Atacar
-            </div>
+            <button class="start-btn" onclick="startGame()">Engolir o Osso</button>
         </div>
     </div>
 
+    <script>
+        // ==================== CONFIGURAÇÃO DO JOGO ====================
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Estados do jogo
+        let gameState = 'intro'; // intro, playing, paused, dialogue
+        let lastTime = 0;
+        
+        // Jogador
+        const player = {
+            x: 400,
+            y: 300,
+            width: 24,
+            height: 24,
+            speed: 150,
+            hp: 100,
+            maxHp: 100,
+            mp: 50,
+            maxMp: 50,
+            essence: 0, // 0-100, corrupção dos Titãs
+            facing: 'down',
+            moving: false,
+            animation: 0
+        };
 
-<script>
-// =====================================================
-// A ÚLTIMA CHAMA DE VELDORA - ENGINE COMPLETA
-// =====================================================
+        // Ossos de Titã (Inventário/Estômago)
+        const bones = [
+            {
+                id: 'falange_niilista',
+                name: 'Falange do Niilista',
+                titan: 'Fome',
+                magic: 'Vácuo Devorador',
+                cost: 10,
+                damage: '3d8',
+                healPercent: 0.5,
+                personality: 'niilista',
+                color: '#2c3e50',
+                unlocked: true,
+                firstUse: true,
+                dialogue: "Por que resiste ao inevitável? Abra a boca... deixe o vazio entrar. O mundo está cheio demais. Vamos esvaziá-lo juntos.",
+                corruptionEffect: 'Apatia crescente, perda de prazer'
+            },
+            null,
+            null
+        ];
 
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-ctx.imageSmoothingEnabled = false;
+        let selectedBone = 0;
+        let activeVoice = null;
 
-const TILE_SIZE = 48;
-const MAP_WIDTH = 20;
-const MAP_HEIGHT = 15;
+        // Input
+        const keys = {};
+        const mouse = { x: 0, y: 0 };
 
-// PALETA DE CORES PREMIUM
-const COLORS = {
-    stoneDark: '#2a2a35',
-    stoneLight: '#3a3a45',
-    stoneHighlight: '#4a4a55',
-    crystalBlue: '#4488ff',
-    crystalCyan: '#00ffff',
-    crystalGlow: 'rgba(68, 136, 255, 0.3)',
-    flameCore: '#ffff00',
-    flameMid: '#ff8800',
-    flameOuter: '#ff4400',
-    skin: '#d4a574',
-    hair: '#2c1810',
-    tunic: '#8b4513',
-    tunicDark: '#5d2e0c',
-    pants: '#2a2a3a',
-    boots: '#1a1a1a',
-    shadowBody: '#1a0a2e',
-    shadowEyes: '#ff0044',
-    shadowGlow: 'rgba(255, 0, 68, 0.2)',
-    gold: '#ffd700',
-    health: '#ff4444',
-    mana: '#4488ff'
-};
+        // Mapa - Acampamento dos Viciados
+        const map = {
+            width: 1600,
+            height: 1200,
+            objects: [
+                // Tendas
+                { x: 200, y: 200, w: 80, h: 60, type: 'tent', color: '#4a4a5a' },
+                { x: 400, y: 150, w: 80, h: 60, type: 'tent', color: '#4a4a5a' },
+                { x: 600, y: 250, w: 80, h: 60, type: 'tent', color: '#4a4a5a' },
+                // Fogueiras
+                { x: 350, y: 300, w: 30, h: 30, type: 'fire', color: '#e74c3c' },
+                // Ossos espalhados (decorativos)
+                { x: 500, y: 400, w: 20, h: 15, type: 'bone_deco', color: '#ddd' },
+                { x: 550, y: 380, w: 15, h: 20, type: 'bone_deco', color: '#ddd' },
+                // Barricadas
+                { x: 100, y: 100, w: 20, h: 200, type: 'wall', color: '#5a4a3a' },
+                { x: 100, y: 100, w: 200, h: 20, type: 'wall', color: '#5a4a3a' },
+                // NPCs (posições iniciais)
+                { x: 250, y: 220, w: 20, h: 20, type: 'npc', name: 'Viciado', color: '#7a6a5a', dialogue: "Você... você tem mais? Só um pedacinho... por favor..." },
+                { x: 450, y: 180, w: 20, h: 20, type: 'npc', name: 'Escavador', color: '#6a5a4a', dialogue: "Atlas está perguntando por você. Ele... ele sabe o que você roubou." }
+            ]
+        };
 
-const TILES = { floor: 0, wall: 1, crystal: 2, torch: 3, grass: 4, water: 5, door: 6 };
+        // Câmera
+        const camera = {
+            x: 0,
+            y: 0
+        };
 
-// MAPA DA CAVERNA INICIAL
-let gameMap = [];
-for (let y = 0; y < MAP_HEIGHT; y++) {
-    gameMap[y] = [];
-    for (let x = 0; x < MAP_WIDTH; x++) {
-        const distFromCenter = Math.sqrt((x - 10)**2 + (y - 7)**2);
-        if (distFromCenter > 8) {
-            gameMap[y][x] = TILES.wall;
-        } else if (distFromCenter > 7 && Math.random() > 0.3) {
-            gameMap[y][x] = TILES.wall;
-        } else {
-            gameMap[y][x] = TILES.floor;
-        }
-        if (gameMap[y][x] === TILES.floor && Math.random() < 0.05) {
-            gameMap[y][x] = TILES.crystal;
-        }
-    }
-}
+        // ==================== SISTEMA DE ÁUDIO (Web Audio API) ====================
+        const AudioManager = {
+            ctx: null,
+            init() {
+                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            },
+            playTone(freq, type, duration, volume = 0.1) {
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.frequency.value = freq;
+                osc.type = type;
+                gain.gain.setValueAtTime(volume, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+                osc.start();
+                osc.stop(this.ctx.currentTime + duration);
+            },
+            playVoiceSound(personality) {
+                if (!this.ctx) return;
+                // Cada personalidade tem timbre diferente
+                const freqs = {
+                    niilista: [100, 150, 80],
+                    memoria: [300, 400, 350],
+                    gravidade: [200, 250, 180, 300]
+                };
+                const freq = freqs[personality] || [200];
+                freq.forEach((f, i) => {
+                    setTimeout(() => this.playTone(f, 'sine', 0.3, 0.05), i * 100);
+                });
+            }
+        };
 
-// Área limpa no spawn
-for (let y = 6; y <= 8; y++) {
-    for (let x = 9; x <= 11; x++) {
-        gameMap[y][x] = TILES.floor;
-    }
-}
+        // ==================== FUNÇÕES PRINCIPAIS ====================
 
-gameMap[5][5] = TILES.torch;
-gameMap[5][15] = TILES.torch;
-gameMap[10][10] = TILES.torch;
-
-// JOGADOR
-const player = {
-    x: 10 * TILE_SIZE, y: 7 * TILE_SIZE,
-    width: 32, height: 48,
-    vx: 0, vy: 0, speed: 4,
-    hp: 100, maxHp: 100,
-    mana: 100, maxMana: 100,
-    flame: 100,
-    direction: 'down',
-    frame: 0, isMoving: false,
-    isRolling: false, rollCooldown: 0,
-    attackCooldown: 0, selectedSpell: 0
-};
-
-// MAGIAS
-const spells = [
-    { name: 'Orbe Ígneo', damage: 25, cost: 15, cooldown: 0, maxCooldown: 60, color: '#ff6600', icon: '🔥' },
-    { name: 'Lança Gélida', damage: 20, cost: 12, cooldown: 0, maxCooldown: 45, color: '#00ffff', icon: '❄️' },
-    { name: 'Raio Rúnico', damage: 40, cost: 25, cooldown: 0, maxCooldown: 90, color: '#ffff00', icon: '⚡' },
-    { name: 'Cura Sagrada', heal: 30, cost: 20, cooldown: 0, maxCooldown: 120, color: '#00ff88', icon: '🌟' }
-];
-
-// INIMIGOS
-const enemies = [
-    { x: 5 * TILE_SIZE, y: 5 * TILE_SIZE, hp: 60, maxHp: 60, type: 'shadow', state: 'idle', targetX: 0, targetY: 0, attackCooldown: 0 },
-    { x: 15 * TILE_SIZE, y: 10 * TILE_SIZE, hp: 60, maxHp: 60, type: 'shadow', state: 'idle', targetX: 0, targetY: 0, attackCooldown: 0 },
-    { x: 8 * TILE_SIZE, y: 12 * TILE_SIZE, hp: 80, maxHp: 80, type: 'shadow', state: 'idle', targetX: 0, targetY: 0, attackCooldown: 0, isElite: true }
-];
-
-// NPCs
-const npcs = [{
-    x: 12 * TILE_SIZE, y: 6 * TILE_SIZE,
-    name: 'Lyra', title: 'Vidente das Sombras',
-    dialogs: [
-        { text: "Kael... você finalmente despertou. Dormiu por 87 anos.", portrait: 'lyra' },
-        { text: "A Chama Interior ainda queima em você. Isso é... impossível.", portrait: 'lyra' },
-        { text: "Morvath sentiu seu despertar. Os Vultos já procuram por você.", portrait: 'lyra' },
-        { text: "Você precisa reacender as Chamas Eternas. Comece pela Chama do Leste, nas ruínas de Ashford.", portrait: 'lyra', givesQuest: 'first_flame' }
-    ],
-    currentDialog: 0, questGiven: false
-}];
-
-// SISTEMA DE MEMÓRIAS
-const memories = [
-    { id: 'memory1', text: "Agora eu me lembro... o Lich...", trigger: 'kill_first_enemy' },
-    { id: 'memory2', text: "UHHH ESSA COISA FICA SEMPRE ACABANDO COM O MUNDO!", trigger: 'kill_third_enemy' },
-    { id: 'memory3', text: "Eu preciso detê-lo... custe o que custar.", trigger: 'find_crystal' }
-];
-
-let unlockedMemories = [];
-let killCount = 0;
-
-// QUESTS
-const quests = {
-    first_flame: { title: 'A Primeira Chama', desc: 'Reacenda a Chama do Leste nas ruínas de Ashford', completed: false, active: false }
-};
-
-let activeQuests = [];
-let particles = [];
-let projectiles = [];
-const keys = {};
-const mouse = { x: 0, y: 0, clicked: false };
-
-let gameState = 'cutscene';
-let inDialog = false;
-let currentNPC = null;
-let currentDialogIndex = 0;
-
-// =====================================================
-// CUTSCENE
-// =====================================================
-const eyeCanvas = document.getElementById('eyeCanvas');
-const eyeCtx = eyeCanvas.getContext('2d');
-eyeCtx.imageSmoothingEnabled = false;
-
-let cutscenePhase = 0;
-let cutsceneTimer = 0;
-let eyeOpenness = 0;
-
-const cutsceneTexts = [
-    "Kael... Kael, desperta...",
-    "A última chama ainda queima dentro de você...",
-    "87 anos você dormiu, guardião...",
-    "Ele está vindo... Morvath sentiu seu despertar...",
-    "Abra os olhos... Veldora precisa de você..."
-];
-
-function drawEye() {
-    eyeCtx.fillStyle = '#000';
-    eyeCtx.fillRect(0, 0, 200, 150);
-
-    const centerX = 100, centerY = 75;
-    const eyeWidth = 80;
-    const eyeHeight = 40 * eyeOpenness;
-
-    if (eyeHeight > 2) {
-        eyeCtx.fillStyle = '#e8d5c4';
-        eyeCtx.beginPath();
-        eyeCtx.ellipse(centerX, centerY, eyeWidth/2, eyeHeight/2, 0, 0, Math.PI * 2);
-        eyeCtx.fill();
-
-        const irisSize = 25 * eyeOpenness;
-        if (irisSize > 2) {
-            eyeCtx.fillStyle = '#ff6600';
-            eyeCtx.beginPath();
-            eyeCtx.ellipse(centerX, centerY, irisSize/2, irisSize/2, 0, 0, Math.PI * 2);
-            eyeCtx.fill();
-
-            eyeCtx.fillStyle = '#000';
-            eyeCtx.beginPath();
-            eyeCtx.ellipse(centerX, centerY, 8, 8, 0, 0, Math.PI * 2);
-            eyeCtx.fill();
-
-            eyeCtx.fillStyle = '#fff';
-            eyeCtx.beginPath();
-            eyeCtx.ellipse(centerX - 5, centerY - 5, 3, 3, 0, 0, Math.PI * 2);
-            eyeCtx.fill();
-        }
-
-        eyeCtx.fillStyle = '#1a0f0a';
-        eyeCtx.fillRect(centerX - eyeWidth/2 - 5, centerY - eyeHeight/2 - 10, eyeWidth + 10, 10);
-        eyeCtx.fillRect(centerX - eyeWidth/2 - 5, centerY + eyeHeight/2, eyeWidth + 10, 10);
-    }
-
-    const gradient = eyeCtx.createRadialGradient(centerX, centerY, 20, centerX, centerY, 100);
-    gradient.addColorStop(0, 'transparent');
-    gradient.addColorStop(1, 'rgba(0,0,0,0.8)');
-    eyeCtx.fillStyle = gradient;
-    eyeCtx.fillRect(0, 0, 200, 150);
-}
-
-function typeWriter(text, element, speed = 50) {
-    element.textContent = '';
-    element.classList.add('typing');
-    let i = 0;
-    function type() {
-        if (i < text.length) {
-            element.textContent += text.charAt(i);
-            i++;
-            setTimeout(type, speed);
-        } else {
-            element.classList.remove('typing');
-        }
-    }
-    type();
-}
-
-function updateCutscene() {
-    cutsceneTimer++;
-
-    if (cutscenePhase === 0 && cutsceneTimer > 60) {
-        cutscenePhase = 1;
-        typeWriter(cutsceneTexts[0], document.getElementById('cutsceneText'));
-    }
-
-    if (cutscenePhase >= 1 && cutscenePhase <= 5) {
-        const targetOpenness = cutscenePhase / 5;
-        eyeOpenness += (targetOpenness - eyeOpenness) * 0.02;
-
-        if (cutsceneTimer % 180 === 0 && cutscenePhase < 5) {
-            cutscenePhase++;
-            typeWriter(cutsceneTexts[cutscenePhase - 1], document.getElementById('cutsceneText'));
-        }
-    }
-
-    if (cutscenePhase === 5 && cutsceneTimer > 900 && eyeOpenness > 0.95) {
-        document.getElementById('cutsceneOverlay').style.opacity = 0;
-        setTimeout(() => {
-            document.getElementById('cutsceneOverlay').style.display = 'none';
-            document.getElementById('gameUI').classList.add('active');
+        function startGame() {
+            document.getElementById('intro-screen').style.display = 'none';
             gameState = 'playing';
-            startDialog(npcs[0]);
-        }, 2000);
-        cutscenePhase = 6;
-    }
+            AudioManager.init();
+            
+            // Primeira voz imediatamente
+            setTimeout(() => {
+                triggerVoice(0);
+            }, 1000);
+            
+            requestAnimationFrame(gameLoop);
+        }
 
-    drawEye();
-}
-
-// =====================================================
-// FUNÇÕES DE RENDERIZAÇÃO
-// =====================================================
-function drawTile(x, y, type) {
-    const px = x * TILE_SIZE;
-    const py = y * TILE_SIZE;
-
-    switch(type) {
-        case TILES.floor:
-            ctx.fillStyle = ((x + y) % 2 === 0) ? COLORS.stoneDark : COLORS.stoneLight;
-            ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
-            if ((x * 7 + y * 13) % 5 === 0) {
-                ctx.fillStyle = COLORS.stoneHighlight;
-                ctx.fillRect(px + 10, py + 10, 4, 4);
+        function triggerVoice(boneIndex) {
+            const bone = bones[boneIndex];
+            if (!bone || !bone.unlocked) return;
+            
+            activeVoice = bone;
+            const dialogueBox = document.getElementById('voice-dialogue');
+            const nameEl = document.getElementById('voice-name');
+            const textEl = document.getElementById('voice-text');
+            
+            dialogueBox.className = bone.personality;
+            nameEl.textContent = `${bone.name} (${bone.titan})`;
+            textEl.textContent = bone.firstUse ? bone.dialogue : getRandomVoiceLine(bone);
+            
+            dialogueBox.style.display = 'block';
+            AudioManager.playVoiceSound(bone.personality);
+            
+            if (bone.firstUse) {
+                bone.firstUse = false;
+                showNotification(`Nova magia desbloqueada: ${bone.magic}`);
             }
-            break;
-        case TILES.wall:
-            ctx.fillStyle = '#1a1a25';
-            ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
-            ctx.fillStyle = '#0f0f15';
-            for (let i = 0; i < 3; i++) {
-                const wx = (x * 3 + i * 7) % TILE_SIZE;
-                const wy = (y * 5 + i * 11) % TILE_SIZE;
-                ctx.fillRect(px + wx, py + wy, 8, 6);
+            
+            gameState = 'dialogue';
+        }
+
+        function getRandomVoiceLine(bone) {
+            const lines = {
+                niilista: [
+                    "Ainda há tanto para esvaziar...",
+                    "Sua fome é patética comparada à minha.",
+                    "O silêncio está chegando. Você ouve?"
+                ],
+                memoria: [
+                    "Lembre-se de quem você era...",
+                    "Não deixe que ele apague sua luz.",
+                    "Eu guardo suas memórias. Estão seguras comigo."
+                ],
+                gravidade: [
+                    "Gira, gira, gira!",
+                    "Para cima? Para baixo? Que diferença faz?",
+                    "Sinta o peso das estrelas!"
+                ]
+            };
+            const list = lines[bone.personality] || ["..."];
+            return list[Math.floor(Math.random() * list.length)];
+        }
+
+        function closeDialogue() {
+            document.getElementById('voice-dialogue').style.display = 'none';
+            gameState = 'playing';
+        }
+
+        function selectBone(index) {
+            if (index >= bones.length || !bones[index]) return;
+            selectedBone = index;
+            
+            // Atualizar UI
+            document.querySelectorAll('.bone-slot').forEach((slot, i) => {
+                slot.classList.toggle('active', i === index);
+            });
+            
+            // Mostrar osso no slot
+            updateBoneSlots();
+        }
+
+        function updateBoneSlots() {
+            bones.forEach((bone, i) => {
+                const slot = document.getElementById(`slot-${i}`);
+                if (bone && bone.unlocked) {
+                    slot.innerHTML = `
+                        <div class="essence-glow" style="background: ${bone.color}"></div>
+                        <span style="font-size: 10px; color: ${bone.color}; z-index: 1;">${bone.titan[0]}</span>
+                    `;
+                    slot.style.borderColor = bone.color;
+                } else {
+                    slot.innerHTML = '';
+                    slot.style.borderColor = '#444';
+                }
+            });
+        }
+
+        function useMagic() {
+            const bone = bones[selectedBone];
+            if (!bone || !bone.unlocked) return;
+            
+            if (player.mp < bone.cost) {
+                showNotification("MP insuficiente!");
+                return;
             }
-            break;
-        case TILES.crystal:
-            drawTile(x, y, TILES.floor);
-            const glow = Math.sin(Date.now() / 200) * 0.3 + 0.7;
-            ctx.fillStyle = `rgba(68, 136, 255, ${glow * 0.3})`;
-            ctx.beginPath();
-            ctx.arc(px + TILE_SIZE/2, py + TILE_SIZE/2, 20, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = COLORS.crystalBlue;
-            ctx.beginPath();
-            ctx.moveTo(px + TILE_SIZE/2, py + 5);
-            ctx.lineTo(px + TILE_SIZE - 10, py + TILE_SIZE/2);
-            ctx.lineTo(px + TILE_SIZE/2, py + TILE_SIZE - 5);
-            ctx.lineTo(px + 10, py + TILE_SIZE/2);
-            ctx.closePath();
-            ctx.fill();
-
-            ctx.fillStyle = COLORS.crystalCyan;
-            ctx.beginPath();
-            ctx.arc(px + TILE_SIZE/2, py + TILE_SIZE/2, 6, 0, Math.PI * 2);
-            ctx.fill();
-            break;
-        case TILES.torch:
-            drawTile(x, y, TILES.floor);
-            ctx.fillStyle = '#4a3c2a';
-            ctx.fillRect(px + 20, py + 20, 8, 28);
-            const flicker = Math.random() * 0.4 + 0.6;
-            const flameH = 15 + Math.sin(Date.now() / 100) * 5;
-
-            const lightGrad = ctx.createRadialGradient(px + TILE_SIZE/2, py + 15, 5, px + TILE_SIZE/2, py + 15, 60);
-            lightGrad.addColorStop(0, `rgba(255, 136, 0, ${0.4 * flicker})`);
-            lightGrad.addColorStop(1, 'transparent');
-            ctx.fillStyle = lightGrad;
-            ctx.fillRect(px - 30, py - 30, TILE_SIZE + 60, TILE_SIZE + 60);
-
-            ctx.fillStyle = COLORS.flameOuter;
-            ctx.beginPath();
-            ctx.moveTo(px + 24, py + 20);
-            ctx.lineTo(px + 32, py + 20 - flameH * 0.7);
-            ctx.lineTo(px + 28, py + 20 - flameH);
-            ctx.lineTo(px + 20, py + 20 - flameH * 0.7);
-            ctx.closePath();
-            ctx.fill();
-
-            ctx.fillStyle = COLORS.flameMid;
-            ctx.beginPath();
-            ctx.moveTo(px + 24, py + 20);
-            ctx.lineTo(px + 30, py + 20 - flameH * 0.5);
-            ctx.lineTo(px + 24, py + 20 - flameH * 0.8);
-            ctx.lineTo(px + 18, py + 20 - flameH * 0.5);
-            ctx.closePath();
-            ctx.fill();
-            break;
-    }
-}
-
-function drawPlayer() {
-    const x = player.x;
-    const y = player.y;
-    const bounce = player.isMoving ? Math.sin(Date.now() / 100) * 2 : 0;
-
-    ctx.fillStyle = 'rgba(0,0,0,0.3)';
-    ctx.beginPath();
-    ctx.ellipse(x + 16, y + 44, 12, 4, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    if (player.flame < 30) {
-        const auraAlpha = (30 - player.flame) / 30 * 0.3;
-        ctx.fillStyle = `rgba(255, 100, 0, ${auraAlpha})`;
-        ctx.beginPath();
-        ctx.arc(x + 16, y + 24, 30, 0, Math.PI * 2);
-        ctx.fill();
-    }
-
-    ctx.fillStyle = COLORS.tunic;
-    ctx.fillRect(x + 4, y + 16 + bounce, 24, 20);
-    ctx.fillStyle = COLORS.tunicDark;
-    ctx.fillRect(x + 4, y + 16 + bounce, 24, 4);
-
-    ctx.fillStyle = COLORS.pants;
-    ctx.fillRect(x + 6, y + 36 + bounce, 8, 10);
-    ctx.fillRect(x + 18, y + 36 + bounce, 8, 10);
-
-    ctx.fillStyle = COLORS.boots;
-    ctx.fillRect(x + 5, y + 44, 10, 4);
-    ctx.fillRect(x + 17, y + 44, 10, 4);
-
-    ctx.fillStyle = COLORS.skin;
-    ctx.fillRect(x + 8, y + 4 + bounce, 16, 14);
-
-    ctx.fillStyle = COLORS.hair;
-    if (player.direction === 'down' || player.direction === 'left' || player.direction === 'right') {
-        ctx.fillRect(x + 6, y + 2 + bounce, 20, 6);
-        ctx.fillRect(x + 6, y + 2 + bounce, 4, 12);
-        ctx.fillRect(x + 22, y + 2 + bounce, 4, 12);
-    }
-    if (player.direction === 'up') {
-        ctx.fillRect(x + 6, y + 2 + bounce, 20, 16);
-    }
-
-    if (player.direction !== 'up') {
-        ctx.fillStyle = '#ff6600';
-        if (player.direction === 'down') {
-            ctx.fillRect(x + 11, y + 10 + bounce, 3, 3);
-            ctx.fillRect(x + 18, y + 10 + bounce, 3, 3);
-        } else if (player.direction === 'left') {
-            ctx.fillRect(x + 10, y + 10 + bounce, 3, 3);
-        } else if (player.direction === 'right') {
-            ctx.fillRect(x + 19, y + 10 + bounce, 3, 3);
-        }
-    }
-
-    ctx.fillStyle = COLORS.skin;
-    const armOffset = player.isMoving ? Math.sin(Date.now() / 80) * 3 : 0;
-    if (player.direction === 'down') {
-        ctx.fillRect(x - 2 + armOffset, y + 18, 6, 12);
-        ctx.fillRect(x + 26 - armOffset, y + 18, 6, 12);
-    } else {
-        ctx.fillRect(x - 2, y + 18, 6, 12);
-        ctx.fillRect(x + 20, y + 18, 6, 12);
-    }
-
-    ctx.fillStyle = '#4a3c2a';
-    ctx.fillRect(x + 28, y + 20, 4, 20);
-    const flameFlicker = Math.random() > 0.5;
-    ctx.fillStyle = flameFlicker ? COLORS.flameMid : COLORS.flameOuter;
-    ctx.beginPath();
-    ctx.arc(x + 30, y + 18, 5, 0, Math.PI * 2);
-    ctx.fill();
-}
-
-function drawEnemy(enemy) {
-    const x = enemy.x;
-    const y = enemy.y;
-    const float = Math.sin(Date.now() / 300) * 3;
-
-    ctx.fillStyle = COLORS.shadowGlow;
-    ctx.beginPath();
-    ctx.arc(x + 16, y + 24, 25 + Math.sin(Date.now() / 200) * 3, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = COLORS.shadowBody;
-    ctx.beginPath();
-    ctx.moveTo(x + 16, y + 5 + float);
-    ctx.lineTo(x + 28, y + 15 + float);
-    ctx.lineTo(x + 26, y + 35 + float);
-    ctx.lineTo(x + 6, y + 35 + float);
-    ctx.lineTo(x + 4, y + 15 + float);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.fillStyle = COLORS.shadowEyes;
-    const eyeGlow = Math.sin(Date.now() / 150) * 0.3 + 0.7;
-    ctx.globalAlpha = eyeGlow;
-    ctx.beginPath();
-    ctx.ellipse(x + 11, y + 18 + float, 4, 6, 0, 0, Math.PI * 2);
-    ctx.ellipse(x + 21, y + 18 + float, 4, 6, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.globalAlpha = 1;
-
-    if (enemy.hp < enemy.maxHp) {
-        const hpPercent = enemy.hp / enemy.maxHp;
-        ctx.fillStyle = '#330000';
-        ctx.fillRect(x + 4, y - 8 + float, 24, 4);
-        ctx.fillStyle = hpPercent > 0.5 ? '#00ff00' : hpPercent > 0.25 ? '#ffff00' : '#ff0000';
-        ctx.fillRect(x + 4, y - 8 + float, 24 * hpPercent, 4);
-    }
-}
-
-function drawNPC(npc) {
-    const x = npc.x;
-    const y = npc.y;
-    const breathe = Math.sin(Date.now() / 400) * 1;
-
-    ctx.fillStyle = 'rgba(0,0,0,0.3)';
-    ctx.beginPath();
-    ctx.ellipse(x + 16, y + 44, 10, 3, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = '#4a306d';
-    ctx.fillRect(x + 4, y + 16 + breathe, 24, 22);
-    ctx.fillStyle = '#3d2055';
-    ctx.beginPath();
-    ctx.moveTo(x + 4, y + 16 + breathe);
-    ctx.lineTo(x + 16, y + 2 + breathe);
-    ctx.lineTo(x + 28, y + 16 + breathe);
-    ctx.fill();
-
-    ctx.fillStyle = '#1a0f2e';
-    ctx.fillRect(x + 10, y + 8 + breathe, 12, 10);
-
-    ctx.fillStyle = '#9966ff';
-    ctx.globalAlpha = 0.8 + Math.sin(Date.now() / 200) * 0.2;
-    ctx.fillRect(x + 12, y + 11 + breathe, 2, 2);
-    ctx.fillRect(x + 18, y + 11 + breathe, 2, 2);
-    ctx.globalAlpha = 1;
-
-    if (Math.abs(npc.x - player.x) < 60 && Math.abs(npc.y - player.y) < 60) {
-        ctx.fillStyle = '#ffd700';
-        ctx.font = '12px "Press Start 2P"';
-        ctx.fillText('!', x + 12, y - 10 + Math.sin(Date.now() / 200) * 3);
-    }
-}
-
-function createParticle(x, y, type, color) {
-    particles.push({
-        x, y,
-        vx: (Math.random() - 0.5) * 4,
-        vy: (Math.random() - 0.5) * 4 - 2,
-        life: 30 + Math.random() * 20,
-        maxLife: 30 + Math.random() * 20,
-        type, color,
-        size: Math.random() * 4 + 2
-    });
-}
-
-function updateParticles() {
-    for (let i = particles.length - 1; i >= 0; i--) {
-        const p = particles[i];
-        p.x += p.vx;
-        p.y += p.vy;
-        p.life--;
-
-        if (p.life <= 0) {
-            particles.splice(i, 1);
-            continue;
+            
+            player.mp -= bone.cost;
+            updateHUD();
+            
+            // Efeito visual baseado no osso
+            createMagicEffect(bone);
+            
+            // Aumentar essência (corrupção)
+            player.essence = Math.min(100, player.essence + 5);
+            updateCorruptionVisual();
+            
+            // Chance de voz falar
+            if (Math.random() < 0.3) {
+                triggerVoice(selectedBone);
+            }
+            
+            // Verificar conflito mental (se tiver ossos opostos)
+            checkMentalConflict();
         }
 
-        const alpha = p.life / p.maxLife;
-        ctx.globalAlpha = alpha;
-        ctx.fillStyle = p.color;
-
-        if (p.type === 'fire') {
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.size * alpha, 0, Math.PI * 2);
-            ctx.fill();
-        } else if (p.type === 'spark') {
-            ctx.fillRect(p.x, p.y, p.size/2, p.size/2);
+        function createMagicEffect(bone) {
+            // Partículas simples
+            const colors = {
+                niilista: '#2c3e50',
+                memoria: '#27ae60',
+                gravidade: '#8e44ad'
+            };
+            
+            // Desenhar efeito temporário
+            const effect = {
+                x: player.x,
+                y: player.y,
+                radius: 0,
+                maxRadius: bone.id === 'falange_niilista' ? 100 : 60,
+                color: colors[bone.personality] || '#fff',
+                life: 30
+            };
+            
+            magicEffects.push(effect);
         }
 
-        ctx.globalAlpha = 1;
-    }
-}
+        let magicEffects = [];
 
-
-// =====================================================
-// SISTEMA DE DIÁLOGO
-// =====================================================
-function startDialog(npc) {
-    inDialog = true;
-    currentNPC = npc;
-    currentDialogIndex = 0;
-    document.getElementById('dialogBox').classList.add('active');
-    showCurrentDialog();
-}
-
-function showCurrentDialog() {
-    const dialog = currentNPC.dialogs[currentDialogIndex];
-    document.getElementById('dialogName').textContent = currentNPC.name;
-    document.getElementById('dialogText').textContent = dialog.text;
-
-    const pCanvas = document.getElementById('dialogPortrait');
-    const pCtx = pCanvas.getContext('2d');
-    pCanvas.width = 80;
-    pCanvas.height = 80;
-
-    if (dialog.portrait === 'lyra') {
-        pCtx.fillStyle = '#2a1f3d';
-        pCtx.fillRect(0, 0, 80, 80);
-        pCtx.fillStyle = '#4a306d';
-        pCtx.fillRect(20, 30, 40, 40);
-        pCtx.fillStyle = '#1a0f2e';
-        pCtx.fillRect(30, 20, 20, 20);
-        pCtx.fillStyle = '#9966ff';
-        pCtx.fillRect(35, 30, 3, 3);
-        pCtx.fillRect(45, 30, 3, 3);
-    }
-}
-
-function advanceDialog() {
-    const dialog = currentNPC.dialogs[currentDialogIndex];
-
-    if (dialog.givesQuest && !currentNPC.questGiven) {
-        quests[dialog.givesQuest].active = true;
-        activeQuests.push(dialog.givesQuest);
-        currentNPC.questGiven = true;
-        updateQuestLog();
-    }
-
-    currentDialogIndex++;
-    if (currentDialogIndex >= currentNPC.dialogs.length) {
-        endDialog();
-    } else {
-        showCurrentDialog();
-    }
-}
-
-function endDialog() {
-    inDialog = false;
-    currentNPC = null;
-    document.getElementById('dialogBox').classList.remove('active');
-}
-
-// =====================================================
-// SISTEMA DE MEMÓRIAS (FLASHBACKS)
-// =====================================================
-function triggerMemory(memoryId) {
-    if (unlockedMemories.includes(memoryId)) return;
-
-    const memory = memories.find(m => m.id === memoryId);
-    if (!memory) return;
-
-    unlockedMemories.push(memoryId);
-
-    const overlay = document.getElementById('flashbackOverlay');
-    const text = document.getElementById('memoryText');
-
-    text.textContent = memory.text;
-    overlay.classList.add('active');
-    text.classList.add('active');
-
-    canvas.classList.add('shake');
-
-    for (let i = 0; i < 20; i++) {
-        createParticle(
-            canvas.width/2 + (Math.random() - 0.5) * 200,
-            canvas.height/2 + (Math.random() - 0.5) * 100,
-            'spark', '#ff4444'
-        );
-    }
-
-    setTimeout(() => {
-        overlay.classList.remove('active');
-        text.classList.remove('active');
-        canvas.classList.remove('shake');
-    }, 4000);
-}
-
-// =====================================================
-// ATUALIZAÇÃO DO JOGO
-// =====================================================
-function updatePlayer() {
-    if (player.isRolling) {
-        player.x += player.vx * 2;
-        player.y += player.vy * 2;
-        player.rollCooldown--;
-        if (player.rollCooldown <= 0) {
-            player.isRolling = false;
-            player.vx = 0;
-            player.vy = 0;
-        }
-        return;
-    }
-
-    player.vx = 0;
-    player.vy = 0;
-    player.isMoving = false;
-
-    if (keys['w'] || keys['arrowup']) {
-        player.vy = -player.speed;
-        player.direction = 'up';
-        player.isMoving = true;
-    }
-    if (keys['s'] || keys['arrowdown']) {
-        player.vy = player.speed;
-        player.direction = 'down';
-        player.isMoving = true;
-    }
-    if (keys['a'] || keys['arrowleft']) {
-        player.vx = -player.speed;
-        player.direction = 'left';
-        player.isMoving = true;
-    }
-    if (keys['d'] || keys['arrowright']) {
-        player.vx = player.speed;
-        player.direction = 'right';
-        player.isMoving = true;
-    }
-
-    const newX = player.x + player.vx;
-    const newY = player.y + player.vy;
-
-    if (!checkCollision(newX, player.y)) player.x = newX;
-    if (!checkCollision(player.x, newY)) player.y = newY;
-
-    if (keys[' '] && !player.isRolling && player.rollCooldown <= 0) {
-        player.isRolling = true;
-        player.rollCooldown = 30;
-        for (let i = 0; i < 5; i++) {
-            createParticle(player.x + 16, player.y + 24, 'spark', '#ffffff');
-        }
-    }
-    if (player.rollCooldown > 0) player.rollCooldown--;
-
-    if (mouse.clicked && player.attackCooldown <= 0) {
-        playerAttack();
-        player.attackCooldown = 20;
-    }
-    if (player.attackCooldown > 0) player.attackCooldown--;
-
-    for (let i = 0; i < 4; i++) {
-        if (keys[(i + 1).toString()] && spells[i].cooldown <= 0 && player.mana >= spells[i].cost) {
-            castSpell(i);
-        }
-        if (spells[i].cooldown > 0) spells[i].cooldown--;
-    }
-
-    if (player.mana < player.maxMana && Math.random() < 0.02) {
-        player.mana++;
-        updateUI();
-    }
-
-    if (player.flame > 0) player.flame -= 0.01;
-}
-
-function checkCollision(x, y) {
-    const tileX = Math.floor((x + 16) / TILE_SIZE);
-    const tileY = Math.floor((y + 24) / TILE_SIZE);
-
-    if (tileX < 0 || tileX >= MAP_WIDTH || tileY < 0 || tileY >= MAP_HEIGHT) return true;
-
-    return gameMap[tileY][tileX] === TILES.wall;
-}
-
-function playerAttack() {
-    const dx = mouse.x - (player.x + 16);
-    const dy = mouse.y - (player.y + 24);
-    const dist = Math.sqrt(dx * dx + dy * dy);
-
-    projectiles.push({
-        x: player.x + 16,
-        y: player.y + 24,
-        vx: (dx / dist) * 8,
-        vy: (dy / dist) * 8,
-        damage: 15,
-        life: 60,
-        type: 'sword',
-        color: '#ffaa00'
-    });
-
-    for (let i = 0; i < 3; i++) {
-        createParticle(player.x + 16, player.y + 24, 'spark', '#ffaa00');
-    }
-}
-
-function castSpell(spellIndex) {
-    const spell = spells[spellIndex];
-    player.mana -= spell.cost;
-    spell.cooldown = spell.maxCooldown;
-    player.selectedSpell = spellIndex;
-
-    const dx = mouse.x - (player.x + 16);
-    const dy = mouse.y - (player.y + 24);
-    const dist = Math.sqrt(dx * dx + dy * dy);
-
-    if (spell.damage) {
-        projectiles.push({
-            x: player.x + 16,
-            y: player.y + 24,
-            vx: (dx / dist) * 6,
-            vy: (dy / dist) * 6,
-            damage: spell.damage,
-            life: 90,
-            type: 'magic',
-            color: spell.color,
-            size: 12
-        });
-    } else if (spell.heal) {
-        player.hp = Math.min(player.maxHp, player.hp + spell.heal);
-        for (let i = 0; i < 15; i++) {
-            createParticle(player.x + 16 + (Math.random() - 0.5) * 32, 
-                          player.y + 24 + (Math.random() - 0.5) * 32, 
-                          'spark', spell.color);
-        }
-    }
-
-    updateUI();
-    updateSpellBar();
-}
-
-function updateEnemies() {
-    for (let enemy of enemies) {
-        const dx = player.x - enemy.x;
-        const dy = player.y - enemy.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (distance < 200 && distance > 30) {
-            enemy.x += (dx / distance) * 1.5;
-            enemy.y += (dy / distance) * 1.5;
-            enemy.state = 'chase';
-        } else if (distance <= 30) {
-            if (enemy.attackCooldown <= 0) {
-                player.hp -= 10;
-                enemy.attackCooldown = 60;
-                updateUI();
-
-                for (let i = 0; i < 5; i++) {
-                    createParticle(player.x + 16, player.y + 24, 'spark', '#ff0000');
+        function checkMentalConflict() {
+            // Verificar se tem ossos opostos e HP/MP baixo
+            const hasNostalgia = bones.some(b => b && b.personality === 'memoria');
+            const hasNiilista = bones.some(b => b && b.personality === 'niilista');
+            
+            if (hasNostalgia && hasNiilista && (player.hp < 30 || player.mp < 15)) {
+                if (Math.random() < 0.2) {
+                    triggerMentalConflict();
                 }
             }
-        } else {
-            enemy.state = 'idle';
         }
 
-        if (enemy.attackCooldown > 0) enemy.attackCooldown--;
-    }
-}
-
-function updateProjectiles() {
-    for (let i = projectiles.length - 1; i >= 0; i--) {
-        const p = projectiles[i];
-        p.x += p.vx;
-        p.y += p.vy;
-        p.life--;
-
-        if (Math.random() < 0.3) {
-            createParticle(p.x, p.y, 'spark', p.color);
-        }
-
-        if (p.life <= 0) {
-            projectiles.splice(i, 1);
-            continue;
-        }
-
-        for (let j = enemies.length - 1; j >= 0; j--) {
-            const enemy = enemies[j];
-            const dx = p.x - (enemy.x + 16);
-            const dy = p.y - (enemy.y + 24);
-            const dist = Math.sqrt(dx * dx + dy * dy);
-
-            if (dist < 20) {
-                enemy.hp -= p.damage;
-
-                for (let k = 0; k < 8; k++) {
-                    createParticle(enemy.x + 16, enemy.y + 24, 'spark', p.color);
+        function triggerMentalConflict() {
+            showNotification("⚠️ CISMA DOS ECOS! Suas vozes estão brigando!");
+            // Efeito de atordoado por 1 segundo
+            gameState = 'stunned';
+            setTimeout(() => {
+                gameState = 'playing';
+                // Forçar uso de magia aleatória
+                const validBones = bones.map((b, i) => b ? i : -1).filter(i => i !== -1);
+                if (validBones.length > 0) {
+                    const randomBone = validBones[Math.floor(Math.random() * validBones.length)];
+                    selectedBone = randomBone;
+                    useMagic();
                 }
+            }, 1000);
+        }
 
-                if (enemy.hp <= 0) {
-                    killCount++;
+        function updateCorruptionVisual() {
+            const overlay = document.getElementById('corruption-overlay');
+            const intensity = player.essence / 100;
+            
+            if (intensity > 0.5) {
+                overlay.style.background = `radial-gradient(circle at center, transparent 0%, rgba(142, 68, 173, ${intensity * 0.5}) 100%)`;
+                document.body.classList.toggle('glitch', intensity > 0.75);
+            }
+            
+            updateHUD();
+        }
 
-                    if (killCount === 1) triggerMemory('memory1');
-                    if (killCount === 3) triggerMemory('memory2');
+        function showNotification(text) {
+            const notif = document.getElementById('notification');
+            notif.textContent = text;
+            notif.style.display = 'block';
+            setTimeout(() => {
+                notif.style.display = 'none';
+            }, 3000);
+        }
 
-                    for (let k = 0; k < 20; k++) {
-                        createParticle(enemy.x + 16, enemy.y + 24, 'fire', '#800080');
+        function updateHUD() {
+            document.getElementById('hp-bar').style.width = `${(player.hp / player.maxHp) * 100}%`;
+            document.getElementById('mp-bar').style.width = `${(player.mp / player.maxMp) * 100}%`;
+            document.getElementById('essence-bar').style.width = `${player.essence}%`;
+        }
+
+        // ==================== MOVIMENTAÇÃO E COLISÃO ====================
+
+        function updatePlayer(dt) {
+            if (gameState !== 'playing') return;
+            
+            let dx = 0;
+            let dy = 0;
+            
+            if (keys['w'] || keys['arrowup']) dy = -1;
+            if (keys['s'] || keys['arrowdown']) dy = 1;
+            if (keys['a'] || keys['arrowleft']) dx = -1;
+            if (keys['d'] || keys['arrowright']) dx = 1;
+            
+            // Normalizar diagonal
+            if (dx !== 0 && dy !== 0) {
+                dx *= 0.707;
+                dy *= 0.707;
+            }
+            
+            player.moving = dx !== 0 || dy !== 0;
+            
+            if (player.moving) {
+                const newX = player.x + dx * player.speed * dt;
+                const newY = player.y + dy * player.speed * dt;
+                
+                // Limites do mapa
+                if (newX > 0 && newX < map.width - player.width) player.x = newX;
+                if (newY > 0 && newY < map.height - player.height) player.y = newY;
+                
+                // Direção
+                if (dy < 0) player.facing = 'up';
+                else if (dy > 0) player.facing = 'down';
+                else if (dx < 0) player.facing = 'left';
+                else if (dx > 0) player.facing = 'right';
+                
+                player.animation += dt * 10;
+            }
+            
+            // Regeneração lenta de MP
+            player.mp = Math.min(player.maxMp, player.mp + dt * 2);
+            updateHUD();
+        }
+
+        function checkInteractions() {
+            // Verificar proximidade com NPCs
+            map.objects.forEach(obj => {
+                if (obj.type === 'npc') {
+                    const dist = Math.hypot(player.x - obj.x, player.y - obj.y);
+                    if (dist < 40 && keys['e']) {
+                        showNotification(`${obj.name}: "${obj.dialogue}"`);
+                        keys['e'] = false; // Evitar spam
                     }
-
-                    enemies.splice(j, 1);
                 }
+            });
+        }
 
-                projectiles.splice(i, 1);
-                break;
+        // ==================== RENDERIZAÇÃO ====================
+
+        function draw() {
+            // Limpar canvas
+            ctx.fillStyle = '#0f0f1a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Atualizar câmera
+            camera.x = player.x - canvas.width / 2;
+            camera.y = player.y - canvas.height / 2;
+            
+            // Limitar câmera
+            camera.x = Math.max(0, Math.min(camera.x, map.width - canvas.width));
+            camera.y = Math.max(0, Math.min(camera.y, map.height - canvas.height));
+            
+            ctx.save();
+            ctx.translate(-camera.x, -camera.y);
+            
+            // Desenhar chão (grid simples)
+            ctx.strokeStyle = '#1a1a2e';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < map.width; x += 40) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, map.height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < map.height; y += 40) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(map.width, y);
+                ctx.stroke();
+            }
+            
+            // Desenhar objetos do mapa
+            map.objects.forEach(obj => {
+                ctx.fillStyle = obj.color;
+                
+                if (obj.type === 'tent') {
+                    // Tenda triangular
+                    ctx.beginPath();
+                    ctx.moveTo(obj.x + obj.w/2, obj.y);
+                    ctx.lineTo(obj.x + obj.w, obj.y + obj.h);
+                    ctx.lineTo(obj.x, obj.y + obj.h);
+                    ctx.closePath();
+                    ctx.fill();
+                    // Interior escuro
+                    ctx.fillStyle = '#2a2a3a';
+                    ctx.beginPath();
+                    ctx.moveTo(obj.x + obj.w/2, obj.y + 10);
+                    ctx.lineTo(obj.x + obj.w - 10, obj.y + obj.h - 5);
+                    ctx.lineTo(obj.x + 10, obj.y + obj.h - 5);
+                    ctx.closePath();
+                    ctx.fill();
+                } else if (obj.type === 'fire') {
+                    // Fogueira animada
+                    const flicker = Math.sin(Date.now() / 100) * 5;
+                    ctx.fillStyle = '#e74c3c';
+                    ctx.beginPath();
+                    ctx.arc(obj.x + obj.w/2, obj.y + obj.h/2 + flicker, 15, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#f39c12';
+                    ctx.beginPath();
+                    ctx.arc(obj.x + obj.w/2, obj.y + obj.h/2 + flicker, 10, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (obj.type === 'npc') {
+                    // NPC simples
+                    ctx.fillStyle = obj.color;
+                    ctx.fillRect(obj.x, obj.y, obj.w, obj.h);
+                    // Indicador de interação
+                    const dist = Math.hypot(player.x - obj.x, player.y - obj.y);
+                    if (dist < 40) {
+                        ctx.fillStyle = '#fff';
+                        ctx.font = '12px monospace';
+                        ctx.fillText('[E]', obj.x, obj.y - 5);
+                    }
+                } else {
+                    ctx.fillRect(obj.x, obj.y, obj.w, obj.h);
+                }
+            });
+            
+            // Efeitos de magia
+            magicEffects = magicEffects.filter(effect => {
+                effect.radius += (effect.maxRadius - effect.radius) * 0.1;
+                effect.life--;
+                
+                ctx.strokeStyle = effect.color;
+                ctx.lineWidth = 2;
+                ctx.globalAlpha = effect.life / 30;
+                ctx.beginPath();
+                ctx.arc(effect.x, effect.y, effect.radius, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+                
+                return effect.life > 0;
+            });
+            
+            // Desenhar jogador
+            drawPlayer();
+            
+            ctx.restore();
+        }
+
+        function drawPlayer() {
+            const x = player.x;
+            const y = player.y;
+            const w = player.width;
+            const h = player.height;
+            
+            // Sombra
+            ctx.fillStyle = 'rgba(0,0,0,0.3)';
+            ctx.beginPath();
+            ctx.ellipse(x + w/2, y + h - 2, w/2, h/4, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Corpo (animação de caminhada)
+            const bob = player.moving ? Math.sin(player.animation) * 2 : 0;
+            
+            // Cor base muda com essência
+            const corruption = player.essence / 100;
+            const r = Math.floor(100 + corruption * 100);
+            const g = Math.floor(100 - corruption * 50);
+            const b = Math.floor(120 + corruption * 50);
+            ctx.fillStyle = `rgb(${r},${g},${b})`;
+            
+            ctx.fillRect(x + 4, y + 4 + bob, w - 8, h - 8);
+            
+            // Cabeça
+            ctx.fillStyle = `rgb(${r+20},${g+20},${b+20})`;
+            ctx.fillRect(x + 6, y - 4 + bob, w - 12, 8);
+            
+            // Olhos (brilham com essência alta)
+            if (corruption > 0.5) {
+                ctx.fillStyle = '#8e44ad';
+                ctx.fillRect(x + 8, y - 2 + bob, 3, 3);
+                ctx.fillRect(x + 13, y - 2 + bob, 3, 3);
+            } else {
+                ctx.fillStyle = '#000';
+                ctx.fillRect(x + 8, y - 2 + bob, 2, 2);
+                ctx.fillRect(x + 14, y - 2 + bob, 2, 2);
+            }
+            
+            // Arma/Item equipado
+            if (bones[selectedBone]) {
+                ctx.fillStyle = bones[selectedBone].color;
+                ctx.globalAlpha = 0.6;
+                ctx.fillRect(x + w, y + h/2, 8, 8);
+                ctx.globalAlpha = 1;
             }
         }
-    }
-}
 
-function updateUI() {
-    document.getElementById('hpText').textContent = `${Math.max(0, player.hp)}/${player.maxHp}`;
-    document.getElementById('manaText').textContent = `${player.mana}/${player.maxMana}`;
-    document.getElementById('hpBar').style.width = `${(player.hp / player.maxHp) * 100}%`;
-    document.getElementById('manaBar').style.width = `${(player.mana / player.maxMana) * 100}%`;
-    document.getElementById('flameBar').style.width = `${player.flame}%`;
-}
+        // ==================== GAME LOOP ====================
 
-function updateSpellBar() {
-    const slots = document.querySelectorAll('.spellSlot');
-    slots.forEach((slot, i) => {
-        const spell = spells[i];
-        const overlay = slot.querySelector('.cooldownOverlay');
-
-        slot.classList.toggle('selected', i === player.selectedSpell);
-        slot.classList.toggle('cooldown', spell.cooldown > 0);
-
-        if (spell.cooldown > 0) {
-            const percent = (spell.cooldown / spell.maxCooldown) * 100;
-            overlay.style.height = `${percent}%`;
-        } else {
-            overlay.style.height = '0%';
+        function gameLoop(timestamp) {
+            const dt = Math.min((timestamp - lastTime) / 1000, 0.1);
+            lastTime = timestamp;
+            
+            if (gameState === 'playing') {
+                updatePlayer(dt);
+                checkInteractions();
+            }
+            
+            draw();
+            requestAnimationFrame(gameLoop);
         }
-    });
-}
 
-function updateQuestLog() {
-    const list = document.getElementById('questList');
-    list.innerHTML = '';
+        // ==================== EVENT LISTENERS ====================
 
-    activeQuests.forEach(questId => {
-        const quest = quests[questId];
-        const div = document.createElement('div');
-        div.className = 'questItem active';
-        div.innerHTML = `<strong>${quest.title}</strong><br><small>${quest.desc}</small>`;
-        list.appendChild(div);
-    });
-}
+        window.addEventListener('keydown', (e) => {
+            keys[e.key.toLowerCase()] = true;
+            
+            if (e.key === 'Escape') {
+                togglePause();
+            } else if (e.key === ' ') {
+                if (gameState === 'dialogue') {
+                    closeDialogue();
+                } else if (gameState === 'playing') {
+                    useMagic();
+                }
+            } else if (['1', '2', '3'].includes(e.key)) {
+                selectBone(parseInt(e.key) - 1);
+            }
+        });
 
-// =====================================================
-// RENDERIZAÇÃO PRINCIPAL
-// =====================================================
-function render() {
-    ctx.fillStyle = '#0a0a0f';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+        window.addEventListener('keyup', (e) => {
+            keys[e.key.toLowerCase()] = false;
+        });
 
-    const darkness = 1 - (player.flame / 100) * 0.7;
-
-    for (let y = 0; y < MAP_HEIGHT; y++) {
-        for (let x = 0; x < MAP_WIDTH; x++) {
-            drawTile(x, y, gameMap[y][x]);
+        function togglePause() {
+            if (gameState === 'playing') {
+                gameState = 'paused';
+                document.getElementById('pause-menu').style.display = 'block';
+            } else if (gameState === 'paused') {
+                resumeGame();
+            }
         }
-    }
 
-    npcs.forEach(npc => drawNPC(npc));
-    enemies.forEach(enemy => drawEnemy(enemy));
-    drawPlayer();
-
-    projectiles.forEach(p => {
-        ctx.fillStyle = p.color;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size || 6, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = p.color + '44';
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, (p.size || 6) * 2, 0, Math.PI * 2);
-        ctx.fill();
-    });
-
-    updateParticles();
-
-    if (darkness > 0.1) {
-        ctx.fillStyle = `rgba(0, 0, 0, ${darkness})`;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-
-    const playerLight = ctx.createRadialGradient(
-        player.x + 16, player.y + 24, 20,
-        player.x + 16, player.y + 24, 150
-    );
-    playerLight.addColorStop(0, 'rgba(255, 136, 0, 0.3)');
-    playerLight.addColorStop(1, 'transparent');
-    ctx.fillStyle = playerLight;
-    ctx.globalCompositeOperation = 'screen';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.globalCompositeOperation = 'source-over';
-}
-
-// =====================================================
-// GAME LOOP
-// =====================================================
-function gameLoop() {
-    if (gameState === 'cutscene') {
-        updateCutscene();
-    } else if (gameState === 'playing') {
-        if (!inDialog) {
-            updatePlayer();
-            updateEnemies();
-            updateProjectiles();
-            updateSpellBar();
-        }
-        render();
-    }
-
-    requestAnimationFrame(gameLoop);
-}
-
-// =====================================================
-// INPUT HANDLING
-// =====================================================
-document.addEventListener('keydown', (e) => {
-    keys[e.key.toLowerCase()] = true;
-
-    if (gameState === 'cutscene' && cutscenePhase >= 5) {
-        document.getElementById('cutsceneOverlay').style.opacity = 0;
-        setTimeout(() => {
-            document.getElementById('cutsceneOverlay').style.display = 'none';
-            document.getElementById('gameUI').classList.add('active');
+        function resumeGame() {
             gameState = 'playing';
-            startDialog(npcs[0]);
-        }, 1000);
-    }
-
-    if (inDialog && e.key === ' ') {
-        advanceDialog();
-    }
-
-    if (e.key.toLowerCase() === 'q') {
-        document.getElementById('questLog').classList.toggle('active');
-    }
-
-    if (e.key.toLowerCase() === 'e') {
-        // Interagir com NPCs próximos
-        for (let npc of npcs) {
-            const dist = Math.abs(npc.x - player.x) + Math.abs(npc.y - player.y);
-            if (dist < 80) {
-                startDialog(npc);
-                break;
-            }
+            document.getElementById('pause-menu').style.display = 'none';
         }
-    }
-});
 
-document.addEventListener('keyup', (e) => {
-    keys[e.key.toLowerCase()] = false;
-});
+        function showControls() {
+            alert('WASD/Setas - Mover\nE - Interagir\n1-3 - Selecionar Osso\nESPAÇO - Usar Magia\nESC - Pausar');
+        }
 
-canvas.addEventListener('mousemove', (e) => {
-    const rect = canvas.getBoundingClientRect();
-    mouse.x = e.clientX - rect.left;
-    mouse.y = e.clientY - rect.top;
-});
+        // Inicializar slots de ossos
+        updateBoneSlots();
+        selectBone(0);
 
-canvas.addEventListener('mousedown', () => {
-    mouse.clicked = true;
-});
-
-canvas.addEventListener('mouseup', () => {
-    mouse.clicked = false;
-});
-
-// Iniciar jogo
-updateUI();
-updateQuestLog();
-gameLoop();
-</script>
+    </script>
 </body>
 </html>
