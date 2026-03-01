@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEURO: Verse</title>
+    <title>NEURO: Verse - A Guerra dos Afetos</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Cinzel:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Cinzel:wght@400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
         
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             image-rendering: pixelated;
+            user-select: none;
         }
         
         body {
-            background: #0a0a0a;
+            background: #050505;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -24,18 +25,25 @@
             overflow: hidden;
         }
         
+        #game-wrapper {
+            position: relative;
+            display: flex;
+            gap: 20px;
+        }
+        
         #game-container {
             position: relative;
-            width: 800px;
-            height: 600px;
-            background: #1a1a2e;
-            border: 4px solid #16213e;
-            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            width: 960px;
+            height: 720px;
+            background: #0a0a0a;
+            border: 4px solid #2a2a2a;
+            box-shadow: 0 0 60px rgba(0,0,0,0.9), inset 0 0 100px rgba(0,0,0,0.5);
         }
         
         #canvas {
             display: block;
-            background: #0f0f23;
+            background: #0f0f1a;
+            cursor: crosshair;
         }
         
         #ui-layer {
@@ -49,109 +57,263 @@
         
         .dialog-box {
             position: absolute;
-            bottom: 20px;
+            bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
-            width: 90%;
-            background: rgba(0,0,0,0.95);
-            border: 3px solid #8b0000;
-            padding: 20px;
+            width: 85%;
+            background: linear-gradient(180deg, rgba(10,10,15,0.98) 0%, rgba(5,5,10,0.99) 100%);
+            border: 2px solid #4a4a6a;
+            border-left: 6px solid;
+            padding: 25px;
             color: #e0e0e0;
-            font-size: 12px;
-            line-height: 1.8;
             display: none;
             pointer-events: auto;
-            box-shadow: 0 0 20px rgba(139,0,0,0.5);
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.9);
+            font-family: 'Crimson Text', serif;
+            font-size: 18px;
+            line-height: 1.6;
         }
         
         .dialog-box.active {
             display: block;
-            animation: fadeIn 0.3s;
+            animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .dialog-box.heretic { border-left-color: #8b0000; }
+        .dialog-box.believer { border-left-color: #d4af37; }
+        .dialog-box.doubter { border-left-color: #4a0080; }
+        .dialog-box.void { border-left-color: #000000; box-shadow: 0 -10px 40px rgba(139,0,0,0.3); }
+        
+        .speaker-portrait {
+            position: absolute;
+            left: -80px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 64px;
+            height: 64px;
+            border: 3px solid;
+            background: #1a1a2e;
+            image-rendering: pixelated;
         }
         
         .speaker-name {
-            color: #ff6b6b;
-            font-size: 14px;
-            margin-bottom: 10px;
+            font-family: 'Cinzel', serif;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 12px;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
+        
+        .faith-indicator {
+            font-size: 10px;
+            padding: 4px 8px;
+            border-radius: 2px;
+            font-family: 'Press Start 2P', cursive;
+        }
+        
+        .faith-doubt { background: #4a0080; color: #fff; }
+        .faith-heretic { background: #8b0000; color: #fff; }
+        .faith-believer { background: #d4af37; color: #000; }
+        .faith-void { background: #000; color: #ff0000; border: 1px solid #ff0000; }
         
         .dialog-text {
             color: #ccc;
-            text-shadow: 1px 1px 2px #000;
+            text-shadow: 0 1px 2px #000;
+            min-height: 60px;
+        }
+        
+        .dialog-choices {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .choice-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid #4a4a6a;
+            color: #aaa;
+            padding: 12px 20px;
+            font-family: 'Crimson Text', serif;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .choice-btn:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: #6a6a8a;
+            color: #fff;
+            padding-left: 30px;
+        }
+        
+        .choice-btn::before {
+            content: '›';
+            position: absolute;
+            left: -20px;
+            transition: left 0.2s;
+        }
+        
+        .choice-btn:hover::before {
+            left: 10px;
+        }
+        
+        .choice-btn.violent {
+            border-color: #8b0000;
+            color: #ff6b6b;
+        }
+        
+        .choice-btn.violent:hover {
+            background: rgba(139,0,0,0.2);
+            box-shadow: 0 0 20px rgba(139,0,0,0.3);
         }
         
         .continue-hint {
-            color: #666;
-            font-size: 10px;
+            color: #555;
+            font-size: 9px;
             margin-top: 15px;
             text-align: right;
-            animation: blink 1s infinite;
+            font-family: 'Press Start 2P', cursive;
+            animation: pulse 2s infinite;
         }
         
-        #quest-log {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(0,0,0,0.9);
-            border: 2px solid #4a4a4a;
+        #side-panel {
+            width: 300px;
+            background: rgba(10,10,15,0.95);
+            border: 2px solid #2a2a3a;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .panel-section {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid #1a1a2a;
             padding: 15px;
-            color: #fff;
-            font-size: 10px;
-            max-width: 250px;
-            pointer-events: auto;
         }
         
-        .quest-title {
-            color: #ffd700;
+        .panel-title {
+            font-family: 'Cinzel', serif;
+            color: #d4af37;
+            font-size: 14px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #2a2a3a;
+            padding-bottom: 8px;
+            letter-spacing: 2px;
+        }
+        
+        #health-bar {
+            display: flex;
+            gap: 5px;
             margin-bottom: 10px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 5px;
+        }
+        
+        .heart {
+            width: 20px;
+            height: 20px;
+            background: #8b0000;
+            position: relative;
+            transform: rotate(-45deg);
+            box-shadow: 0 0 10px rgba(139,0,0,0.5);
+        }
+        
+        .heart::before, .heart::after {
+            content: '';
+            width: 20px;
+            height: 20px;
+            background: #8b0000;
+            border-radius: 50%;
+            position: absolute;
+        }
+        
+        .heart::before { top: -10px; left: 0; }
+        .heart::after { left: 10px; top: 0; }
+        
+        .heart.lost { background: #2a2a3a; box-shadow: none; }
+        .heart.lost::before, .heart.lost::after { background: #2a2a3a; }
+        
+        #sanity-meter {
+            width: 100%;
+            height: 8px;
+            background: #1a1a2a;
+            border: 1px solid #3a3a4a;
+            position: relative;
+            margin-top: 10px;
+        }
+        
+        #sanity-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4a0080, #8b0000);
+            transition: width 0.5s;
+            box-shadow: 0 0 10px rgba(139,0,0,0.5);
+        }
+        
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            font-size: 10px;
+            color: #888;
+        }
+        
+        .stat-value {
+            color: #d4af37;
+        }
+        
+        #quest-log-compact {
+            max-height: 200px;
+            overflow-y: auto;
         }
         
         .quest-item {
-            margin: 8px 0;
+            padding: 10px;
+            margin: 5px 0;
+            background: rgba(255,255,255,0.03);
+            border-left: 3px solid #4a4a6a;
+            font-size: 10px;
+            line-height: 1.4;
+            transition: all 0.3s;
+        }
+        
+        .quest-item.active { border-left-color: #d4af37; animation: glow 2s infinite; }
+        .quest-item.completed { border-left-color: #2ecc71; opacity: 0.6; }
+        .quest-item.failed { border-left-color: #8b0000; opacity: 0.4; text-decoration: line-through; }
+        
+        @keyframes glow {
+            0%, 100% { box-shadow: inset 3px 0 10px rgba(212,175,55,0.2); }
+            50% { box-shadow: inset 3px 0 20px rgba(212,175,55,0.4); }
+        }
+        
+        #combat-log {
+            height: 150px;
+            overflow-y: auto;
+            font-size: 10px;
+            line-height: 1.6;
+            color: #666;
+        }
+        
+        .log-entry {
+            margin: 4px 0;
             padding-left: 15px;
             position: relative;
         }
         
-        .quest-item::before {
-            content: '▸';
+        .log-entry.damage { color: #ff6b6b; }
+        .log-entry.kill { color: #8b0000; font-weight: bold; }
+        .log-entry.heal { color: #2ecc71; }
+        .log-entry::before {
+            content: '›';
             position: absolute;
             left: 0;
-            color: #666;
-        }
-        
-        .quest-item.completed {
-            color: #4a4a4a;
-            text-decoration: line-through;
-        }
-        
-        .quest-item.completed::before {
-            content: '✓';
-            color: #2ecc71;
-        }
-        
-        #controls-hint {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            color: #666;
-            font-size: 10px;
-            background: rgba(0,0,0,0.7);
-            padding: 10px;
-            border-radius: 5px;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateX(-50%) translateY(10px); }
-            to { opacity: 1; transform: translateX(-50%) translateY(0); }
-        }
-        
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0.3; }
+            color: #444;
         }
         
         .title-screen {
@@ -160,7 +322,10 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(180deg, #0a0a0a 0%, #1a0a0a 50%, #0a0a0a 100%);
+            background: 
+                radial-gradient(circle at 30% 70%, rgba(139,0,0,0.2) 0%, transparent 50%),
+                radial-gradient(circle at 70% 30%, rgba(74,0,128,0.2) 0%, transparent 50%),
+                linear-gradient(180deg, #050505 0%, #0a0a0f 50%, #050505 100%);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -171,74 +336,207 @@
         
         .game-title {
             font-family: 'Cinzel', serif;
-            font-size: 48px;
-            color: #8b0000;
-            text-shadow: 0 0 20px #ff0000, 0 0 40px #8b0000;
-            margin-bottom: 20px;
-            letter-spacing: 8px;
-            animation: pulse 3s infinite;
+            font-size: 72px;
+            background: linear-gradient(180deg, #fff 0%, #d4af37 50%, #8b0000 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 60px rgba(212,175,55,0.3);
+            margin-bottom: 10px;
+            letter-spacing: 12px;
+            position: relative;
+        }
+        
+        .game-title::after {
+            content: 'NEURO: VERSE';
+            position: absolute;
+            left: 0;
+            top: 0;
+            filter: blur(20px);
+            opacity: 0.5;
+            background: linear-gradient(180deg, #fff 0%, #d4af37 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         
         .subtitle {
             color: #666;
-            font-size: 12px;
-            margin-bottom: 50px;
-            letter-spacing: 3px;
-            font-family: 'Press Start 2P', cursive;
+            font-size: 11px;
+            margin-bottom: 60px;
+            letter-spacing: 4px;
+            font-family: 'Crimson Text', serif;
+            font-style: italic;
         }
         
-        .start-btn {
+        .menu-options {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .menu-btn {
             background: transparent;
-            border: 2px solid #8b0000;
-            color: #ff6b6b;
-            padding: 15px 40px;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 14px;
+            border: 2px solid #3a3a4a;
+            color: #888;
+            padding: 20px 60px;
+            font-family: 'Cinzel', serif;
+            font-size: 16px;
             cursor: pointer;
             transition: all 0.3s;
             text-transform: uppercase;
+            letter-spacing: 3px;
+            position: relative;
+            overflow: hidden;
         }
         
-        .start-btn:hover {
-            background: #8b0000;
-            color: #fff;
-            box-shadow: 0 0 30px rgba(139,0,0,0.8);
+        .menu-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(212,175,55,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .menu-btn:hover::before {
+            left: 100%;
+        }
+        
+        .menu-btn:hover {
+            border-color: #d4af37;
+            color: #d4af37;
+            box-shadow: 0 0 30px rgba(212,175,55,0.2);
+            transform: translateX(10px);
+        }
+        
+        #controls-overlay {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.8);
+            border: 1px solid #2a2a3a;
+            padding: 15px;
+            font-size: 9px;
+            color: #555;
+            line-height: 2;
+        }
+        
+        .key {
+            display: inline-block;
+            background: #1a1a2a;
+            border: 1px solid #3a3a4a;
+            padding: 2px 8px;
+            margin: 0 2px;
+            color: #888;
+            border-radius: 3px;
+        }
+        
+        .damage-number {
+            position: absolute;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 16px;
+            font-weight: bold;
+            pointer-events: none;
+            animation: floatUp 1s forwards;
+            text-shadow: 2px 2px 0 #000;
+        }
+        
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-50px) scale(1.5); opacity: 0; }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateX(-50%) translateY(50px); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
         }
         
         @keyframes pulse {
-            0%, 100% { opacity: 1; text-shadow: 0 0 20px #ff0000, 0 0 40px #8b0000; }
-            50% { opacity: 0.8; text-shadow: 0 0 10px #ff0000, 0 0 20px #8b0000; }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
         }
         
         .hidden { display: none !important; }
+        
+        /* Scrollbar customizada */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0a0a0f; }
+        ::-webkit-scrollbar-thumb { background: #2a2a3a; }
+        ::-webkit-scrollbar-thumb:hover { background: #3a3a4a; }
     </style>
 </head>
 <body>
-    <div id="game-container">
-        <canvas id="canvas" width="800" height="600"></canvas>
+    <div id="game-wrapper">
+        <div id="game-container">
+            <canvas id="canvas" width="960" height="720"></canvas>
+            
+            <div id="ui-layer">
+                <div class="title-screen" id="titleScreen">
+                    <h1 class="game-title">NEURO: VERSE</h1>
+                    <p class="subtitle">"Entre a fé e o abismo, escolhemos sangrar."</p>
+                    <div class="menu-options">
+                        <button class="menu-btn" onclick="startGame()">Iniciar Jornada</button>
+                        <button class="menu-btn" onclick="showCredits()">Créditos</button>
+                    </div>
+                </div>
+                
+                <div class="dialog-box" id="dialogBox">
+                    <div class="speaker-name" id="speakerName"></div>
+                    <div class="dialog-text" id="dialogText"></div>
+                    <div class="dialog-choices" id="dialogChoices"></div>
+                    <div class="continue-hint" id="continueHint">[ESPAÇO] para continuar • [CLICK] para atacar durante diálogos</div>
+                </div>
+                
+                <div id="controls-overlay" class="hidden">
+                    <span class="key">WASD</span> Mover<br>
+                    <span class="key">CLICK</span> Atacar / Interagir<br>
+                    <span class="key">E</span> Diálogo<br>
+                    <span class="key">ESPACO</span> Avançar texto
+                </div>
+            </div>
+        </div>
         
-        <div id="ui-layer">
-            <div class="title-screen" id="titleScreen">
-                <h1 class="game-title">NEURO: VERSE</h1>
-                <p class="subtitle">"Deus está morto. Nós o matamos."</p>
-                <button class="start-btn" onclick="startGame()">Iniciar Jornada</button>
+        <div id="side-panel" class="hidden">
+            <div class="panel-section">
+                <div class="panel-title">Vitalidade</div>
+                <div id="health-bar"></div>
+                <div style="display: flex; justify-content: space-between; font-size: 9px; color: #666; margin-top: 5px;">
+                    <span>SANIDADE</span>
+                    <span id="sanity-text">100%</span>
+                </div>
+                <div id="sanity-meter">
+                    <div id="sanity-fill" style="width: 100%"></div>
+                </div>
             </div>
             
-            <div id="quest-log" class="hidden">
-                <div class="quest-title">REGISTRO DE CULPAS</div>
-                <div id="quest-list"></div>
+            <div class="panel-section">
+                <div class="panel-title">Estado da Alma</div>
+                <div class="stat-row">
+                    <span>Monstros Abatidos</span>
+                    <span class="stat-value" id="kill-count">0</span>
+                </div>
+                <div class="stat-row">
+                    <span>Almas Poupadas</span>
+                    <span class="stat-value" id="spare-count">0</span>
+                </div>
+                <div class="stat-row">
+                    <span>Fé Restante</span>
+                    <span class="stat-value" id="faith-level">Cético</span>
+                </div>
             </div>
             
-            <div class="dialog-box" id="dialogBox">
-                <div class="speaker-name" id="speakerName"></div>
-                <div class="dialog-text" id="dialogText"></div>
-                <div class="continue-hint">[ESPAÇO] para continuar</div>
+            <div class="panel-section">
+                <div class="panel-title">Caminhos Abertos</div>
+                <div id="quest-log-compact"></div>
             </div>
             
-            <div id="controls-hint" class="hidden">
-                WASD / Setas: Mover<br>
-                E: Interagir<br>
-                ESPAÇO: Avançar diálogo
+            <div class="panel-section">
+                <div class="panel-title">Memórias de Sangue</div>
+                <div id="combat-log">
+                    <div class="log-entry">O silêncio da catedral observa...</div>
+                </div>
             </div>
         </div>
     </div>
@@ -247,153 +545,612 @@
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         
+        // Sistema de sprites detalhados (8x8 base, escalado)
+        const SPRITE_SCALE = 4;
+        
+        const SPRITES = {
+            player: {
+                idle: {
+                    down: [
+                        [0,0,1,1,1,1,0,0],
+                        [0,1,1,1,1,1,1,0],
+                        [0,1,2,2,2,2,1,0],
+                        [0,1,2,3,3,2,1,0],
+                        [0,1,2,2,2,2,1,0],
+                        [0,1,1,4,4,1,1,0],
+                        [0,0,1,4,4,1,0,0],
+                        [0,0,1,0,0,1,0,0]
+                    ]
+                },
+                walk: {
+                    down: [
+                        [0,0,1,1,1,1,0,0],
+                        [0,1,1,1,1,1,1,0],
+                        [0,1,2,2,2,2,1,0],
+                        [0,1,2,3,3,2,1,0],
+                        [0,1,2,2,2,2,1,0],
+                        [0,1,1,4,4,1,1,0],
+                        [0,0,1,4,4,1,0,0],
+                        [0,1,0,0,0,0,1,0]
+                    ]
+                }
+            },
+            // Cada NPC tem sprite único detalhado
+            npcs: {
+                cassius: { // Ex-padre, roupas rasgadas, tons de vermelho/sangue
+                    color: '#8b0000',
+                    pattern: [
+                        [0,0,2,2,2,2,0,0],
+                        [0,2,2,3,3,2,2,0],
+                        [0,2,3,1,1,3,2,0],
+                        [0,2,3,1,1,3,2,0],
+                        [0,2,2,3,3,2,2,0],
+                        [0,0,2,4,4,2,0,0],
+                        [0,0,2,4,4,2,0,0],
+                        [0,2,2,0,0,2,2,0]
+                    ]
+                },
+                elara: { // Mãe, vestido roxo, cabelo longo
+                    color: '#4a0080',
+                    pattern: [
+                        [0,3,3,0,0,3,3,0],
+                        [0,3,3,3,3,3,3,0],
+                        [0,2,2,2,2,2,2,0],
+                        [0,2,4,4,4,4,2,0],
+                        [0,2,4,4,4,4,2,0],
+                        [0,0,4,5,5,4,0,0],
+                        [0,0,4,4,4,4,0,0],
+                        [0,0,4,0,0,4,0,0]
+                    ]
+                },
+                malachi: { // Inquisidor, armadura quebrada, cinza
+                    color: '#2c3e50',
+                    pattern: [
+                        [0,0,4,4,4,4,0,0],
+                        [0,4,4,3,3,4,4,0],
+                        [0,4,3,1,1,3,4,0],
+                        [0,4,4,3,3,4,4,0],
+                        [0,4,4,4,4,4,4,0],
+                        [0,0,4,5,5,4,0,0],
+                        [0,0,4,4,4,4,0,0],
+                        [0,4,4,0,0,4,4,0]
+                    ]
+                },
+                sister_mercy: { // Freira gentil, branco/dourado
+                    color: '#d4af37',
+                    pattern: [
+                        [0,0,1,1,1,1,0,0],
+                        [0,1,1,2,2,1,1,0],
+                        [0,1,2,3,3,2,1,0],
+                        [0,1,2,3,3,2,1,0],
+                        [0,1,1,2,2,1,1,0],
+                        [0,0,1,4,4,1,0,0],
+                        [0,0,1,4,4,1,0,0],
+                        [0,0,1,0,0,1,0,0]
+                    ]
+                },
+                brother_thomas: { // Monge jovem, esperança nos olhos
+                    color: '#8b7355',
+                    pattern: [
+                        [0,0,3,3,3,3,0,0],
+                        [0,3,3,2,2,3,3,0],
+                        [0,3,2,1,1,2,3,0],
+                        [0,3,2,1,1,2,3,0],
+                        [0,3,3,2,2,3,3,0],
+                        [0,0,3,4,4,3,0,0],
+                        [0,0,3,4,4,3,0,0],
+                        [0,3,0,0,0,0,3,0]
+                    ]
+                },
+                the_void: { // Abismo, negro com olhos vermelhos
+                    color: '#000000',
+                    pattern: [
+                        [0,1,1,1,1,1,1,0],
+                        [1,0,0,0,0,0,0,1],
+                        [1,0,2,0,0,2,0,1],
+                        [1,0,0,0,0,0,0,1],
+                        [1,0,2,2,2,2,0,1],
+                        [1,0,0,2,2,0,0,1],
+                        [1,0,0,0,0,0,0,1],
+                        [0,1,1,1,1,1,1,0]
+                    ]
+                }
+            }
+        };
+
+        const PALETTES = {
+            player: { 0: 'transparent', 1: '#2c3e50', 2: '#34495e', 3: '#e74c3c', 4: '#1a1a2e' },
+            cassius: { 0: 'transparent', 1: '#ff6b6b', 2: '#8b0000', 3: '#4a0000', 4: '#2a0000', 5: '#000' },
+            elara: { 0: 'transparent', 1: '#9b59b6', 2: '#4a0080', 3: '#2a0040', 4: '#8e44ad', 5: '#fff' },
+            malachi: { 0: 'transparent', 1: '#95a5a6', 2: '#7f8c8d', 3: '#2c3e50', 4: '#1a252f', 5: '#c0392b' },
+            sister_mercy: { 0: 'transparent', 1: '#fff', 2: '#f0f0f0', 3: '#d4af37', 4: '#b8860b' },
+            brother_thomas: { 0: 'transparent', 1: '#d2691e', 2: '#8b4513', 3: '#654321', 4: '#3e2723' },
+            the_void: { 0: 'transparent', 1: '#000', 2: '#ff0000' }
+        };
+
         // Estado do jogo
         const game = {
-            state: 'TITLE', // TITLE, PLAYING, DIALOG
-            player: { x: 400, y: 300, dir: 'down', frame: 0, moving: false },
+            state: 'TITLE',
+            player: { 
+                x: 480, y: 360, 
+                dir: 'down', 
+                frame: 0, 
+                moving: false,
+                health: 5,
+                maxHealth: 5,
+                sanity: 100,
+                kills: 0,
+                spares: 0,
+                faith: 50 // 0 = herege, 50 = cético, 100 = crente
+            },
             camera: { x: 0, y: 0 },
             keys: {},
-            dialogQueue: [],
-            currentDialog: 0,
-            quests: [],
-            npcs: [],
+            entities: [],
             particles: [],
-            time: 0
+            projectiles: [],
+            time: 0,
+            quests: [],
+            combatLog: []
         };
 
-        // Sprites pixel art simplificados (procedural)
-        const sprites = {
-            player: {
-                down: [[0,1,1,0],[1,1,1,1],[0,1,1,0],[1,0,0,1]],
-                up: [[0,1,1,0],[1,1,1,1],[1,1,1,1],[0,1,1,0]],
-                left: [[0,1,1,0],[1,1,1,0],[0,1,1,0],[1,0,0,1]],
-                right: [[0,1,1,0],[0,1,1,1],[0,1,1,0],[1,0,0,1]]
-            },
-            tiles: {
-                ground: '#2a2a3a',
-                wall: '#1a1a2e',
-                blood: '#4a0000',
-                altar: '#3a3a4a'
-            }
-        };
-
-        // NPCs com personalidades profundas e filosóficas
-        const characters = {
+        // Personagens com arcos filosóficos complexos
+        const CHARACTERS = {
             cassius: {
-                name: "Cássius, o Herege",
+                name: "Cássius Vane, o Herege Piedoso",
+                title: "O Padre que Amava Demais",
+                faithType: "heretic",
                 x: 200, y: 200,
-                color: '#8b0000',
-                dialog: [
-                    "Você veio buscar respostas, criança? Ou veio confirmar suas suspeitas sobre o vazio?",
-                    "Eu era padre uma vez. Acredite se quiser. Preguei sobre amor divino enquanto enterrei crianças que morreram de fome nas portas da igreja.",
-                    "Deus não está morto. Ele nunca existiu. E se existiu... ele nos odeia.",
-                    "Veja ao seu redor. Esta carne, este sangue, este sofrimento — é isso que resta quando removemos os véus da santidade.",
-                    "Os monstros que você caça? São espelhos. Cada um deles carrega um pecado que você também possui.",
-                    "Mate-os. Ou abrace-os. No fim, a carne apodrece da mesma forma."
+                health: 100, maxHealth: 100,
+                hostile: false,
+                defeated: false,
+                sprite: 'cassius',
+                dialogTree: [
+                    {
+                        id: 'intro',
+                        text: "*Ele está de joelhos, rasgando as próprias vestes sacerdotais* Você... você também veio para me julgar? Ou veio buscar a verdade que a Igreja enterrou?",
+                        choices: [
+                            { text: "Que verdade?", next: 'truth', faith: 0 },
+                            { text: "Levante-se. A fé não se desfaz no chão.", next: 'faith_test', faith: 10 },
+                            { text: "*Atacar sem aviso*", action: 'attack', violent: true }
+                        ]
+                    },
+                    {
+                        id: 'truth',
+                        text: "A verdade de que amei Deus mais que aos homens. E quando precisei escolher entre salvar uma criança ou manter a doutrina... escolhi a doutrina. Ela morreu. Eu vivi. E Deus... Deus calou-se.",
+                        choices: [
+                            { text: "Deus não cala. Nós é que paramos de ouvir.", next: 'debate', faith: 15 },
+                            { text: "Então você é um assassino disfarçado de santo.", next: 'resentment', faith: -10 },
+                            { text: "O silêncio divino é a maior das respostas.", next: 'nihilism', faith: -5 }
+                        ]
+                    },
+                    {
+                        id: 'faith_test',
+                        text: "*Seus olhos lacrimejantes encontram os seus* Você fala como meu mestre. Antes que eu... antes que eu quebrasse. Diga-me, estranho: se Deus é bom, por que o mundo sangra?",
+                        choices: [
+                            { text: "Porque nós somos Sua imagem, e somos falhos.", next: 'original_sin', faith: 20 },
+                            { text: "Talvez 'bom' seja uma invenção nossa.", next: 'moral_relativism', faith: -15 },
+                            { text: "Não sei. Mas sei que piedade ainda existe em você.", next: 'redemption', faith: 25 }
+                        ]
+                    },
+                    {
+                        id: 'original_sin',
+                        text: "Falhos... sim. Somos falhos. *Ele sorri, pela primeira vez* Talvez... talvez o perdão não venha de cima, mas de quem entende a falha. Vá, estranho. Há outros aqui que precisam mais de suas palavras que de sua espada.",
+                        choices: [
+                            { text: "Vou orar por você, Cássius.", action: 'spare', faith: 30 },
+                            { text: "Sua culpa é sua prisão. Viva nela.", action: 'leave', faith: -5 }
+                        ]
+                    },
+                    {
+                        id: 'nihilism',
+                        text: "O silêncio como resposta... *Ele ri, amargo* É poético. Cruel, mas poético. Então somos nada falando com o Nada? Belo epitáfio para a humanidade.",
+                        choices: [
+                            { text: "Somos o eco que dá significado ao vazio.", next: 'existentialism', faith: 10 },
+                            { text: "Precisamente. E ecos não precisam de perdão.", action: 'attack', violent: true }
+                        ]
+                    },
+                    {
+                        id: 'redemption',
+                        text: "*Ele desaba em soluços* Piedade... em mim? Depois do que fiz? *Estende as mãos trêmulas* Tome, leve isto. É tudo que resta da minha fé materializada. Vá encontrar a Irmã Mercy. Ela ainda acredita... de verdade.",
+                        choices: [
+                            { text: "Aceitar o presente", action: 'reward', item: 'medalha_rasgada', faith: 20 },
+                            { text: "Guarde. Você precisa mais que eu.", action: 'refuse_reward', faith: 25 }
+                        ]
+                    }
                 ],
-                quest: { id: 'heretic_wisdom', desc: 'Ouvir as blasfêmias de Cássius', completed: false }
+                quest: { id: 'cassius_arc', desc: 'O Padre Rasgado', completed: false }
             },
+            
+            sister_mercy: {
+                name: "Irmã Mercy Caldwell",
+                title: "A Última que Ora",
+                faithType: "believer",
+                x: 700, y: 150,
+                health: 80, maxHealth: 80,
+                hostile: false,
+                defeated: false,
+                sprite: 'sister_mercy',
+                dialogTree: [
+                    {
+                        id: 'intro',
+                        text: "*Ela está curando um corvo ferido, sussurrando orações* Shhh, pequeno. A dor passa. A graça permanece. *Olha para você* Oh! Desculpe, não ouvi você chegar. Está... está ferido?",
+                        choices: [
+                            { text: "Não fisicamente. Mas minha alma... está cansada.", next: 'soul_tired', faith: 5 },
+                            { text: "Por que cura um corvo? São criaturas de mau agouro.", next: 'crow_question', faith: -5 },
+                            { text: "Deixe o bicho morrer. O mundo não precisa de mais corvos.", next: 'cruelty', faith: -20 }
+                        ]
+                    },
+                    {
+                        id: 'soul_tired',
+                        text: "Cansada... sim, eu conheço esse cansaço. É o peso de carregar perguntas sem respostas. *Ela se levanta, o corvo voando para o alto* Mas veja? Ele voa. A graça não precisa de entendimento, apenas de aceitação.",
+                        choices: [
+                            { text: "Como você mantém a fé quando tudo é escuridão?", next: 'faith_darkness', faith: 10 },
+                            { text: "Aceitação é o refúgio dos que desistiram de pensar.", next: 'intellectual_pride', faith: -15 },
+                            { text: "Talvez eu precise aprender a voar também.", next: 'metaphor_wings', faith: 20 }
+                        ]
+                    },
+                    {
+                        id: 'faith_darkness',
+                        text: "Porque a escuridão não nega a luz. Ela a define. *Ela aponta para as velas ao redor* Cada chama aqui existe porque a noite é profunda. Se não houvesse escuridão, não valorizaríamos o brilho.",
+                        choices: [
+                            { text: "Então Deus permite o mal para que vejamos o bem?", next: 'theodicy', faith: 15 },
+                            { text: "Ou talvez as velas sejam mentiras que contamos para não ver o negro.", next: 'candle_lies', faith: -20 },
+                            { text: "Você fala como quem nunca viu a verdadeira escuridão.", next: 'darkness_test', faith: -10 }
+                        ]
+                    },
+                    {
+                        id: 'theodicy',
+                        text: "Não! Deus não 'permite' como um tirano permite sofrimento. Ele 'suporta' conosco. *Ela segura seu crucifixo* Quando Jesus gritou 'Por que me abandonaste?', não foi teatro. Foi a própria divinidade experimentando o abandono.",
+                        choices: [
+                            { text: "Então Deus também sofre? Isso é... confortador.", next: 'divine_suffering', faith: 25 },
+                            { text: "Um deus que sofre é impotente, não amoroso.", next: 'impotent_god', faith: -20 },
+                            { text: "Palavras. Apenas palavras para justificar o injustificável.", next: 'words_empty', faith: -25 }
+                        ]
+                    },
+                    {
+                        id: 'divine_suffering',
+                        text: "*Ela sorri, lágrimas nos olhos* Confortador... sim. É estranho, não? Achar conforto na fraqueza divina. Mas é nela que encontro força. Vá, estranho. Há um homem no porão - Malachi. Ele precisa ouvir que até a culpa pode ser levada.",
+                        choices: [
+                            { text: "Vou levar sua mensagem.", action: 'quest_update', target: 'malachi', faith: 20 },
+                            { text: "Cuide de si. O mundo precisa de mais velas.", action: 'spare', faith: 30 }
+                        ]
+                    },
+                    {
+                        id: 'cruelty',
+                        text: "*Ela recua, protegendo o corvo* Crueldade... é uma escolha. Como a bondade. *Seu olhar endurece* Você escolheu a primeira. Eu escolho proteger. Saia da minha capela.",
+                        choices: [
+                            { text: "Desculpe. A escuridão... fala alto em mim.", next: 'apology', faith: 10 },
+                            { text: "Sua capela? Isso é uma ruína, velha.", action: 'insult', faith: -30 },
+                            { text: "*Matar o corvo e atacá-la*", action: 'attack', violent: true }
+                        ]
+                    }
+                ],
+                quest: { id: 'mercy_light', desc: 'A Vela na Tempestade', completed: false }
+            },
+            
             elara: {
-                name: "Elara, a Mãe que Não Foi",
-                x: 600, y: 150,
-                color: '#4a0080',
-                dialog: [
-                    "Shhh... meus filhos estão dormindo. Não acorde os bebês.",
-                    "*Ela acaricia o vazio, como se houvesse algo em seus braços*",
-                    "O padre disse que Deus leva os inocentes primeiro. Então por que deixou os monstros vivos?",
-                    "Eu matei sete homens para proteger meu ventre vazio. Sete almas para um filho que nunca respirou.",
-                    "Você acha isso errado? Quando Deus mata milhões em inundações, chamamos de 'mysterium'. Quando eu mato sete, sou demoníaca.",
-                    "A hipocrisia divina tem um cheiro doce. Como flores em carniça."
+                name: "Elara Voss, a Mãe dos Vazios",
+                title: "Aqueles que Não Nasceram",
+                faithType: "doubter",
+                x: 300, y: 500,
+                health: 120, maxHealth: 120,
+                hostile: true,
+                defeated: false,
+                sprite: 'elara',
+                dialogTree: [
+                    {
+                        id: 'intro',
+                        text: "*Ela balança um berço vazio, cantando uma canção de ninar desafinada* Dorme, filho meu... que o anjo da guarda... *Para, olhando para você com olhos vazios* O anjo não veio. Para nenhum deles.",
+                        choices: [
+                            { text: "Quantos...?", next: 'how_many', faith: 0 },
+                            { text: "Elara, você está viva. Isso importa.", next: 'you_matter', faith: 10 },
+                            { text: "Loucura. Puramente loucura.", next: 'madness', faith: -15 }
+                        ]
+                    },
+                    {
+                        id: 'how_many',
+                        text: "Sete. Sete pequenos que nunca respiraram. Sete nomes que nunca foram ditos. *Ela toca a barriga* Aqui. Todos aqui. O padre disse que era 'vontade de Deus'. Eu chamo de assassinato divino.",
+                        choices: [
+                            { text: "Não foi Deus. Foi biologia, azar... não divindade.", next: 'science_comfort', faith: 5 },
+                            { text: "Se Deus existe, Ele tem muito a explicar.", next: 'god_explain', faith: -10 },
+                            { text: "Sete almas livres do peso de existir. Invejo-os.", next: 'envy_dead', faith: -25 }
+                        ]
+                    },
+                    {
+                        id: 'you_matter',
+                        text: "Importa? *Ela ri, som de vidro quebrando* Para quem? Para o vazio que deixei no mundo? Para meu marido que fugiu? Para Deus que os levou antes de eu conhecê-los?",
+                        choices: [
+                            { text: "Para mim. Agora. Neste momento.", next: 'i_see_you', faith: 20 },
+                            { text: "Talvez importe para os sete que não nasceram. Eles a amam.", next: 'unborn_love', faith: 25 },
+                            { text: "Talvez não importe. Mas você ainda respira.", next: 'breath_enough', faith: 15 }
+                        ]
+                    },
+                    {
+                        id: 'i_see_you',
+                        text: "*Ela congela. Pela primeira vez, foco em seus olhos* Você... vê? *Ela toca o rosto, como se confirmando que é real* Ninguém mais vê. Sou invisível na minha dor. Fantasma entre vivos.",
+                        choices: [
+                            { text: "Dor visível é a única verdade que compartilhamos.", next: 'shared_pain', faith: 15 },
+                            { text: "Seja visível. Grite. Quebre coisas. Mas não suma.", next: 'be_visible', faith: 20 },
+                            { text: "Fantasmas não sangram. Você ainda sangra.", next: 'still_bleed', faith: 10 }
+                        ]
+                    },
+                    {
+                        id: 'unborn_love',
+                        text: "*Ela desaba, segurando o berço* Eles... me amam? *Sussurros* Às vezes sinto. No vento. Na chuva. Sinto que me esperam. Não com raiva. Com... paciência.",
+                        choices: [
+                            { text: "Então viva. Para contar a eles que você lutou.", next: 'live_for_them', faith: 30 },
+                            { text: "A paciência dos mortos é infinita. Não se apresse.", next: 'no_rush', faith: 10 }
+                        ]
+                    },
+                    {
+                        id: 'madness',
+                        text: "Loucura? LOUCURA?! *Ela se levanta, o berço tombando* Você vem ao meu túmulo vivo e chama de louco quem chora filhos que nunca tive? *Ela avança* Vou mostrar loucura.",
+                        choices: [
+                            { text: "Desculpe. Fui cruel.", next: 'apology_cruel', faith: 5 },
+                            { text: "Então me mostre. Mostre toda a sua dor.", action: 'embrace_combat', faith: 0 },
+                            { text: "*Preparar arma*", action: 'attack', violent: true }
+                        ]
+                    }
                 ],
-                quest: { id: 'empty_womb', desc: 'Testemunhar a loucura de Elara', completed: false }
+                quest: { id: 'elara_womb', desc: 'O Ventre Vazio', completed: false }
             },
+            
             malachi: {
-                name: "Malachi, o Inquisidor Quebrado",
-                x: 400, y: 100,
-                color: '#2c3e50',
-                dialog: [
-                    "*Ele está ajoelhado diante de uma cruz invertida, sangrando das mãos*",
-                    "Eu torturei centenas. Arranquei confissões de inocentes. Tudo em nome de Deus.",
-                    "Sabe o que descobri? Os culpados confessam fácil demais. Os inocentes resistem até a morte.",
-                    "Isso me fez pensar... talvez a culpa seja a única verdade. Os inocentes morrem porque não conseguem mentir para si mesmos.",
-                    "Você é inocente, viajante? Ou já aprendeu a linguagem da culpa?",
-                    "Eu não mato mais. Agora eu apenas... escuto. O silêncio dos mortos é mais honesto que qualquer sermão."
+                name: "Irmão Malachi Stern",
+                title: "O Inquisidor de Si Mesmo",
+                faithType: "doubter",
+                x: 600, y: 400,
+                health: 150, maxHealth: 150,
+                hostile: false,
+                defeated: false,
+                sprite: 'malachi',
+                dialogTree: [
+                    {
+                        id: 'intro',
+                        text: "*Ele está acorrentado a uma parede, chicotes ao redor* Não... não venha perto. Não mereço proximidade. Nem de monstros. *Ele ri, seco* Especialmente não de monstros. Conheço seus nomes. Interroguei muitos.",
+                        choices: [
+                            { text: "Mercy me enviou. Ela diz que a culpa pode ser levada.", next: 'mercy_sent', faith: 10 },
+                            { text: "Auto-flagelação? Que teatral.", next: 'theatrical', faith: -10 },
+                            { text: "Interrogou monstros? Ou inocentes?", next: 'innocents', faith: 0 }
+                        ]
+                    },
+                    {
+                        id: 'innocents',
+                        text: "*Seus olhos se arregalam* Como... como sabe? *Ele treme* Sim. Inocentes. Centenas. Arranquei confissões de lábios que nunca mentiram. Porque a Inquisição precisava de culpados. E eu... eu precisava de certeza.",
+                        choices: [
+                            { text: "A certeza é a inimiga da verdade.", next: 'certainty_enemy', faith: 15 },
+                            { text: "Você é um assassino em massa. Ponto final.", next: 'mass_murderer', faith: -20 },
+                            { text: "O que aconteceu com a certeza?", next: 'lost_certainty', faith: 10 }
+                        ]
+                    },
+                    {
+                        id: 'lost_certainty',
+                        text: "Descobri que a tortura cria verdades, não as revela. Um homem dirá qualquer coisa para parar a dor. Até que Deus odeia crianças. Até que ele próprio é o demônio. *Ele olha para as mãos* Eu escrevi essas confissões. Li em voz alta. Acreditei.",
+                        choices: [
+                            { text: "Então desfaça. Uma verdade de cada vez.", next: 'undo_truth', faith: 20 },
+                            { text: "Você acreditou porque queria acreditar.", next: 'wanted_believe', faith: 10 },
+                            { text: "Suas mãos devem ser cortadas.", next: 'cut_hands', faith: -25 }
+                        ]
+                    },
+                    {
+                        id: 'undo_truth',
+                        text: "Desfazer... *Ele olha para as correntes* É por isso que estou aqui. Cada chicote é uma confissão retirada. Cada gota de sangue, uma absolvição que não posso dar. Mas não é suficiente. Nunca será.",
+                        choices: [
+                            { text: "Não é sobre suficiência. É sobre direção.", next: 'direction', faith: 25 },
+                            { text: "Então continue. Até o último sangue.", next: 'continue_blood', faith: -10 },
+                            { text: "Liberte-se das correntes. Viva para contar a verdade.", next: 'live_truth', faith: 30 }
+                        ]
+                    },
+                    {
+                        id: 'direction',
+                        text: "Direção... *Ele sorri, triste* Você fala como alguém que já errou. Muito. *Ele tenta se levantar, caindo* Me ajude. Não a me levantar fisicamente. Mas a... a acreditar que a direção importa mais que a distância.",
+                        choices: [
+                            { text: "Levante. Um passo por vez. Eu estou aqui.", action: 'help_up', faith: 35 },
+                            { text: "A direção só importa se houver destino.", next: 'destiny', faith: 5 }
+                        ]
+                    },
+                    {
+                        id: 'theatrical',
+                        text: "*Ele ri, amargo* Teatral? Sim. Sou um ator em minha própria tragédia. O herói que se tornou vilão. O crente que se tornou... isto. *Ele mostra as costas ensanguentadas* Belo terceiro ato, não acha?",
+                        choices: [
+                            { text: "A tragédia só termina quando você aceita o papel.", next: 'reject_role', faith: 20 },
+                            { text: "É patético. Auto-piedade disfarçada de penitência.", next: 'pathetic', faith: -20 },
+                            { text: "O público já foi embora. Só resta você.", next: 'empty_theater', faith: 10 }
+                        ]
+                    }
                 ],
-                quest: { id: 'broken_torturer', desc: 'Confrontar o inquisidor', completed: false }
+                quest: { id: 'malachi_chains', desc: 'O Interrogador Interrogado', completed: false }
             },
-            the_void: {
-                name: "O Abismo",
-                x: 400, y: 400,
-                color: '#000000',
-                dialog: [
-                    "FINALMENTE. UM INTERLOCUTOR.",
-                    "Você acha que nós somos os monstros? Olha para você. Matando, tirando a vida de seus semelhantes.",
-                    "Deixando que outros façam coisas ruins com crianças inocentes. E tudo isso com a desculpa de estar fazendo o que é certo.",
-                    "O QUE É CERTO?",
-                    "Vocês mancham o nome do Deus que idolatram e dizem servir. Quando na verdade... talvez ele nem exista.",
-                    "E se existe, por que não faz nada? Talvez porque não é tão bom quanto pensam?",
-                    "Ou será que ele desistiu de sua criação? Deixou o jogo porque percebeu que os peões são mais cruéis que o jogador?",
-                    "Eu sou o vazio que vocês criaram. Cada oração não respondida. Cada criança morta enquanto sacerdotes rezavam.",
-                    "Eu não sou o mal. Sou o silêncio de Deus ecoando por eternidades.",
-                    "Venha. Junte-se a mim. Ou me destrua. Ambos os atos confirmam minha vitória."
+            
+            brother_thomas: {
+                name: "Irmão Thomas, o Noviço",
+                title: "A Chama que Ainda Treme",
+                faithType: "believer",
+                x: 150, y: 450,
+                health: 60, maxHealth: 60,
+                hostile: false,
+                defeated: false,
+                sprite: 'brother_thomas',
+                dialogTree: [
+                    {
+                        id: 'intro',
+                        text: "*Ele está escrevendo em um pergaminho, a mão tremendo* Oh! Desculpe, estou copiando os Salmos. Para... para memorizar. Porque se eu esquecer as palavras, talvez esqueça a música. E se esquecer a música...",
+                        choices: [
+                            { text: "O que acontece se esquecer?", next: 'forget_music', faith: 0 },
+                            { text: "Você é jovem. Por que está aqui, neste lugar sombrio?", next: 'why_here', faith: 5 },
+                            { text: "Pare de escrever. A música já morreu.", next: 'music_dead', faith: -20 }
+                        ]
+                    },
+                    {
+                        id: 'why_here',
+                        text: "Escolhi vir. Canonicamente, deveria estar em um mosteiro florido. Mas li sobre os hereges. Sobre Cássius, Malachi... pensei que poderia trazê-los de volta. Com juventude. Com esperança. *Ele ri, triste* Ingenuidade, não?",
+                        choices: [
+                            { text: "Não. É coragem. Rara e preciosa.", next: 'courage', faith: 25 },
+                            { text: "É estupidez. Eles estão além do salvação.", next: 'beyond_salvation', faith: -15 },
+                            { text: "Talvez sejam eles que precisam te salvar.", next: 'they_save_you', faith: 10 }
+                        ]
+                    },
+                    {
+                        id: 'courage',
+                        text: "*Seus olhos brilham* Coragem... ninguém nunca disse isso. Só ouço 'volte', 'é perigoso', 'você vai queimar'. *Ele segura o pergaminho* Mas você disse coragem. *Ele sorri* Vou continuar. Mesmo que queime. Especialmente se queimar.",
+                        choices: [
+                            { text: "Queime então. Mas ilumine enquanto arde.", next: 'burn_bright', faith: 30 },
+                            { text: "Não queime sozinho. Eu ficarei.", next: 'stay_with', faith: 35 },
+                            { text: "Cuidado. O fogo consome até os corajosos.", next: 'fire_consumes', faith: 15 }
+                        ]
+                    },
+                    {
+                        id: 'forget_music',
+                        text: "Se eu esquecer... então o silêncio vence. E eu tenho medo do silêncio. Mais que do fogo. Mais que da morte. O silêncio é onde ecoam as vozes que não quero ouvir. As dúvidas.",
+                        choices: [
+                            { text: "O silêncio também é música. É o espaço entre notas.", next: 'silence_music', faith: 20 },
+                            { text: "Deixe as dúvidas falarem. Elas são mais honestas que certezas.", next: 'doubts_honest', faith: 15 },
+                            { text: "Então grite. Encha o silêncio com sua própria voz.", next: 'scream', faith: 25 }
+                        ]
+                    },
+                    {
+                        id: 'burn_bright',
+                        text: "*Ele fecha os olhos, respirando fundo* Iluminar... sim. É isso. Não importa se sou vela ou fogueira. Só importa que haja luz. *Ele volta a escrever, agora firme* Obrigado. Por ver o fogo em vez da cinza.",
+                        choices: [
+                            { text: "Vejo porque também queimo.", action: 'kinship', faith: 30 },
+                            { text: "Vá. Escreva. Eu guardo a porta.", action: 'guard_door', faith: 25 }
+                        ]
+                    }
                 ],
-                quest: { id: 'confront_void', desc: 'Enfrentar o Abismo', completed: false }
+                quest: { id: 'thomas_flame', desc: 'O Noviço que Não Desistiu', completed: false }
+            },
+            
+            the_void: {
+                name: "O Abismo que Olha de Volta",
+                title: "O Silêncio Eloquente",
+                faithType: "void",
+                x: 480, y: 600,
+                health: 500, maxHealth: 500,
+                hostile: true,
+                defeated: false,
+                sprite: 'the_void',
+                dialogTree: [
+                    {
+                        id: 'intro',
+                        text: "FINALMENTE. OS PEDACINHOS DE CARNE SE REUNEM. *A escuridão se move, formando uma boca onde não deveria haver* Vocês vieram. Como moscas ao esgoto. Como crentes ao templo vazio.",
+                        choices: [
+                            { text: "Quem... o que é você?", next: 'what_are_you', faith: 0 },
+                            { text: "Não sou carne. Sou mais que isso.", next: 'more_than_flesh', faith: 20 },
+                            { text: "Vim para destruí-lo.", action: 'attack', violent: true }
+                        ]
+                    },
+                    {
+                        id: 'what_are_you',
+                        text: "Sou a pergunta que vocês têm medo de fazer em voz alta. Sou o eco do grito de Jesus no madeiro. Sou o espaço entre 'Pai' e 'por que me abandonaste'. Eu sou o Silêncio que responde todas as orações.",
+                        choices: [
+                            { text: "O silêncio não é resposta. É ausência de uma.", next: 'silence_absence', faith: 15 },
+                            { text: "Então você é o vácuo. O nada.", next: 'nothingness', faith: -10 },
+                            { text: "Mesmo o silêncio tem significado. Para quem ouve.", next: 'silence_meaning', faith: 25 }
+                        ]
+                    },
+                    {
+                        id: 'more_than_flesh',
+                        text: "MAIS? *A escuridão ri, som de estrelas morrendo* Você é HIDRÓGENO ORGANIZADO POR ACASO. Água e poeira fingindo ter propósito. E ainda assim... *A voz muda, quase curiosa* ...ainda assim, algo em você brilha. Irritante. Persistente.",
+                        choices: [
+                            { text: "Esse brilho é o que você não pode destruir.", next: 'indestructible', faith: 30 },
+                            { text: "Talvez o acaso seja a forma de Deus se esconder.", next: 'chance_god', faith: 20 },
+                            { text: "Brilho ou não, vou apagar você.", action: 'attack', violent: true }
+                        ]
+                    },
+                    {
+                        id: 'indestructible',
+                        text: "Não posso destruir? *A escuridão se contrai* EU CONSUMI UNIVERSOS. Engoli deuses inteiros. E você, pedacinho de carbono, acha que tem algo que eu não posso tocar?",
+                        choices: [
+                            { text: "Você pode tocar. Mas não apagar. É diferente.", next: 'touch_not_erase', faith: 35 },
+                            { text: "Consumiu deuses? Então eram deuses demais.", next: 'false_gods', faith: 25 },
+                            { text: "Prove. Tente me consumir agora.", action: 'embrace_void', faith: 10 }
+                        ]
+                    },
+                    {
+                        id: 'silence_absence',
+                        text: "Ausência? *A voz se torna um sussurro íntimo* Quando você ama alguém... e ela não responde... é 'ausência'? Ou é a resposta mais clara possível? O silêncio de Deus é eloquente. Ele diz: 'Vocês não merecem minha voz.'",
+                        choices: [
+                            { text: "Ou diz: 'Vocês já sabem o que fazer.'", next: 'know_what_to_do', faith: 30 },
+                            { text: "Então nós criaremos nossa própria voz.", next: 'our_voice', faith: 25 },
+                            { text: "Se esse é o caso, então Deus é cruel. E eu prefiro você.", next: 'prefer_void', faith: -30 }
+                        ]
+                    },
+                    {
+                        id: 'know_what_to_do',
+                        text: "*Longa pausa* ...Interessante. Você transforma abandono em liberdade. Rejeição em responsabilização. *A escuridão parece... hesitar* Talvez... talvez seja por isso que ainda existem velas nesta catedral. Não porque eu não consegui apagar... mas porque vocês recusam a escuridão.",
+                        choices: [
+                            { text: "Recusamos. Sempre recusaremos.", next: 'defiance', faith: 40 },
+                            { text: "Não por recusa. Por esperança.", next: 'hope_final', faith: 50 },
+                            { text: "Então recue. Deixe-nos em paz.", next: 'retreat', faith: 20 }
+                        ]
+                    },
+                    {
+                        id: 'defiance',
+                        text: "Sempre? *A escuridão se expande, ameaçadora* Eu tenho ETERNIDADE. Vocês têm... o quê? Oitenta anos? Cem? Eu posso esperar. Posso ser paciente. Mas hoje... hoje vou mostrar o que é recusar o Abismo.",
+                        choices: [
+                            { text: "Mostre. Mas saiba que nos levantaremos.", action: 'final_battle', faith: 30 },
+                            { text: "Então venha. E descubra por que ainda existimos.", action: 'final_battle', faith: 40 }
+                        ]
+                    },
+                    {
+                        id: 'hope_final',
+                        text: "Esperança... *A voz se dissipa, tornando-se quase humana* ...palavra mais cruel que já inventaram. Mais cruel que 'ódio'. Porque 'ódio' pelo menos é honesto. Esperança... esperança é mentir para si mesmo, sabendo que é mentira. E ainda assim... *Silêncio* ...ainda assim, aqui estou eu, conversando. Quando poderia simplesmente... ser.",
+                        choices: [
+                            { text: "Porque até o Abismo quer ser entendido.", next: 'void_understood', faith: 50 },
+                            { text: "Você não é o vazio. É o que o vazio sente.", next: 'void_feels', faith: 45 },
+                            { text: "Então seja. Mas saiba que lutaremos.", action: 'final_battle', faith: 25 }
+                        ]
+                    },
+                    {
+                        id: 'void_understood',
+                        text: "*A escuridão treme. Pela primeira vez, algo como... medo?* Entendido... sim. É isso. Eu sou a pergunta sem resposta. E vocês... vocês são a resposta sem pergunta. *A forma se dissolve* Não me destrua. Não me poupe. Apenas... continue perguntando. É... é tudo que peço.",
+                        choices: [
+                            { text: "Continuaremos. Enquanto houver voz.", action: 'spare_void', faith: 60, ending: 'redemption' },
+                            { text: "Você é perigoso demais para existir.", action: 'destroy_void', faith: -20, ending: 'destruction' }
+                        ]
+                    }
+                ],
+                quest: { id: 'void_confrontation', desc: 'O Fim de Todas as Perguntas', completed: false }
             }
         };
 
-        // Inicializar NPCs
-        Object.keys(characters).forEach(key => {
-            const char = characters[key];
-            game.npcs.push({
-                id: key,
-                x: char.x,
-                y: char.y,
-                color: char.color,
-                name: char.name,
-                dialog: char.dialog,
-                currentDialog: 0,
-                quest: char.quest
+        // Inicialização
+        function initGame() {
+            Object.keys(CHARACTERS).forEach(key => {
+                const char = CHARACTERS[key];
+                game.entities.push({
+                    id: key,
+                    type: 'npc',
+                    ...char,
+                    currentDialog: 'intro',
+                    dialogHistory: []
+                });
             });
-        });
-
-        // Quests iniciais
-        game.quests = [
-            { id: 'awaken', desc: 'Despertar na Catedral Quebrada', completed: true },
-            { id: 'heretic_wisdom', desc: 'Ouvir as blasfêmias de Cássius', completed: false },
-            { id: 'empty_womb', desc: 'Testemunhar a loucura de Elara', completed: false },
-            { id: 'broken_torturer', desc: 'Confrontar o inquisidor', completed: false },
-            { id: 'confront_void', desc: 'Enfrentar o Abismo', completed: false }
-        ];
-
-        function updateQuestLog() {
-            const list = document.getElementById('quest-list');
-            list.innerHTML = game.quests.map(q => 
-                `<div class="quest-item ${q.completed ? 'completed' : ''}">${q.desc}</div>`
-            ).join('');
+            
+            updateHealth();
+            updateSanity();
+            updateQuestLog();
         }
 
         function startGame() {
             document.getElementById('titleScreen').classList.add('hidden');
-            document.getElementById('quest-log').classList.remove('hidden');
-            document.getElementById('controls-hint').classList.remove('hidden');
+            document.getElementById('side-panel').classList.remove('hidden');
+            document.getElementById('controls-overlay').classList.remove('hidden');
             game.state = 'PLAYING';
-            updateQuestLog();
+            initGame();
             gameLoop();
         }
 
-        // Input handling
+        // Controles
         window.addEventListener('keydown', (e) => {
             game.keys[e.key.toLowerCase()] = true;
             
-            if (e.code === 'Space') {
+            if (e.code === 'Space' && game.state === 'DIALOG') {
                 e.preventDefault();
-                if (game.state === 'DIALOG') {
-                    advanceDialog();
+                // Se não houver escolhas, avança
+                const choicesDiv = document.getElementById('dialogChoices');
+                if (choicesDiv.children.length === 0) {
+                    // Lógica de avanço automático ou fechar
                 }
-            }
-            
-            if (e.key.toLowerCase() === 'e' && game.state === 'PLAYING') {
-                checkInteraction();
             }
         });
 
@@ -401,250 +1158,603 @@
             game.keys[e.key.toLowerCase()] = false;
         });
 
-        function checkInteraction() {
-            const interactRadius = 60;
+        // Sistema de combate por clique
+        canvas.addEventListener('mousedown', (e) => {
+            if (game.state !== 'PLAYING' && game.state !== 'DIALOG') return;
             
-            game.npcs.forEach(npc => {
-                const dx = npc.x - game.player.x;
-                const dy = npc.y - game.player.y;
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left + game.camera.x;
+            const mouseY = e.clientY - rect.top + game.camera.y;
+            
+            // Verificar clique em entidades
+            game.entities.forEach(entity => {
+                if (entity.defeated) return;
+                
+                const dx = mouseX - entity.x;
+                const dy = mouseY - entity.y;
                 const dist = Math.sqrt(dx*dx + dy*dy);
                 
-                if (dist < interactRadius && !npc.quest.completed) {
-                    startDialog(npc);
+                if (dist < 40) {
+                    if (game.state === 'DIALOG' && game.activeEntity === entity) {
+                        // Atacar durante diálogo = traição
+                        attackEntity(entity, true);
+                    } else if (game.state === 'PLAYING') {
+                        if (dist < 60) {
+                            startDialog(entity);
+                        } else {
+                            // Ataque à distância
+                            createProjectile(game.player.x, game.player.y, entity.x, entity.y, entity);
+                        }
+                    }
                 }
+            });
+            
+            // Ataque ao vazio (chão) se não clicou em ninguém
+            if (game.state === 'PLAYING') {
+                createProjectile(game.player.x, game.player.y, mouseX, mouseY, null);
+            }
+        });
+
+        function createProjectile(x, y, targetX, targetY, targetEntity) {
+            const angle = Math.atan2(targetY - y, targetX - x);
+            game.projectiles.push({
+                x: x, y: y,
+                vx: Math.cos(angle) * 8,
+                vy: Math.sin(angle) * 8,
+                target: targetEntity,
+                damage: 15,
+                life: 60
             });
         }
 
-        function startDialog(npc) {
-            game.state = 'DIALOG';
-            game.dialogQueue = npc.dialog;
-            game.currentDialog = 0;
-            game.activeNPC = npc;
+        function attackEntity(entity, betrayal = false) {
+            const damage = betrayal ? 50 : 25;
+            entity.health -= damage;
             
-            const dialogBox = document.getElementById('dialogBox');
-            document.getElementById('speakerName').textContent = npc.name;
-            document.getElementById('dialogText').textContent = npc.dialog[0];
-            dialogBox.classList.add('active');
+            showDamageNumber(entity.x, entity.y, damage);
+            addCombatLog(`Você atacou ${entity.name} por ${damage} de dano!`, 'damage');
+            
+            if (betrayal) {
+                addCombatLog('TRAIÇÃO! Você atacou durante o diálogo!', 'damage');
+                game.player.sanity -= 20;
+                game.player.faith -= 30;
+            }
+            
+            // Knockback
+            const angle = Math.atan2(entity.y - game.player.y, entity.x - game.player.x);
+            entity.x += Math.cos(angle) * 30;
+            entity.y += Math.sin(angle) * 30;
+            
+            // Partículas de sangue
+            for (let i = 0; i < 5; i++) {
+                game.particles.push({
+                    x: entity.x, y: entity.y,
+                    vx: (Math.random() - 0.5) * 5,
+                    vy: (Math.random() - 0.5) * 5,
+                    life: 30,
+                    color: '#8b0000',
+                    size: 4
+                });
+            }
+            
+            if (entity.health <= 0) {
+                defeatEntity(entity);
+            }
+            
+            updateSanity();
         }
 
-        function advanceDialog() {
-            game.currentDialog++;
+        function defeatEntity(entity) {
+            entity.defeated = true;
+            entity.hostile = false;
+            game.player.kills++;
+            game.player.sanity -= 15;
+            game.player.faith -= 20;
             
-            if (game.currentDialog >= game.dialogQueue.length) {
+            addCombatLog(`${entity.name} foi abatido.`, 'kill');
+            
+            // Loot/espólio
+            if (entity.id === 'the_void') {
+                triggerEnding('destruction');
+            }
+        }
+
+        function spareEntity(entity) {
+            entity.defeated = true;
+            entity.hostile = false;
+            game.player.spares++;
+            game.player.faith += 25;
+            game.player.sanity += 10;
+            
+            addCombatLog(`Você poupou ${entity.name}.`, 'heal');
+            endDialog();
+            
+            // Completar quest
+            const quest = game.quests.find(q => q.id === entity.quest.id);
+            if (quest) {
+                quest.completed = true;
+                updateQuestLog();
+            }
+        }
+
+        function showDamageNumber(x, y, damage) {
+            const num = document.createElement('div');
+            num.className = 'damage-number';
+            num.textContent = damage;
+            num.style.left = (x - game.camera.x) + 'px';
+            num.style.top = (y - game.camera.y) + 'px';
+            num.style.color = '#ff6b6b';
+            document.getElementById('game-container').appendChild(num);
+            setTimeout(() => num.remove(), 1000);
+        }
+
+        function addCombatLog(text, type = 'normal') {
+            const log = document.getElementById('combat-log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `> ${text}`;
+            log.insertBefore(entry, log.firstChild);
+            
+            // Limitar entradas
+            while (log.children.length > 20) {
+                log.removeChild(log.lastChild);
+            }
+        }
+
+        // Sistema de diálogo avançado
+        function startDialog(entity) {
+            if (entity.defeated) return;
+            
+            game.state = 'DIALOG';
+            game.activeEntity = entity;
+            
+            const node = entity.dialogTree.find(n => n.id === entity.currentDialog);
+            showDialogNode(entity, node);
+        }
+
+        function showDialogNode(entity, node) {
+            const dialogBox = document.getElementById('dialogBox');
+            const speakerName = document.getElementById('speakerName');
+            const dialogText = document.getElementById('dialogText');
+            const choicesDiv = document.getElementById('dialogChoices');
+            
+            // Estilo baseado na fé do personagem
+            dialogBox.className = 'dialog-box active ' + entity.faithType;
+            
+            speakerName.innerHTML = `
+                ${entity.name}
+                <span class="faith-indicator faith-${entity.faithType}">${entity.faithType.toUpperCase()}</span>
+            `;
+            
+            // Typewriter effect
+            dialogText.textContent = '';
+            let i = 0;
+            const text = node.text;
+            const typeInterval = setInterval(() => {
+                dialogText.textContent += text[i];
+                i++;
+                if (i >= text.length) {
+                    clearInterval(typeInterval);
+                    showChoices(entity, node.choices);
+                }
+            }, 20);
+            
+            choicesDiv.innerHTML = '';
+        }
+
+        function showChoices(entity, choices) {
+            const choicesDiv = document.getElementById('dialogChoices');
+            choicesDiv.innerHTML = '';
+            
+            choices.forEach(choice => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn' + (choice.violent ? ' violent' : '');
+                btn.textContent = choice.text;
+                btn.onclick = () => makeChoice(entity, choice);
+                choicesDiv.appendChild(btn);
+            });
+        }
+
+        function makeChoice(entity, choice) {
+            if (choice.action === 'attack') {
+                attackEntity(entity, true);
                 endDialog();
+                return;
+            }
+            
+            if (choice.action === 'spare') {
+                spareEntity(entity);
+                return;
+            }
+            
+            if (choice.action === 'reward') {
+                // Dar item
+                addCombatLog(`Recebeu: ${choice.item}`, 'heal');
+            }
+            
+            // Atualizar fé do jogador
+            if (choice.faith) {
+                game.player.faith = Math.max(0, Math.min(100, game.player.faith + choice.faith));
+                updateFaithLevel();
+            }
+            
+            // Mudar nó de diálogo
+            if (choice.next) {
+                entity.currentDialog = choice.next;
+                const nextNode = entity.dialogTree.find(n => n.id === choice.next);
+                showDialogNode(entity, nextNode);
             } else {
-                document.getElementById('dialogText').textContent = game.dialogQueue[game.currentDialog];
+                endDialog();
             }
         }
 
         function endDialog() {
             document.getElementById('dialogBox').classList.remove('active');
             game.state = 'PLAYING';
+            game.activeEntity = null;
+        }
+
+        function updateFaithLevel() {
+            const levels = ['Herege', 'Cético', 'Buscador', 'Crente', 'Iluminado'];
+            const thresholds = [0, 25, 50, 75, 100];
+            let level = 'Cético';
             
-            if (game.activeNPC) {
-                const questIndex = game.quests.findIndex(q => q.id === game.activeNPC.quest.id);
-                if (questIndex !== -1) {
-                    game.quests[questIndex].completed = true;
-                    game.activeNPC.quest.completed = true;
-                    updateQuestLog();
+            for (let i = 0; i < thresholds.length; i++) {
+                if (game.player.faith >= thresholds[i]) {
+                    level = levels[i];
                 }
             }
             
-            game.activeNPC = null;
+            document.getElementById('faith-level').textContent = level;
         }
 
+        function updateHealth() {
+            const bar = document.getElementById('health-bar');
+            bar.innerHTML = '';
+            for (let i = 0; i < game.player.maxHealth; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart' + (i >= game.player.health ? ' lost' : '');
+                bar.appendChild(heart);
+            }
+        }
+
+        function updateSanity() {
+            const fill = document.getElementById('sanity-fill');
+            const text = document.getElementById('sanity-text');
+            fill.style.width = game.player.sanity + '%';
+            text.textContent = Math.floor(game.player.sanity) + '%';
+            
+            // Efeitos visuais baseados na sanidade
+            if (game.player.sanity < 30) {
+                canvas.style.filter = 'contrast(1.2) brightness(0.8) sepia(0.3)';
+            } else {
+                canvas.style.filter = 'none';
+            }
+        }
+
+        function updateQuestLog() {
+            const list = document.getElementById('quest-log-compact');
+            list.innerHTML = '';
+            
+            game.quests.forEach(quest => {
+                const div = document.createElement('div');
+                div.className = 'quest-item ' + (quest.completed ? 'completed' : 'active');
+                div.textContent = quest.desc;
+                list.appendChild(div);
+            });
+        }
+
+        // Game loop
         function update() {
-            if (game.state !== 'PLAYING') return;
+            if (game.state !== 'PLAYING' && game.state !== 'DIALOG') return;
             
             game.time += 0.016;
-            const speed = 3;
-            let moved = false;
             
-            // Movimento com animação
-            if (game.keys['w'] || game.keys['arrowup']) {
-                game.player.y -= speed;
-                game.player.dir = 'up';
-                moved = true;
-            }
-            if (game.keys['s'] || game.keys['arrowdown']) {
-                game.player.y += speed;
-                game.player.dir = 'down';
-                moved = true;
-            }
-            if (game.keys['a'] || game.keys['arrowleft']) {
-                game.player.x -= speed;
-                game.player.dir = 'left';
-                moved = true;
-            }
-            if (game.keys['d'] || game.keys['arrowright']) {
-                game.player.x += speed;
-                game.player.dir = 'right';
-                moved = true;
+            // Movimento
+            if (game.state === 'PLAYING') {
+                const speed = 4;
+                let moved = false;
+                
+                if (game.keys['w'] || game.keys['arrowup']) {
+                    game.player.y -= speed;
+                    game.player.dir = 'up';
+                    moved = true;
+                }
+                if (game.keys['s'] || game.keys['arrowdown']) {
+                    game.player.y += speed;
+                    game.player.dir = 'down';
+                    moved = true;
+                }
+                if (game.keys['a'] || game.keys['arrowleft']) {
+                    game.player.x -= speed;
+                    game.player.dir = 'left';
+                    moved = true;
+                }
+                if (game.keys['d'] || game.keys['arrowright']) {
+                    game.player.x += speed;
+                    game.player.dir = 'right';
+                    moved = true;
+                }
+                
+                game.player.moving = moved;
+                game.player.frame = moved ? Math.floor(game.time * 8) % 2 : 0;
+                
+                // Limites
+                game.player.x = Math.max(50, Math.min(1870, game.player.x));
+                game.player.y = Math.max(50, Math.min(1430, game.player.y));
+                
+                // Câmera suave
+                game.camera.x += (game.player.x - 480 - game.camera.x) * 0.1;
+                game.camera.y += (game.player.y - 360 - game.camera.y) * 0.1;
             }
             
-            // Animação de frames
-            if (moved) {
-                game.player.frame = Math.floor(game.time * 8) % 2;
-                game.player.moving = true;
-            } else {
-                game.player.moving = false;
-                game.player.frame = 0;
-            }
-            
-            // Limites do mundo
-            game.player.x = Math.max(50, Math.min(750, game.player.x));
-            game.player.y = Math.max(50, Math.min(550, game.player.y));
-            
-            // Câmera segue jogador
-            game.camera.x = game.player.x - 400;
-            game.camera.y = game.player.y - 300;
+            // Projeteis
+            game.projectiles = game.projectiles.filter(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life--;
+                
+                // Colisão com entidades
+                if (p.target && !p.target.defeated) {
+                    const dx = p.target.x - p.x;
+                    const dy = p.target.y - p.y;
+                    if (Math.sqrt(dx*dx + dy*dy) < 30) {
+                        p.target.health -= p.damage;
+                        showDamageNumber(p.target.x, p.target.y, p.damage);
+                        if (p.target.health <= 0) defeatEntity(p.target);
+                        return false;
+                    }
+                }
+                
+                return p.life > 0;
+            });
             
             // Partículas atmosféricas
-            if (Math.random() < 0.1) {
+            if (Math.random() < 0.2) {
                 game.particles.push({
-                    x: Math.random() * 800 + game.camera.x,
-                    y: Math.random() * 600 + game.camera.y,
+                    x: game.camera.x + Math.random() * 960,
+                    y: game.camera.y + Math.random() * 720,
                     vx: (Math.random() - 0.5) * 0.5,
-                    vy: -Math.random() * 0.5 - 0.2,
-                    life: 100,
-                    color: Math.random() > 0.5 ? '#8b0000' : '#4a0080'
+                    vy: -Math.random() * 0.5,
+                    life: 200,
+                    color: Math.random() > 0.7 ? '#d4af37' : '#4a0080',
+                    size: 2
                 });
             }
             
-            // Update partículas
             game.particles = game.particles.filter(p => {
                 p.x += p.vx;
                 p.y += p.vy;
                 p.life--;
                 return p.life > 0;
             });
+            
+            // IA hostil
+            game.entities.forEach(entity => {
+                if (entity.hostile && !entity.defeated && game.state === 'PLAYING') {
+                    const dx = game.player.x - entity.x;
+                    const dy = game.player.y - entity.y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if (dist < 300 && dist > 50) {
+                        entity.x += (dx / dist) * 1.5;
+                        entity.y += (dy / dist) * 1.5;
+                    }
+                    
+                    if (dist < 60) {
+                        // Dano ao jogador
+                        if (Math.random() < 0.02) {
+                            game.player.health--;
+                            updateHealth();
+                            addCombatLog(`${entity.name} causou dano!`, 'damage');
+                            
+                            if (game.player.health <= 0) {
+                                triggerEnding('death');
+                            }
+                        }
+                    }
+                }
+            });
         }
 
         function draw() {
-            // Clear
-            ctx.fillStyle = '#0a0a0a';
+            ctx.fillStyle = '#050505';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Fundo procedural (catedral quebrada)
             ctx.save();
-            ctx.translate(-game.camera.x, -game.camera.y);
+            ctx.translate(-Math.floor(game.camera.x), -Math.floor(game.camera.y));
             
-            // Chão
-            for (let x = 0; x < 1600; x += 40) {
-                for (let y = 0; y < 1200; y += 40) {
-                    const noise = Math.sin(x * 0.01) * Math.cos(y * 0.01);
-                    ctx.fillStyle = noise > 0 ? '#1a1a2e' : '#151525';
-                    ctx.fillRect(x, y, 40, 40);
-                    
-                    // Detalhes de sangue
-                    if (Math.random() > 0.995) {
-                        ctx.fillStyle = '#2a0000';
-                        ctx.fillRect(x + 10, y + 10, 20, 20);
-                    }
-                }
-            }
+            // Fundo procedural detalhado
+            drawCathedral();
             
-            // Pilares quebrados
-            ctx.fillStyle = '#0a0a1a';
-            for (let i = 0; i < 5; i++) {
-                ctx.fillRect(100 + i * 300, 100, 60, 400);
-                ctx.fillStyle = '#1a0000';
-                ctx.fillRect(110 + i * 300, 80, 40, 20); // Topo quebrado
-            }
-            
-            // Partículas
-            game.particles.forEach(p => {
-                ctx.globalAlpha = p.life / 100;
-                ctx.fillStyle = p.color;
-                ctx.fillRect(p.x, p.y, 3, 3);
-            });
-            ctx.globalAlpha = 1;
-            
-            // NPCs
-            game.npcs.forEach(npc => {
-                // Aura
-                ctx.fillStyle = npc.color + '40';
-                ctx.beginPath();
-                ctx.arc(npc.x + 20, npc.y + 20, 40, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Sprite
-                ctx.fillStyle = npc.color;
-                ctx.fillRect(npc.x, npc.y, 40, 40);
-                
-                // Olhos brilhantes
-                ctx.fillStyle = '#fff';
-                ctx.fillRect(npc.x + 8, npc.y + 12, 8, 8);
-                ctx.fillRect(npc.x + 24, npc.y + 12, 8, 8);
-                
-                // Indicador de interação
-                const dx = npc.x - game.player.x;
-                const dy = npc.y - game.player.y;
-                const dist = Math.sqrt(dx*dx + dy*dy);
-                
-                if (dist < 60 && !npc.quest.completed) {
-                    ctx.fillStyle = '#fff';
-                    ctx.font = '12px monospace';
-                    ctx.fillText('[E]', npc.x + 10, npc.y - 10);
+            // Entidades
+            game.entities.forEach(entity => {
+                if (!entity.defeated) {
+                    drawEntity(entity);
                 }
             });
             
             // Jogador
             drawPlayer();
             
+            // Projeteis
+            game.projectiles.forEach(p => {
+                ctx.fillStyle = '#e74c3c';
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#e74c3c';
+            });
+            ctx.shadowBlur = 0;
+            
+            // Partículas
+            game.particles.forEach(p => {
+                ctx.globalAlpha = p.life / 200;
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+            });
+            ctx.globalAlpha = 1;
+            
             ctx.restore();
             
-            // Vignette escuro
-            const gradient = ctx.createRadialGradient(400, 300, 100, 400, 300, 500);
-            gradient.addColorStop(0, 'transparent');
-            gradient.addColorStop(1, 'rgba(0,0,0,0.7)');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, 800, 600);
+            // Efeitos de pós-processamento
+            const sanity = game.player.sanity / 100;
+            if (sanity < 0.5) {
+                ctx.fillStyle = `rgba(139, 0, 0, ${0.3 - sanity * 0.3})`;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
         }
 
-        function drawPlayer() {
-            const px = game.player.x;
-            const py = game.player.y;
-            const frame = game.player.frame;
-            
-            // Sombra
-            ctx.fillStyle = 'rgba(0,0,0,0.5)';
-            ctx.fillRect(px + 5, py + 35, 30, 10);
-            
-            // Corpo
-            ctx.fillStyle = '#2c3e50';
-            ctx.fillRect(px, py, 40, 40);
-            
-            // Cabeça/capuz
-            ctx.fillStyle = '#1a1a2e';
-            ctx.fillRect(px + 5, py + 5, 30, 25);
-            
-            // Olhos (brilhantes no escuro)
-            ctx.fillStyle = '#e74c3c';
-            if (game.player.dir === 'down') {
-                ctx.fillRect(px + 10, py + 15, 6, 6);
-                ctx.fillRect(px + 24, py + 15, 6, 6);
-            } else if (game.player.dir === 'up') {
-                // Sem olhos visíveis de costas
-            } else if (game.player.dir === 'left') {
-                ctx.fillRect(px + 8, py + 15, 6, 6);
-            } else {
-                ctx.fillRect(px + 26, py + 15, 6, 6);
-            }
-            
-            // Animação de movimento
-            if (game.player.moving) {
-                const offset = frame === 0 ? 0 : 3;
-                ctx.fillStyle = '#34495e';
-                // Braços balançando
-                if (game.player.dir === 'left' || game.player.dir === 'right') {
-                    ctx.fillRect(px + (game.player.dir === 'left' ? -5 : 35), py + 20 + offset, 10, 15);
+        function drawCathedral() {
+            // Chão de pedra detalhado
+            for (let x = Math.floor(game.camera.x / 40) * 40; x < game.camera.x + 960; x += 40) {
+                for (let y = Math.floor(game.camera.y / 40) * 40; y < game.camera.y + 720; y += 40) {
+                    const noise = Math.sin(x * 0.01) * Math.cos(y * 0.01);
+                    const baseColor = noise > 0 ? '#1a1a25' : '#151520';
+                    ctx.fillStyle = baseColor;
+                    ctx.fillRect(x, y, 40, 40);
+                    
+                    // Detalhes de pedra
+                    ctx.fillStyle = 'rgba(255,255,255,0.02)';
+                    ctx.fillRect(x + 5, y + 5, 30, 2);
+                    ctx.fillRect(x + 5, y + 30, 30, 2);
+                    
+                    // Manchas de sangue antigo
+                    if (Math.abs(Math.sin(x * 0.1) * Math.cos(y * 0.1)) > 0.95) {
+                        ctx.fillStyle = 'rgba(139, 0, 0, 0.2)';
+                        ctx.beginPath();
+                        ctx.arc(x + 20, y + 20, 8, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
                 }
             }
             
-            // Efeito de "alma" - rastro etéreo
-            ctx.fillStyle = 'rgba(231, 76, 60, 0.2)';
-            ctx.fillRect(px - 2, py - 2, 44, 44);
+            // Pilares arruinados
+            for (let i = 0; i < 8; i++) {
+                const px = 200 + i * 250;
+                const py = 100;
+                
+                // Sombra
+                ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                ctx.fillRect(px + 10, py + 10, 80, 500);
+                
+                // Pilar
+                const gradient = ctx.createLinearGradient(px, py, px + 80, py);
+                gradient.addColorStop(0, '#2a2a35');
+                gradient.addColorStop(0.5, '#3a3a45');
+                gradient.addColorStop(1, '#1a1a25');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(px, py, 80, 500);
+                
+                // Detalhes arquitetônicos
+                ctx.fillStyle = '#1a1a20';
+                ctx.fillRect(px, py + 100, 80, 10);
+                ctx.fillRect(px, py + 300, 80, 10);
+                
+                // Topo quebrado
+                ctx.fillStyle = '#0a0a10';
+                ctx.beginPath();
+                ctx.moveTo(px, py);
+                ctx.lineTo(px + 40, py - 20);
+                ctx.lineTo(px + 80, py);
+                ctx.fill();
+            }
+            
+            // Janelas de vitral quebradas
+            const windowColors = ['#8b0000', '#4a0080', '#d4af37'];
+            for (let i = 0; i < 3; i++) {
+                const wx = 400 + i * 400;
+                const wy = 150;
+                
+                ctx.fillStyle = 'rgba(0,0,0,0.7)';
+                ctx.fillRect(wx, wy, 100, 200);
+                
+                // Vidros quebrados
+                for (let j = 0; j < 5; j++) {
+                    ctx.fillStyle = windowColors[i] + '40';
+                    ctx.beginPath();
+                    ctx.moveTo(wx + 10 + j * 20, wy + 20);
+                    ctx.lineTo(wx + 30 + j * 20, wy + 180);
+                    ctx.lineTo(wx + 20 + j * 20, wy + 180);
+                    ctx.fill();
+                }
+            }
+        }
+
+        function drawEntity(entity) {
+            const sprite = SPRITES.npcs[entity.sprite];
+            const palette = PALETTES[entity.sprite];
+            
+            if (!sprite || !palette) return;
+            
+            // Aura baseada no estado
+            if (entity.hostile) {
+                ctx.fillStyle = 'rgba(139, 0, 0, 0.2)';
+                ctx.beginPath();
+                ctx.arc(entity.x + 16, entity.y + 16, 40, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // Sprite pixel art
+            drawPixelSprite(entity.x, entity.y, sprite.pattern, palette, entity.defeated);
+            
+            // Barra de vida
+            if (entity.health < entity.maxHealth) {
+                ctx.fillStyle = '#000';
+                ctx.fillRect(entity.x, entity.y - 10, 32, 4);
+                ctx.fillStyle = entity.hostile ? '#8b0000' : '#2ecc71';
+                ctx.fillRect(entity.x, entity.y - 10, 32 * (entity.health / entity.maxHealth), 4);
+            }
+            
+            // Indicador de interação
+            if (!entity.hostile && !entity.defeated) {
+                const dx = entity.x - game.player.x;
+                const dy = entity.y - game.player.y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                
+                if (dist < 80) {
+                    ctx.fillStyle = '#d4af37';
+                    ctx.font = '10px monospace';
+                    ctx.fillText('[CLICK]', entity.x, entity.y - 15);
+                }
+            }
+        }
+
+        function drawPlayer() {
+            const sprite = game.player.moving ? SPRITES.player.walk.down : SPRITES.player.idle.down;
+            const palette = PALETTES.player;
+            
+            drawPixelSprite(game.player.x, game.player.y, sprite, palette);
+            
+            // Arma/aura de ataque
+            if (game.projectiles.length > 0) {
+                ctx.strokeStyle = '#e74c3c';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(game.player.x + 16, game.player.y + 16, 25, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+        }
+
+        function drawPixelSprite(x, y, pattern, palette, defeated = false) {
+            const size = SPRITE_SCALE;
+            
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    const colorCode = pattern[row][col];
+                    if (colorCode !== 0) {
+                        ctx.fillStyle = defeated ? '#333' : (palette[colorCode] || '#fff');
+                        ctx.fillRect(x + col * size, y + row * size, size, size);
+                    }
+                }
+            }
+        }
+
+        function triggerEnding(type) {
+            game.state = 'ENDING';
+            // Implementar telas de fim
+            alert(`Fim de jogo: ${type}`);
         }
 
         function gameLoop() {
@@ -653,7 +1763,16 @@
             requestAnimationFrame(gameLoop);
         }
 
-        // Inicializar
+        // Inicialização de quests
+        game.quests = [
+            { id: 'cassius_arc', desc: 'O Padre Rasgado', completed: false },
+            { id: 'mercy_light', desc: 'A Vela na Tempestade', completed: false },
+            { id: 'elara_womb', desc: 'O Ventre Vazio', completed: false },
+            { id: 'malachi_chains', desc: 'O Interrogador Interrogado', completed: false },
+            { id: 'thomas_flame', desc: 'O Noviço que Não Desistiu', completed: false },
+            { id: 'void_confrontation', desc: 'O Fim de Todas as Perguntas', completed: false }
+        ];
+
         updateQuestLog();
     </script>
 </body>
