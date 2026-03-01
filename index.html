@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CHRONOS ECHO - Parte 1: O Despertar</title>
+    <title>CHRONOS ECHO - Parte 1: O Despertar [CORRIGIDO]</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
@@ -35,11 +35,14 @@
             position: relative;
             box-shadow: 0 0 50px rgba(0, 191, 255, 0.3);
             border: 4px solid var(--valthoria-silver);
+            overflow: hidden;
         }
 
         /* TELA DE TÍTULO */
         #title-screen {
             position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             background: linear-gradient(180deg, var(--fissure-black) 0%, #1a1a2e 50%, var(--valthoria-blue) 100%);
@@ -48,25 +51,35 @@
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            transition: opacity 1s;
+            transition: opacity 0.5s ease-out;
         }
 
-        #title-screen.hidden { opacity: 0; pointer-events: none; }
+        #title-screen.hidden { 
+            opacity: 0; 
+            pointer-events: none;
+            visibility: hidden;
+        }
 
         .game-title {
             font-size: 48px;
             color: var(--eco-blue);
-            text-shadow: 0 0 20px var(--eco-blue);
+            text-shadow: 0 0 20px var(--eco-blue), 0 0 40px var(--eco-blue);
             margin-bottom: 20px;
             animation: pulse 3s ease-in-out infinite;
+            letter-spacing: 4px;
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.8; }
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.02); }
         }
 
-        .subtitle { font-size: 14px; color: var(--valthoria-silver); margin-bottom: 40px; }
+        .subtitle { 
+            font-size: 14px; 
+            color: var(--valthoria-silver); 
+            margin-bottom: 40px; 
+            text-align: center;
+        }
 
         .menu-option {
             font-size: 12px;
@@ -76,6 +89,8 @@
             transition: all 0.3s;
             padding: 10px 20px;
             border: 2px solid transparent;
+            background: transparent;
+            font-family: 'Press Start 2P', cursive;
         }
 
         .menu-option:hover, .menu-option.selected {
@@ -83,17 +98,24 @@
             border-color: var(--eco-blue);
             text-shadow: 0 0 10px var(--eco-blue);
             transform: translateX(10px);
+            background: rgba(0,0,0,0.3);
         }
 
         /* ÁREA DO JOGO */
         #game-area {
             position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             display: none;
+            background: #000;
         }
 
-        #game-area.active { display: block; }
+        #game-area.active { 
+            display: block !important;
+            z-index: 100;
+        }
 
         /* CENÁRIOS */
         #scene {
@@ -105,6 +127,8 @@
 
         .background {
             position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             transition: opacity 0.5s;
@@ -180,9 +204,13 @@
             position: absolute;
             transition: all 0.3s;
             cursor: pointer;
+            z-index: 50;
         }
 
-        .character:hover { filter: brightness(1.2); }
+        .character:hover { 
+            filter: brightness(1.2); 
+            transform: scale(1.05);
+        }
 
         /* ECO-ZERO */
         .eco-zero {
@@ -410,6 +438,7 @@
             bottom: 20%;
             left: 20%;
             z-index: 100;
+            transition: left 0.3s ease;
         }
 
         .player-body {
@@ -447,21 +476,24 @@
         #dialogue-box {
             position: absolute;
             bottom: 0;
+            left: 0;
             width: 100%;
             height: 30%;
-            background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(10,10,15,0.95) 100%);
+            background: linear-gradient(180deg, rgba(0,0,0,0.95) 0%, rgba(10,10,15,0.98) 100%);
             border-top: 3px solid var(--valthoria-silver);
-            padding: 15px;
+            padding: 20px;
             display: none;
             z-index: 500;
         }
 
-        #dialogue-box.active { display: block; }
+        #dialogue-box.active { 
+            display: block !important;
+        }
 
         .speaker-name {
             color: var(--eco-blue);
             font-size: 10px;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             text-transform: uppercase;
             letter-spacing: 2px;
         }
@@ -469,22 +501,22 @@
         .dialogue-text {
             color: #e0e0e0;
             font-size: 10px;
-            line-height: 1.6;
-            margin-bottom: 12px;
-            min-height: 50px;
+            line-height: 1.8;
+            margin-bottom: 15px;
+            min-height: 60px;
         }
 
         .dialogue-choices {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
         }
 
         .choice-btn {
-            background: transparent;
+            background: rgba(0,0,0,0.5);
             border: 2px solid #444;
             color: #888;
-            padding: 6px 12px;
+            padding: 8px 15px;
             font-family: 'Press Start 2P', cursive;
             font-size: 9px;
             cursor: pointer;
@@ -497,6 +529,7 @@
             color: var(--eco-blue);
             text-shadow: 0 0 10px var(--eco-blue);
             transform: translateX(10px);
+            background: rgba(0,191,255,0.1);
         }
 
         /* HUD */
@@ -510,9 +543,9 @@
         }
 
         .hud-item {
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.8);
             border: 2px solid var(--valthoria-silver);
-            padding: 6px 10px;
+            padding: 8px 12px;
             font-size: 9px;
             color: var(--eco-blue);
         }
@@ -521,7 +554,7 @@
             color: #666;
             font-size: 7px;
             display: block;
-            margin-bottom: 3px;
+            margin-bottom: 4px;
         }
 
         /* BOTÃO REWIND */
@@ -529,14 +562,15 @@
             position: absolute;
             top: 10px;
             right: 10px;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.8);
             border: 2px solid var(--eco-blue);
             color: var(--eco-blue);
-            padding: 8px 12px;
+            padding: 10px 15px;
             font-family: 'Press Start 2P', cursive;
             font-size: 9px;
             cursor: pointer;
             z-index: 200;
+            transition: all 0.3s;
         }
 
         #time-btn:hover {
@@ -544,30 +578,39 @@
             color: #000;
         }
 
-        #time-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        #time-btn:disabled { 
+            opacity: 0.3; 
+            cursor: not-allowed;
+            background: rgba(0,0,0,0.5);
+        }
 
         /* INDICADOR */
         .interaction-indicator {
             position: absolute;
-            top: -25px;
+            top: -30px;
             left: 50%;
             transform: translateX(-50%);
             color: var(--eco-blue);
-            font-size: 16px;
+            font-size: 20px;
             animation: bounce 1s infinite;
             display: none;
+            text-shadow: 0 0 10px var(--eco-blue);
         }
 
-        .character:hover .interaction-indicator { display: block; }
+        .character:hover .interaction-indicator { 
+            display: block; 
+        }
 
         @keyframes bounce {
             0%, 100% { transform: translateX(-50%) translateY(0); }
-            50% { transform: translateX(-50%) translateY(-5px); }
+            50% { transform: translateX(-50%) translateY(-8px); }
         }
 
         /* TRANSICAO */
         #transition-screen {
             position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             background: var(--fissure-black);
@@ -578,13 +621,16 @@
             flex-direction: column;
         }
 
-        #transition-screen.active { display: flex; }
+        #transition-screen.active { 
+            display: flex !important;
+        }
 
         .transition-text {
             color: var(--eco-blue);
-            font-size: 14px;
+            font-size: 16px;
             text-align: center;
             line-height: 2;
+            text-shadow: 0 0 20px var(--eco-blue);
         }
 
         /* NOTIFICAÇÃO */
@@ -593,38 +639,52 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.9);
-            border: 2px solid var(--eco-blue);
-            padding: 20px;
+            background: rgba(0,0,0,0.95);
+            border: 3px solid var(--eco-blue);
+            padding: 25px;
             font-size: 10px;
             color: var(--eco-blue);
             text-align: center;
             display: none;
-            z-index: 1000;
-            max-width: 400px;
+            z-index: 1001;
+            max-width: 450px;
+            box-shadow: 0 0 30px rgba(0,191,255,0.3);
         }
 
-        #notification.active { display: block; }
+        #notification.active { 
+            display: block !important;
+            animation: popIn 0.3s ease-out;
+        }
+
+        @keyframes popIn {
+            0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
 
         /* MAPA */
         #quick-map {
             position: absolute;
             bottom: 10px;
             right: 10px;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.9);
             border: 2px solid var(--valthoria-silver);
-            padding: 10px;
+            padding: 12px;
             font-size: 8px;
             z-index: 200;
         }
 
         .map-location {
             color: #666;
-            margin: 3px 0;
+            margin: 5px 0;
             cursor: pointer;
+            transition: all 0.3s;
+            padding: 3px;
         }
 
-        .map-location:hover, .map-location.active { color: var(--eco-blue); }
+        .map-location:hover, .map-location.active { 
+            color: var(--eco-blue);
+            text-shadow: 0 0 5px var(--eco-blue);
+        }
 
         .typing::after {
             content: '▋';
@@ -640,26 +700,30 @@
 </head>
 <body>
     <div id="game-container">
+        <!-- NOTIFICAÇÃO -->
         <div id="notification"></div>
 
+        <!-- TELA DE TÍTULO -->
         <div id="title-screen">
             <h1 class="game-title">CHRONOS ECHO</h1>
             <p class="subtitle">Parte 1: O Despertar</p>
-            <div class="menu-option selected" onclick="startGame()">► NOVO JOGO</div>
-            <div class="menu-option" onclick="loadGame()">CARREGAR</div>
-            <div class="menu-option" onclick="showTutorial()">TUTORIAL</div>
-            <div class="menu-option" onclick="showCredits()">CRÉDITOS</div>
+            <button class="menu-option selected" onclick="startGame()">► NOVO JOGO</button>
+            <button class="menu-option" onclick="loadGame()">CARREGAR JOGO</button>
+            <button class="menu-option" onclick="showTutorial()">TUTORIAL</button>
+            <button class="menu-option" onclick="showCredits()">CRÉDITOS</button>
         </div>
 
+        <!-- TELA DE TRANSICAO -->
         <div id="transition-screen">
             <p class="transition-text"></p>
         </div>
 
+        <!-- ÁREA DO JOGO -->
         <div id="game-area">
             <div id="hud">
                 <div class="hud-item">
                     <span class="hud-label">LOCAL</span>
-                    <span id="location-name">???</span>
+                    <span id="location-name">VALTHORIA</span>
                 </div>
                 <div class="hud-item">
                     <span class="hud-label">ECO-ZERO</span>
@@ -686,7 +750,7 @@
                         <div class="player-body">
                             <div class="player-head"><div class="player-hair"></div></div>
                         </div>
-                        <div class="interaction-indicator">⌄</div>
+                        <div class="interaction-indicator">▼</div>
                     </div>
 
                     <div class="character aldrich" id="aldrich" onclick="interactWith('aldrich')">
@@ -714,13 +778,6 @@
                 <div class="background bg-fissure" id="bg-fissure" style="display:none">
                     <div class="clock-pile"></div>
 
-                    <div class="character player" id="player-fissure">
-                        <div class="player-body">
-                            <div class="player-head"><div class="player-hair"></div></div>
-                        </div>
-                        <div class="interaction-indicator">⌄</div>
-                    </div>
-
                     <div class="character eco-zero" id="eco-zero" onclick="interactWith('eco-zero')">
                         <div class="eco-zero-body">
                             <div class="eco-zero-head">
@@ -743,13 +800,14 @@
 
             <div id="dialogue-box">
                 <div class="speaker-name" id="speaker">???</div>
-                <div class="dialogue-text typing" id="dialogue-text"></div>
+                <div class="dialogue-text" id="dialogue-text"></div>
                 <div class="dialogue-choices" id="choices"></div>
             </div>
         </div>
     </div>
 
     <script>
+        // ESTADO DO JOGO
         const gameState = {
             location: 'valthoria',
             ecoZeroVisits: 0,
@@ -758,22 +816,24 @@
             aldrichState: 1,
             playerChoices: [],
             timeRewinds: 3,
-            typingSpeed: 30
+            typingSpeed: 35,
+            gameStarted: false
         };
 
+        // DIÁLOGOS
         const dialogues = {
             aldrich: {
                 name: 'REI ALDRIC III',
-                text: 'Valthoria prospera. O Rei ama sua Rainha... [ilução treme]',
+                text: 'Valthoria prospera. O Rei ama sua Rainha. O Rei ama seu povo... [a ilusão treme]',
                 choices: [
-                    { text: 'Vossa Majestade?', next: 'aldrich_lucid' },
+                    { text: 'Vossa Majestade, posso falar?', next: 'aldrich_lucid' },
                     { text: '[Observar de perto]', next: 'aldrich_see' },
                     { text: '[Ir embora]', next: null }
                 ]
             },
             aldrich_lucid: {
                 name: 'REI ALDRIC III',
-                text: '[Olhos focam] Ajude-me. Por favor. Me mate. Eu não deveria existir. Ela me mantém preso.',
+                text: '[Olhos focam em você por um segundo] Ajude-me. Por favor. Me mate. Eu não deveria existir. Ela me mantém preso.',
                 choices: [
                     { text: 'Quem?', next: 'aldrich_explain' },
                     { text: 'Como posso ajudar?', next: 'aldrich_help' }
@@ -781,7 +841,7 @@
             },
             aldrich_see: {
                 name: 'NARRADOR',
-                text: 'Você vê: o pescoço do Rei é translúcido. Osso brilha por baixo da pele. Ilusão mágica.',
+                text: 'Você observa: o pescoço do Rei é translúcido por instantes. Você vê... ossos? Ilusão mágica falhando.',
                 choices: [
                     { text: 'O que é você?', next: 'aldrich_lucid' },
                     { text: '[Recuar]', next: null }
@@ -789,47 +849,81 @@
             },
             aldrich_explain: {
                 name: 'REI ALDRIC III',
-                text: 'Seraphina. Minha esposa. Ela tem medo de ficar sozinha. Então me preserva. Com magia. Com minha alma presa nesta podridão.',
+                text: 'Seraphina. Minha esposa. Ela tem medo de ficar sozinha. Então me preserva. Com magia proibida. Com minha alma presa nesta podridão.',
                 choices: [
-                    { text: 'Terrível...', next: 'aldrich_quest' }
+                    { text: 'Isso é terrível...', next: 'aldrich_quest' }
                 ]
             },
             aldrich_help: {
                 name: 'REI ALDRIC III',
-                text: 'Fale com Kael. Meu filho. Ele sabe a verdade. Ou destrua o anel em meu dedo. Mas isso... isso me mataria de verdade.',
+                text: 'Fale com Kael. Meu filho. Ele sabe a verdade há dez anos. Ou... destrua o anel em meu dedo. Mas isso me mataria de verdade.',
                 choices: [
                     { text: 'Falarei com Kael', next: null, action: () => startQuest('kael') },
                     { text: 'Destruirei o anel', next: null, action: () => startQuest('kill') }
                 ]
             },
+            aldrich_quest: {
+                name: 'REI ALDRIC III',
+                text: '[Sorriso triste] Obrigado. Alguém que ouve. Alguém que vê. Vá. Antes que a lucidez passe.',
+                choices: [
+                    { text: '[Sair]', next: null }
+                ]
+            },
             kael: {
                 name: 'PRÍNCIPE KAEL',
-                text: '[Sentado nos degraus, não no trono] Você é o Eco. O profetizado. Ou a maldição. Ainda não decidi.',
+                text: '[Sentado nos degraus, não no trono. Espada cravada no chão entre ele e o assento] Você é o Eco. O profetizado. Ou a maldição. Ainda não decidi.',
                 choices: [
                     { text: 'Posso me sentar?', next: 'kael_sit' },
+                    { text: 'Por que não no trono?', next: 'kael_throne' },
                     { text: 'Seu pai pediu para falar contigo', next: 'kael_dad', condition: () => hasQuest('kael') }
                 ]
             },
             kael_sit: {
                 name: 'PRÍNCIPE KAEL',
-                text: 'Sente. O chão é mais honesto que o trono. Mais frio também. Mas honesto.',
+                text: '[Risada seca] Sente. O chão é mais honesto que o trono. Mais frio também. Mas honesto.',
                 choices: [
-                    { text: '[Sentar]', next: null, effect: () => changeKaelMood(10) },
+                    { text: '[Sentar ao lado]', next: null, effect: () => changeKaelMood(10) },
                     { text: 'Prefiro ficar de pé', next: null }
+                ]
+            },
+            kael_throne: {
+                name: 'PRÍNCIPE KAEL',
+                text: '[Toca a queimadura em forma de coração no peito] Porque lá em cima está meu pai. Ou o que resta. E eu... não consigo olhar para ele sem querer quebrar tudo.',
+                choices: [
+                    { text: 'Você sabe a verdade?', next: 'kael_truth' },
+                    { text: 'Conte-me sobre a queimadura', next: 'kael_scar' }
+                ]
+            },
+            kael_truth: {
+                name: 'PRÍNCIPE KAEL',
+                text: 'Sei há dez anos. Aos quinze, entrei sem bater. Vi... o que ela fez. O que ele se tornou. E o pior? Entendo. Ela tem medo. Ele deixou. Eu faria o mesmo?',
+                choices: [
+                    { text: 'Não sei', next: null, effect: () => changeKaelMood(10) },
+                    { text: 'Não. Morte é parte da vida', next: null, effect: () => changeKaelMood(5) },
+                    { text: 'Se amasse tanto... talvez', next: null, effect: () => changeKaelMood(15) }
+                ]
+            },
+            kael_scar: {
+                name: 'PRÍNCIPE KAEL',
+                text: 'Fiz aos quinze. Quando descobri. Quis me punir por não ter percebido antes. Por não ter salvado ele. Agora é... lembrança. De quem eu era. Do que perdi.',
+                choices: [
+                    { text: 'Você não podia saber', next: null, effect: () => changeKaelMood(10) },
+                    { text: 'A dor molda', next: null, effect: () => changeKaelMood(5) }
                 ]
             },
             kael_dad: {
                 name: 'PRÍNCIPE KAEL',
-                text: '[Espada treme] Ele falou? Depois de dez anos? O que disse?',
+                text: '[Espada treme na mão] Ele... ele falou? Depois de dez anos de silêncio? O que disse?',
                 choices: [
                     { text: 'Pediu para ser libertado', next: 'kael_free' }
                 ]
             },
             kael_free: {
                 name: 'PRÍNCIPE KAEL',
-                text: 'Libertado. Morte. Ele quer morte. E eu... eu quero negar. Quero mantê-lo. Como ela. Sou igual a ela.',
+                text: 'Libertado. Morte. Ele quer morte. E eu... eu quero negar. Quero mantê-lo. Como ela. Sou igual a ela. [voz quebra] Ou sou pior? Porque eu sei. E ainda assim...',
                 choices: [
-                    { text: 'Você não é sua mãe', next: null, effect: () => changeKaelMood(20) }
+                    { text: 'Você não é sua mãe', next: null, effect: () => changeKaelMood(20) },
+                    { text: 'Mas entende o sofrimento dele', next: null, effect: () => changeKaelMood(10) }
                 ]
             }
         };
@@ -837,94 +931,144 @@
         const ecoZeroDialogues = {
             0: {
                 name: 'ECO-ZERO',
-                text: '[Não olha] Você demorou. Eu te esperei em 847 linhas temporais.',
+                text: '[Não olha para você. Costas curvadas, sentado em pilha de relógios quebrados] Você demorou. Eu te esperei em oitocentas e quarenta e sete linhas temporais.',
                 choices: [
                     { text: 'Como sabe quem sou?', next: 'eco_know' },
-                    { text: 'Por que esperava?', next: 'eco_why' },
-                    { text: '[Sair]', next: null }
+                    { text: 'Por que me esperava?', next: 'eco_why' },
+                    { text: '[Sair em silêncio]', next: null, effect: () => { gameState.ecoZeroPhase = -1; } }
                 ]
             },
             1: {
                 name: 'ECO-ZERO',
-                text: '[Sorriso torto] Olha só. O herói. O escolhido. Quer saber o que acontece com especiais? EU SEI PORQUE EU FUI VOCÊ.',
+                text: '[Sorriso torto, olhos brancos vazios] Olha só. O herói. O escolhido. Quer saber o que acontece com especiais? EU SEI. EU SEI PORQUE EU FUI VOCÊ.',
                 choices: [
                     { text: 'Você foi eu?', next: 'eco_was' },
-                    { text: 'Não sou especial', next: 'eco_special' }
+                    { text: 'Não me chame de especial', next: 'eco_special' }
                 ]
             },
             5: {
                 name: 'ECO-ZERO',
-                text: '[Sorriso genuíno] Você voltou. De novo. Obrigado. Por não me deixar esquecer de mim.',
+                text: '[Sorriso genuíno, quase humano] Você voltou. De novo. Mesmo sabendo o que eu sou. O que eu fiz. [estende mão] Obrigado. Por não me deixar esquecer de mim.',
                 choices: [
-                    { text: 'Vamos juntos', next: null, action: () => alert('ECO-ZERO agora é seu companheiro!') },
+                    { text: 'Vamos juntos da próxima vez', next: null, action: () => alert('ECO-ZERO agora é seu companheiro!') },
                     { text: 'Sempre volto', next: null }
                 ]
             }
         };
 
+        // FUNÇÕES CORRIGIDAS
         function startGame() {
-            document.getElementById('title-screen').classList.add('hidden');
+            console.log('Iniciando jogo...');
+
+            // Esconder tela de título
+            const titleScreen = document.getElementById('title-screen');
+            titleScreen.classList.add('hidden');
+
+            // Mostrar área do jogo
+            const gameArea = document.getElementById('game-area');
+            gameArea.style.display = 'block';
+
+            // Forçar reflow
+            void gameArea.offsetWidth;
+
+            gameArea.classList.add('active');
+            gameState.gameStarted = true;
+
+            console.log('Game area ativa:', gameArea.classList.contains('active'));
+
+            // Mostrar transição
             showTransition('Valthoria
-Reino do Crepúsculo Eterno', () => {
-                document.getElementById('game-area').classList.add('active');
+Reino do Crepúsculo Eterno
+
+Ano 847 da Era do Relógio', () => {
                 updateHUD();
-                showNotification('Bem-vindo!\nClique nos personagens para interagir.\nUse o mapa para viajar.');
+                showNotification('Bem-vindo a CHRONOS ECHO!
+
+🎮 CLIQUE nos personagens para falar
+🗺️ Use o MAPA (canto inferior direito) para viajar
+⏪ REWIND reverte escolhas (3 usos)
+
+DICA: Visite Eco-Zero 10 vezes nas Fissuras!');
             });
         }
 
         function showTransition(text, callback) {
             const screen = document.getElementById('transition-screen');
-            screen.querySelector('.transition-text').innerHTML = text.replace(/\n/g, '<br>');
+            const textEl = screen.querySelector('.transition-text');
+
+            textEl.innerHTML = text.replace(/\n/g, '<br>');
+            screen.style.display = 'flex';
             screen.classList.add('active');
+
+            console.log('Transição ativa');
+
             setTimeout(() => {
                 screen.classList.remove('active');
+                screen.style.display = 'none';
+                console.log('Transição terminada');
                 if (callback) callback();
-            }, 2500);
+            }, 3000);
         }
 
         function showNotification(text) {
             const notif = document.getElementById('notification');
             notif.innerHTML = text.replace(/\n/g, '<br>');
+            notif.style.display = 'block';
             notif.classList.add('active');
-            setTimeout(() => notif.classList.remove('active'), 4000);
+
+            setTimeout(() => {
+                notif.classList.remove('active');
+                notif.style.display = 'none';
+            }, 6000);
         }
 
         function updateHUD() {
             document.getElementById('location-name').textContent = gameState.location === 'valthoria' ? 'VALTHORIA' : 'FISSURAS';
 
-            const ecoStatuses = ['DESCONHECIDO', 'HOSTIL', 'IRA', 'VAZIO', 'ANSIOSO', 'COMPANHEIRO'];
+            const ecoStatuses = ['DESCONHECIDO', 'HOSTIL', 'IRA', 'VAZIO', 'ANSIOSO', 'COMPANHEIRO', 'PERDIDO'];
             document.getElementById('eco-status').textContent = ecoStatuses[gameState.ecoZeroPhase] || '???';
 
-            const kaelStatus = gameState.kaelMood < 30 ? 'HOSTIL' : gameState.kaelMood < 50 ? 'CÉTICO' : gameState.kaelMood < 70 ? 'NEUTRO' : gameState.kaelMood < 90 ? 'AMIGO' : 'LEAL';
+            const kaelStatus = gameState.kaelMood < 30 ? 'HOSTIL' : 
+                              gameState.kaelMood < 50 ? 'CÉTICO' :
+                              gameState.kaelMood < 70 ? 'NEUTRO' :
+                              gameState.kaelMood < 90 ? 'AMIGO' : 'LEAL';
             document.getElementById('kael-mood').textContent = kaelStatus;
 
-            document.getElementById('time-btn').textContent = '⏪ REWIND (' + gameState.timeRewinds + ')';
-            if (gameState.timeRewinds <= 0) document.getElementById('time-btn').disabled = true;
+            const btn = document.getElementById('time-btn');
+            btn.textContent = '⏪ REWIND (' + gameState.timeRewinds + ')';
+            btn.disabled = gameState.timeRewinds <= 0;
         }
 
         function travelTo(location) {
+            if (location === gameState.location) return;
+
             gameState.location = location;
+
             document.getElementById('bg-valthoria').style.display = location === 'valthoria' ? 'block' : 'none';
             document.getElementById('bg-fissure').style.display = location === 'fissure' ? 'block' : 'none';
 
             document.querySelectorAll('.map-location').forEach(el => el.classList.remove('active'));
             event.target.classList.add('active');
 
-            showTransition(location === 'valthoria' ? 'Valthoria' : 'As Fissuras', () => {
+            const locName = location === 'valthoria' ? 'Valthoria' : 'As Fissuras';
+            showTransition(locName, () => {
                 updateHUD();
                 if (location === 'fissure' && gameState.ecoZeroVisits === 0) {
                     gameState.ecoZeroVisits++;
-                    setTimeout(() => startDialogue('eco-zero'), 500);
+                    setTimeout(() => startDialogue('eco-zero'), 800);
                 }
             });
         }
 
         function startDialogue(character) {
+            console.log('Iniciando diálogo:', character);
+
             const box = document.getElementById('dialogue-box');
             const speaker = document.getElementById('speaker');
             const text = document.getElementById('dialogue-text');
             const choices = document.getElementById('choices');
 
+            box.style.display = 'block';
             box.classList.add('active');
 
             let data;
@@ -934,7 +1078,10 @@ Reino do Crepúsculo Eterno', () => {
                 data = dialogues[character];
             }
 
-            if (!data) { closeDialogue(); return; }
+            if (!data) {
+                closeDialogue();
+                return;
+            }
 
             speaker.textContent = data.name;
             text.textContent = '';
@@ -961,7 +1108,7 @@ Reino do Crepúsculo Eterno', () => {
 
                 const btn = document.createElement('button');
                 btn.className = 'choice-btn' + (idx === 0 ? ' selected' : '');
-                btn.textContent = choice.text;
+                btn.textContent = '> ' + choice.text;
                 btn.onclick = () => selectChoice(choice);
                 container.appendChild(btn);
             });
@@ -972,7 +1119,23 @@ Reino do Crepúsculo Eterno', () => {
             if (choice.action) choice.action();
 
             if (choice.next && dialogues[choice.next]) {
-                startDialogue(choice.next);
+                // Continuar diálogo
+                const data = dialogues[choice.next];
+                document.getElementById('speaker').textContent = data.name;
+                const text = document.getElementById('dialogue-text');
+                text.textContent = '';
+                text.classList.add('typing');
+
+                let i = 0;
+                const interval = setInterval(() => {
+                    text.textContent += data.text[i];
+                    i++;
+                    if (i >= data.text.length) {
+                        clearInterval(interval);
+                        text.classList.remove('typing');
+                        showChoices(data.choices);
+                    }
+                }, gameState.typingSpeed);
             } else {
                 closeDialogue();
             }
@@ -982,10 +1145,13 @@ Reino do Crepúsculo Eterno', () => {
         }
 
         function closeDialogue() {
-            document.getElementById('dialogue-box').classList.remove('active');
+            const box = document.getElementById('dialogue-box');
+            box.classList.remove('active');
+            box.style.display = 'none';
         }
 
         function interactWith(char) {
+            console.log('Interagindo com:', char);
             if (char === 'eco-zero') {
                 gameState.ecoZeroVisits++;
                 if (gameState.ecoZeroVisits === 2) gameState.ecoZeroPhase = 1;
@@ -997,23 +1163,24 @@ Reino do Crepúsculo Eterno', () => {
         function rewindTime() {
             if (gameState.timeRewinds <= 0) return;
             gameState.timeRewinds--;
-            showNotification('⏪ TEMPO REVERTIDO!\nRewinds restantes: ' + gameState.timeRewinds);
+            showNotification('⏪ TEMPO REVERTIDO!\n\nRewinds restantes: ' + gameState.timeRewinds);
             updateHUD();
         }
 
         function movePlayer() {
             const player = document.getElementById('player');
-            player.style.left = player.style.left === '50%' ? '20%' : '50%';
+            const current = player.style.left || '20%';
+            player.style.left = current === '50%' ? '20%' : '50%';
         }
 
         function changeKaelMood(amount) {
             gameState.kaelMood = Math.max(0, Math.min(100, gameState.kaelMood + amount));
-            showNotification('Kael: +' + amount + ' de afinidade');
+            showNotification('Kael: ' + (amount > 0 ? '+' : '') + amount + ' de afinidade');
         }
 
         function startQuest(id) {
             gameState.playerChoices.push(id);
-            showNotification('QUEST INICIADA!');
+            showNotification('QUEST INICIADA!\nVerifique seu progresso no HUD.');
         }
 
         function hasQuest(id) {
@@ -1029,6 +1196,7 @@ Reino do Crepúsculo Eterno', () => {
             if (save) {
                 Object.assign(gameState, JSON.parse(save));
                 document.getElementById('title-screen').classList.add('hidden');
+                document.getElementById('game-area').style.display = 'block';
                 document.getElementById('game-area').classList.add('active');
                 updateHUD();
                 showNotification('Jogo carregado!');
@@ -1038,11 +1206,11 @@ Reino do Crepúsculo Eterno', () => {
         }
 
         function showTutorial() {
-            showNotification('TUTORIAL:\n- CLICK: Interagir\n- MAPA: Viajar entre locais\n- REWIND: Reverter escolhas (3x)\n- Visite Eco-Zero 10x para companheiro!');
+            showNotification('TUTORIAL:\n\n🎮 CLIQUE nos personagens para falar\n🗺️ MAPA (canto inferior direito) para viajar\n⏪ REWIND reverte escolhas (3x)\n💾 F5 = Salvar | F9 = Carregar\n\nDICA: Visite Eco-Zero 10x nas Fissuras para companheiro!');
         }
 
         function showCredits() {
-            showNotification('CHRONOS ECHO\nParte 1: O Despertar\n\nPersonagens:\n- Eco-Zero: O Eco Quebrado\n- Aldric III: O Morto-Vivo\n- Kael: O Herdeiro de Cinzas\n- Seraphina: A Viúva de Gelo');
+            showNotification('CHRONOS ECHO - Parte 1\n\n🎨 Conceito: Usuário + IA\n💻 Código: HTML5/CSS/JS\n\nPersonagens:\n• Eco-Zero: O Eco Quebrado\n• Aldric III: O Morto-Vivo\n• Kael: O Herdeiro de Cinzas\n• Seraphina: A Viúva de Gelo');
         }
 
         // Auto-save
@@ -1051,11 +1219,11 @@ Reino do Crepúsculo Eterno', () => {
         // Teclas
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closeDialogue();
-            if (e.key === 'F5') { e.preventDefault(); saveGame(); showNotification('Salvo!'); }
+            if (e.key === 'F5') { e.preventDefault(); saveGame(); showNotification('Jogo salvo!'); }
             if (e.key === 'F9') { e.preventDefault(); loadGame(); }
         });
 
-        console.log('CHRONOS ECHO carregado');
+        console.log('CHRONOS ECHO carregado. Pronto para jogar!');
     </script>
 </body>
 </html>
