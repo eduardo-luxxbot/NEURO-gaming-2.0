@@ -1,786 +1,1664 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEURO: VERSE 2.0</title>
+    <title>ECOS DO ABISMO - Possessão Procedural</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Space+Mono:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --void: #0a0a0f;
+            --flesh: #8b2635;
+            --flesh-light: #c93a4f;
+            --neural: #4a90e2;
+            --toxic: #39ff14;
+            --bone: #e8dcc4;
+            --shadow: #1a1a2e;
+            --gold: #ffd700;
+            --corruption: #9400d3;
+        }
+
         body {
-            background: #0a0a0f;
-            color: #e0e0ff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--void);
+            color: var(--bone);
+            font-family: 'Space Mono', monospace;
             overflow: hidden;
-            display: flex;
-            height: 100vh;
-        }
-        #ui-lateral {
-            width: 350px;
-            background: linear-gradient(180deg, #0a0a12 0%, #1a1a2e 50%, #0f0f1a 100%);
-            border-right: 3px solid #00d4ff;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            z-index: 100;
-        }
-        .logo {
-            text-align: center;
-            margin-bottom: 20px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #2a2a4a;
-        }
-        .logo h1 {
-            font-size: 28px;
-            background: linear-gradient(90deg, #00d4ff, #7b2cbf, #ff006e);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-        }
-        .logo span {
-            font-size: 12px;
-            color: #7b2cbf;
-            letter-spacing: 8px;
-        }
-        .secao {
-            background: rgba(0,212,255,0.05);
-            border: 1px solid #2a2a4a;
-            border-radius: 12px;
-            padding: 15px;
             position: relative;
-            overflow: hidden;
         }
-        .secao::before {
-            content: '';
-            position: absolute;
+
+        #gameCanvas {
+            position: fixed;
             top: 0;
             left: 0;
-            width: 4px;
-            height: 100%;
-            background: linear-gradient(180deg, #00d4ff, #7b2cbf);
-        }
-        .secao h3 {
-            color: #00d4ff;
-            font-size: 13px;
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        .stat-card {
-            background: rgba(0,0,0,0.3);
-            padding: 12px;
-            border-radius: 8px;
-            text-align: center;
-            border: 1px solid #2a2a4a;
-        }
-        .stat-icon { font-size: 20px; margin-bottom: 5px; }
-        .stat-label {
-            font-size: 9px;
-            color: #7b2cbf;
-            text-transform: uppercase;
-        }
-        .stat-value {
-            font-size: 18px;
-            font-weight: bold;
-            color: #00d4ff;
-        }
-        .btn-acao {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            border: 2px solid #3a6bc9;
-            color: white;
-            padding: 12px 8px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 11px;
-            text-transform: uppercase;
-            transition: all 0.3s;
             width: 100%;
-            margin: 5px 0;
+            height: 100%;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
         }
-        .btn-acao:hover {
-            transform: translateY(-2px);
-            border-color: #00d4ff;
+
+        #ui-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
         }
-        .btn-acao.ativo {
-            background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
-            color: #0a0a0f;
-            border-color: #00d4ff;
+
+        .hud-panel {
+            position: absolute;
+            background: rgba(10, 10, 15, 0.95);
+            border: 1px solid var(--flesh);
+            padding: 15px;
+            pointer-events: auto;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
         }
-        .btn-perigoso {
-            background: linear-gradient(135deg, #721e1e 0%, #982a2a 100%);
-            border-color: #c93a3a;
+
+        #possession-bar {
+            top: 20px;
+            left: 20px;
+            min-width: 300px;
+            border-left: 4px solid var(--toxic);
         }
-        .info-mundo {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            font-size: 11px;
+
+        #possession-bar h2 {
+            font-family: 'Cinzel', serif;
+            color: var(--toxic);
+            font-size: 14px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
         }
-        .info-item {
-            background: rgba(0,0,0,0.2);
-            padding: 8px;
-            border-radius: 6px;
-            border-left: 3px solid #7b2cbf;
-        }
-        #log-eventos {
-            height: 150px;
-            overflow-y: auto;
-            font-size: 11px;
-            background: rgba(0,0,0,0.2);
-            border-radius: 8px;
-            padding: 10px;
-        }
-        .evento {
-            padding: 6px;
-            margin-bottom: 6px;
-            border-radius: 6px;
-            border-left: 3px solid;
-            background: rgba(255,255,255,0.03);
-        }
-        .evento-guerra { border-left-color: #ff4444; }
-        .evento-religiao { border-left-color: #ffaa00; }
-        .evento-social { border-left-color: #00d4ff; }
-        .evento-morte { border-left-color: #888; }
-        #area-jogo {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            background: #050508;
-        }
-        #barra-superior {
-            height: 60px;
-            background: linear-gradient(90deg, #0f0f1a 0%, #1a1a2e 100%);
-            border-bottom: 2px solid #2a2a4a;
+
+        .body-slot {
             display: flex;
             align-items: center;
-            justify-content: space-around;
-            padding: 0 30px;
+            gap: 10px;
+            margin: 8px 0;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.2s;
         }
-        .indicador {
-            text-align: center;
-            padding: 0 20px;
+
+        .body-slot:hover {
+            background: rgba(57, 255, 20, 0.1);
+            border-color: var(--toxic);
         }
-        .indicador-label {
-            font-size: 10px;
-            color: #7b2cbf;
-            text-transform: uppercase;
+
+        .body-slot.active {
+            background: rgba(57, 255, 20, 0.2);
+            border-color: var(--toxic);
+            box-shadow: 0 0 20px rgba(57, 255, 20, 0.3);
         }
-        .indicador-valor {
-            font-size: 24px;
-            font-weight: bold;
-            color: #00d4ff;
-        }
-        #canvas-container {
-            flex: 1;
-            position: relative;
+
+        .body-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--shadow);
+            border: 2px solid var(--flesh);
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: auto;
+            font-size: 20px;
         }
-        canvas {
-            border: 2px solid #2a2a4a;
-            box-shadow: 0 0 30px rgba(0,212,255,0.2);
-            background: #0a0a0f;
+
+        .body-info {
+            flex: 1;
         }
-        #tooltip {
-            position: absolute;
-            background: rgba(10,10,15,0.95);
-            border: 2px solid #00d4ff;
-            border-radius: 8px;
-            padding: 10px;
+
+        .body-name {
+            font-weight: bold;
+            color: var(--bone);
             font-size: 12px;
-            pointer-events: none;
-            display: none;
-            z-index: 1000;
-            max-width: 250px;
         }
-        #painel-interacao {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(10,10,15,0.95);
-            border: 2px solid #7b2cbf;
-            border-radius: 12px;
-            padding: 15px;
-            display: none;
-            flex-direction: column;
-            gap: 10px;
-            min-width: 300px;
+
+        .body-condition {
+            font-size: 10px;
+            color: var(--flesh-light);
+            margin-top: 2px;
         }
-        #legendas {
-            position: absolute;
+
+        .health-bar {
+            width: 100%;
+            height: 4px;
+            background: var(--shadow);
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .health-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--flesh), var(--flesh-light));
+            transition: width 0.3s;
+        }
+
+        #world-status {
             top: 20px;
             right: 20px;
-            background: rgba(0,0,0,0.8);
-            border: 1px solid #2a2a4a;
-            border-radius: 8px;
-            padding: 15px;
-            font-size: 11px;
+            text-align: right;
+            border-right: 4px solid var(--corruption);
         }
-        .legenda-item {
+
+        .decay-timer {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--corruption);
+            font-family: 'Cinzel', serif;
+            text-shadow: 0 0 20px var(--corruption);
+        }
+
+        .biome-indicator {
+            margin-top: 10px;
+            font-size: 11px;
+            color: var(--neural);
+        }
+
+        #echo-mode {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(148, 0, 211, 0.2);
+            border: 2px solid var(--corruption);
+            padding: 40px;
+            text-align: center;
+            display: none;
+            pointer-events: auto;
+            backdrop-filter: blur(20px);
+            z-index: 200;
+        }
+
+        #echo-mode.active {
+            display: block;
+            animation: echoPulse 2s infinite;
+        }
+
+        @keyframes echoPulse {
+            0%, 100% { box-shadow: 0 0 50px var(--corruption); }
+            50% { box-shadow: 0 0 100px var(--corruption), inset 0 0 50px rgba(148, 0, 211, 0.3); }
+        }
+
+        #echo-mode h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 32px;
+            color: var(--corruption);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+        }
+
+        .corpse-target {
+            display: inline-block;
+            margin: 10px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--flesh);
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 150px;
+        }
+
+        .corpse-target:hover {
+            transform: scale(1.1);
+            border-color: var(--toxic);
+            box-shadow: 0 0 30px var(--toxic);
+        }
+
+        #dialogue-box {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            max-width: 800px;
+            background: rgba(10, 10, 15, 0.98);
+            border: 2px solid var(--gold);
+            padding: 30px;
+            display: none;
+            pointer-events: auto;
+        }
+
+        #dialogue-box.active {
+            display: block;
+            animation: dialogueSlide 0.5s ease;
+        }
+
+        @keyframes dialogueSlide {
+            from { transform: translateX(-50%) translateY(100px); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+
+        .npc-name {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            font-size: 18px;
+            margin-bottom: 15px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin: 6px 0;
+            gap: 10px;
         }
-        .legenda-cor {
+
+        .npc-mood {
             width: 12px;
             height: 12px;
             border-radius: 50%;
-            border: 2px solid;
+            background: var(--toxic);
+        }
+
+        .npc-text {
+            font-size: 14px;
+            line-height: 1.8;
+            color: var(--bone);
+            margin-bottom: 20px;
+        }
+
+        .dialogue-options {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .dialogue-btn {
+            background: transparent;
+            border: 1px solid var(--flesh);
+            color: var(--bone);
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dialogue-btn:hover {
+            background: var(--flesh);
+            color: var(--void);
+            transform: translateX(5px);
+        }
+
+        .dialogue-btn::before {
+            content: '>';
+            position: absolute;
+            left: -20px;
+            transition: left 0.3s;
+        }
+
+        .dialogue-btn:hover::before {
+            left: 5px;
+        }
+
+        #memory-map {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            height: 200px;
+            background: rgba(10, 10, 15, 0.95);
+            border: 1px solid var(--neural);
+            pointer-events: auto;
+            cursor: crosshair;
+        }
+
+        #memory-map canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .map-hint {
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            font-size: 9px;
+            color: var(--neural);
+            opacity: 0.7;
+        }
+
+        #corruption-meter {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--corruption);
+            display: flex;
+            flex-direction: column-reverse;
+        }
+
+        .corruption-fill {
+            background: linear-gradient(to top, var(--corruption), var(--flesh));
+            transition: height 0.5s;
+            position: relative;
+        }
+
+        .corruption-label {
+            position: absolute;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%) rotate(-90deg);
+            font-size: 10px;
+            color: var(--corruption);
+            white-space: nowrap;
+            letter-spacing: 2px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 100px;
+            right: -400px;
+            background: rgba(10, 10, 15, 0.98);
+            border-left: 4px solid var(--toxic);
+            padding: 20px;
+            max-width: 350px;
+            transition: right 0.5s ease;
+            pointer-events: auto;
+            z-index: 150;
+        }
+
+        .notification.show {
+            right: 20px;
+        }
+
+        .notification-title {
+            font-family: 'Cinzel', serif;
+            color: var(--toxic);
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .notification-text {
+            font-size: 11px;
+            color: var(--bone);
+            line-height: 1.6;
+        }
+
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--void);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 1s;
+        }
+
+        #loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-text {
+            font-family: 'Cinzel', serif;
+            font-size: 48px;
+            color: var(--flesh);
+            animation: loadingPulse 2s infinite;
+            margin-bottom: 30px;
+        }
+
+        @keyframes loadingPulse {
+            0%, 100% { opacity: 0.3; text-shadow: 0 0 20px var(--flesh); }
+            50% { opacity: 1; text-shadow: 0 0 50px var(--flesh), 0 0 100px var(--flesh); }
+        }
+
+        .loading-bar {
+            width: 400px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loading-progress {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--flesh), var(--toxic));
+            animation: loading 3s ease forwards;
+        }
+
+        @keyframes loading {
+            to { width: 100%; }
+        }
+
+        .controls-hint {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.3);
+            line-height: 1.8;
+        }
+
+        .controls-hint span {
+            color: var(--toxic);
+            margin-right: 10px;
+        }
+
+        #possession-vfx {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+            opacity: 0;
+            transition: opacity 0.5s;
+            background: radial-gradient(circle at center, transparent 0%, var(--corruption) 50%, transparent 100%);
+            mix-blend-mode: screen;
+        }
+
+        #possession-vfx.active {
+            opacity: 0.3;
+            animation: possessionRipple 1s ease;
+        }
+
+        @keyframes possessionRipple {
+            0% { transform: scale(0); opacity: 0; }
+            50% { opacity: 0.5; }
+            100% { transform: scale(3); opacity: 0; }
+        }
+
+        .trait-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 9px;
+            margin: 2px;
+            border-radius: 3px;
+        }
+
+        .trait-paranoid { border-color: var(--flesh); color: var(--flesh-light); }
+        .trait-generous { border-color: var(--toxic); color: var(--toxic); }
+        .trait-trauma { border-color: var(--corruption); color: var(--corruption); }
+
+        #death-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 500;
+            pointer-events: auto;
+        }
+
+        #death-screen.active {
+            display: flex;
+        }
+
+        .death-title {
+            font-family: 'Cinzel', serif;
+            font-size: 64px;
+            color: var(--flesh);
+            margin-bottom: 20px;
+            animation: deathShake 0.5s infinite;
+        }
+
+        @keyframes deathShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .death-subtitle {
+            font-size: 16px;
+            color: var(--bone);
+            margin-bottom: 40px;
+            opacity: 0.7;
+        }
+
+        .echo-option {
+            background: rgba(148, 0, 211, 0.2);
+            border: 1px solid var(--corruption);
+            padding: 20px 40px;
+            margin: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .echo-option:hover {
+            background: rgba(148, 0, 211, 0.4);
+            transform: scale(1.05);
+            box-shadow: 0 0 40px var(--corruption);
+        }
+
+        .echo-option h3 {
+            color: var(--corruption);
+            font-family: 'Cinzel', serif;
+            margin-bottom: 10px;
+        }
+
+        .echo-option p {
+            font-size: 11px;
+            color: var(--bone);
+            opacity: 0.8;
         }
     </style>
 </head>
 <body>
-    <div id="ui-lateral">
-        <div class="logo">
-            <h1>NEURO: VERSE</h1>
-            <span>2.0</span>
+    <div id="loading-screen">
+        <div class="loading-text">ECOS DO ABISMO</div>
+        <div class="loading-bar">
+            <div class="loading-progress"></div>
         </div>
-        <div class="secao">
-            <h3>👤 Seu Personagem</h3>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon">❤️</div>
-                    <div class="stat-label">Saúde</div>
-                    <div class="stat-value" id="stat-saude">100%</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">⚡</div>
-                    <div class="stat-label">Energia</div>
-                    <div class="stat-value" id="stat-energia">100%</div>
-                </div>
-            </div>
-        </div>
-        <div class="secao">
-            <h3>🎮 Modo de Ação</h3>
-            <button class="btn-acao ativo" onclick="jogo.setModo('observar')" id="btn-observar">👁️ Observar</button>
-            <button class="btn-acao" onclick="jogo.setModo('mover')" id="btn-mover">🚶 Mover</button>
-            <button class="btn-acao" onclick="jogo.setModo('interagir')" id="btn-interagir">🤝 Interagir</button>
-            <button class="btn-acao btn-perigoso" onclick="jogo.setModo('atacar')" id="btn-atacar">⚔️ Atacar</button>
-        </div>
-        <div class="secao">
-            <h3>🌍 Estado do Mundo</h3>
-            <div class="info-mundo">
-                <div class="info-item">
-                    <div>População</div>
-                    <div style="color:#00d4ff; font-weight:bold;" id="info-pop">40</div>
-                </div>
-                <div class="info-item">
-                    <div>Facções</div>
-                    <div style="color:#00d4ff; font-weight:bold;" id="info-fac">0</div>
-                </div>
-                <div class="info-item">
-                    <div>Religiões</div>
-                    <div style="color:#00d4ff; font-weight:bold;" id="info-rel">0</div>
-                </div>
-                <div class="info-item">
-                    <div>Turno</div>
-                    <div style="color:#00d4ff; font-weight:bold;" id="info-turno">0</div>
-                </div>
-            </div>
-        </div>
-        <div class="secao">
-            <h3>⏱️ Controles</h3>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-                <button class="btn-acao" onclick="jogo.pausar()" id="btn-pausa">⏸️ Pausar</button>
-                <button class="btn-acao" onclick="jogo.umTurno()">⏭️ 1 Turno</button>
-            </div>
-        </div>
-        <div class="secao">
-            <h3>📜 Crônicas</h3>
-            <div id="log-eventos">
-                <div style="color:#666; font-style:italic;">O mundo desperta...</div>
-            </div>
+        <div style="margin-top: 20px; font-size: 12px; color: var(--flesh-light);">
+            Gerando DNA de 200+ NPCs... Criando biomas orgânicos...
         </div>
     </div>
-    <div id="area-jogo">
-        <div id="barra-superior">
-            <div class="indicador">
-                <div class="indicador-label">Turno</div>
-                <div class="indicador-valor" id="ind-turno">0</div>
-            </div>
-            <div class="indicador">
-                <div class="indicador-label">Sobreviventes</div>
-                <div class="indicador-valor" id="ind-pop">40</div>
+
+    <canvas id="gameCanvas"></canvas>
+    <div id="possession-vfx"></div>
+
+    <div id="ui-layer">
+        <div id="possession-bar" class="hud-panel">
+            <h2>◈ Corpos Possuídos</h2>
+            <div id="body-list"></div>
+            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <div style="font-size: 10px; color: var(--toxic); margin-bottom: 5px;">CAMINHO ATUAL</div>
+                <div id="current-path" style="font-size: 12px; font-weight: bold;">Eco Errante</div>
+                <div id="path-progress" style="font-size: 10px; color: var(--bone); margin-top: 5px;">0/100 corpos consumidos</div>
             </div>
         </div>
-        <div id="canvas-container">
-            <canvas id="gameCanvas" width="700" height="700"></canvas>
-            <div id="tooltip"></div>
-            <div id="painel-interacao">
-                <h4 id="painel-titulo" style="color:#7b2cbf; text-align:center; margin-bottom:10px;">Agente</h4>
-                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px;">
-                    <button class="btn-acao" onclick="jogo.acaoAgente('conversar')" style="padding:8px; font-size:10px;">💬 Conversar</button>
-                    <button class="btn-acao" onclick="jogo.acaoAgente('dar_comida')" style="padding:8px; font-size:10px;">🍞 Dar Comida</button>
-                    <button class="btn-acao btn-perigoso" onclick="jogo.acaoAgente('atacar')" style="padding:8px; font-size:10px;">⚔️ Atacar</button>
-                </div>
-                <button class="btn-acao" onclick="jogo.fecharPainel()" style="margin-top:8px;">❌ Fechar</button>
+
+        <div id="world-status" class="hud-panel">
+            <div style="font-size: 10px; color: var(--corruption); margin-bottom: 5px;">DECADÊNCIA DO DEUS</div>
+            <div class="decay-timer" id="decay-timer">71:59:59</div>
+            <div class="biome-indicator" id="biome-indicator">
+                ◈ Bioma: Cordão Umbilical<br>
+                ◈ Temperatura: 37°C<br>
+                ◈ Toxicidade: Baixa
             </div>
-            <div id="legendas">
-                <div style="font-weight:bold; margin-bottom:10px; color:#00d4ff;">Profissões</div>
-                <div class="legenda-item"><div class="legenda-cor" style="background:#44ff44; border-color:#44ff44;"></div> Agricultor 🌾</div>
-                <div class="legenda-item"><div class="legenda-cor" style="background:#ff4444; border-color:#ff4444;"></div> Guerreiro ⚔️</div>
-                <div class="legenda-item"><div class="legenda-cor" style="background:#ffaa00; border-color:#ffaa00;"></div> Mercador 💰</div>
-                <div class="legenda-item"><div class="legenda-cor" style="background:#4488ff; border-color:#4488ff;"></div> Artesão 🔨</div>
-                <div class="legenda-item"><div class="legenda-cor" style="background:#aa44ff; border-color:#aa44ff;"></div> Sábio 📜</div>
-                <div class="legenda-item"><div class="legenda-cor" style="background:#888888; border-color:#888888;"></div> Ladrão 🗡️</div>
-                <div style="margin-top:15px; font-weight:bold; color:#00d4ff;">Você</div>
-                <div class="legenda-item"><div class="legenda-cor" style="background:#00d4ff; border-color:#00d4ff;"></div> Viajante 🧭</div>
+            <div style="margin-top: 15px; font-size: 10px; color: var(--gold);">
+                ◈ Sementes: <span id="seeds-count">0</span><br>
+                ◈ Memórias Vendidas: <span id="memories-count">0</span>
+            </div>
+        </div>
+
+        <div id="corruption-meter">
+            <div class="corruption-label">CORRUPÇÃO</div>
+            <div class="corruption-fill" id="corruption-fill" style="height: 5%;"></div>
+        </div>
+
+        <div id="memory-map">
+            <canvas id="mapCanvas"></canvas>
+            <div class="map-hint">Clique para anotar • Scroll para zoom</div>
+        </div>
+
+        <div class="controls-hint">
+            <span>[WASD]</span> Mover<br>
+            <span>[E]</span> Interagir<br>
+            <span>[ESPAÇO]</span> Modo Eco (possessão)<br>
+            <span>[Q]</span> Trocar corpo<br>
+            <span>[M]</span> Mapa de memória<br>
+            <span>[TAB]</span> Inventário
+        </div>
+    </div>
+
+    <div id="echo-mode">
+        <h1>◈ MODO ECO ◈</h1>
+        <p style="margin-bottom: 30px; opacity: 0.8;">Você está fora do corpo. Escolha um cadáver para possuir:</p>
+        <div id="corpse-list"></div>
+        <p style="margin-top: 30px; font-size: 11px; color: var(--corruption);">
+            Cada possessão consome 5% de sanidade máxima permanente
+        </p>
+    </div>
+
+    <div id="dialogue-box">
+        <div class="npc-name">
+            <div class="npc-mood" id="npc-mood"></div>
+            <span id="npc-name">Nome do NPC</span>
+            <div style="margin-left: auto; font-size: 10px; color: var(--flesh-light);" id="npc-traits"></div>
+        </div>
+        <div class="npc-text" id="npc-text">Texto do NPC aqui...</div>
+        <div class="dialogue-options" id="dialogue-options"></div>
+    </div>
+
+    <div id="death-screen">
+        <div class="death-title">◈ CORPO DESTRUÍDO ◈</div>
+        <div class="death-subtitle">Sua consciência flutua no vazio entre os mundos</div>
+        <div style="display: flex; gap: 20px;">
+            <div class="echo-option" onclick="game.respawn('near')">
+                <h3>ECO PROXIMAL</h3>
+                <p>Reapareça perto do corpo morto<br>Custo: 1 Semente</p>
+            </div>
+            <div class="echo-option" onclick="game.respawn('random')">
+                <h3>ECO ALEATÓRIO</h3>
+                <p>Reapareça em bioma aleatório<br>Custo: 30% das memórias</p>
+            </div>
+            <div class="echo-option" onclick="game.respawn('possess')">
+                <h3>POSSESSÃO FORÇADA</h3>
+                <p>Controle o inimigo que te matou<br>Custo: 50% de sanidade máxima</p>
             </div>
         </div>
     </div>
 
-<script>
-class Agente {
-    constructor(dados) {
-        this.id = dados.id;
-        this.nome = dados.nome;
-        this.x = dados.x;
-        this.y = dados.y;
-        this.profissao = dados.profissao;
-        this.bioma = dados.bioma;
-        this.vivo = dados.vivo;
-        this.saude = dados.saude;
-        this.energia = dados.energia;
-        this.fome = dados.fome || 0;
-        this.faccao = dados.faccao;
-        this.religiao = dados.religiao;
-        this.humor = dados.humor || 'neutro';
-        this.cores = {
-            'agricultor': '#44ff44', 'guerreiro': '#ff4444', 'mercador': '#ffaa00',
-            'artesao': '#4488ff', 'sabio': '#aa44ff', 'ladrao': '#888888', 'viajante': '#00d4ff'
-        };
-        this.icones = {
-            'agricultor': '🌾', 'guerreiro': '⚔️', 'mercador': '💰',
-            'artesao': '🔨', 'sabio': '📜', 'ladrao': '🗡️', 'viajante': '🧭'
-        };
-    }
-    
-    desenhar(ctx, tamanhoCell, selecionado) {
-        if (!this.vivo) return;
-        
-        const px = this.x * tamanhoCell + tamanhoCell/2;
-        const py = this.y * tamanhoCell + tamanhoCell/2;
-        const raio = tamanhoCell * 0.35;
-        
-        // Aura se selecionado
-        if (selecionado) {
-            ctx.beginPath();
-            ctx.arc(px, py, raio + 10, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(0,212,255,0.4)';
-            ctx.fill();
-            ctx.strokeStyle = '#00d4ff';
-            ctx.lineWidth = 3;
-            ctx.stroke();
-        }
-        
-        // Aura baseada no humor
-        const auras = {
-            'alegria': 'rgba(255,221,0,0.4)',
-            'raiva': 'rgba(255,0,0,0.4)',
-            'medo': 'rgba(136,0,255,0.4)',
-            'neutro': 'rgba(136,136,136,0.2)'
-        };
-        ctx.beginPath();
-        ctx.arc(px, py, raio + 6, 0, Math.PI * 2);
-        ctx.fillStyle = auras[this.humor] || auras['neutro'];
-        ctx.fill();
-        
-        // Corpo
-        ctx.beginPath();
-        ctx.arc(px, py, raio, 0, Math.PI * 2);
-        ctx.fillStyle = this.cores[this.profissao] || '#ffffff';
-        ctx.fill();
-        
-        // Borda por saúde
-        ctx.strokeStyle = this.saude > 0.7 ? '#44ff44' : this.saude > 0.4 ? '#ffaa00' : '#ff4444';
-        ctx.lineWidth = 3;
-        ctx.stroke();
-        
-        // Indicador de facção
-        if (this.faccao) {
-            ctx.beginPath();
-            ctx.arc(px + raio*0.6, py - raio*0.6, 5, 0, Math.PI * 2);
-            ctx.fillStyle = '#ffffff';
-            ctx.fill();
-        }
-        
-        // Indicador de religião
-        if (this.religiao) {
-            ctx.beginPath();
-            ctx.arc(px - raio*0.6, py - raio*0.6, 4, 0, Math.PI * 2);
-            ctx.fillStyle = '#ffdd00';
-            ctx.fill();
-        }
-        
-        // Ícone
-        ctx.font = `${tamanhoCell * 0.5}px Arial`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(this.icones[this.profissao] || '👤', px, py);
-        
-        // Nome
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 11px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText(this.nome, px, py - raio - 15);
-    }
-}
+    <script>
+        // SISTEMA DE DNA PROCEDURAL PARA NPCs
+        class DNA {
+            constructor(seed = Math.random()) {
+                this.seed = seed;
+                this.rng = new RNG(seed);
+                this.generate();
+            }
 
-class Jogo {
-    constructor() {
-        this.canvas = document.getElementById('gameCanvas');
-        this.ctx = this.canvas.getContext('2d');
-        this.tamanhoGrid = 20;
-        this.tamanhoCell = 35;
-        this.agentes = [];
-        this.jogador = null;
-        this.agenteSelecionado = null;
-        this.modo = 'observar';
-        this.turno = 0;
-        this.pausado = false;
-        this.faccoes = [];
-        this.religioes = [];
-        this.biomas = this.gerarBiomas();
-        this.gerarAgentes(35);
-        this.inicializar();
-    }
-    
-    gerarBiomas() {
-        const biomas = [];
-        for (let y = 0; y < this.tamanhoGrid; y++) {
-            for (let x = 0; x < this.tamanhoGrid; x++) {
-                let tipo = 'planicie';
-                let cor = '#3d5c3d';
-                if (x < 10 && y < 10) { tipo = 'floresta'; cor = '#2d5016'; }
-                else if (x >= 10 && y < 10) { tipo = 'deserto'; cor = '#c2b280'; }
-                else if (x < 10 && y >= 10) { tipo = 'montanha'; cor = '#4a4a4a'; }
-                biomas.push({x, y, tipo, cor});
+            generate() {
+                // Traços de personalidade (0-100)
+                this.traits = {
+                    paranoia: this.rng.next(0, 100),
+                    altruism: this.rng.next(0, 100),
+                    aggression: this.rng.next(0, 100),
+                    curiosity: this.rng.next(0, 100),
+                    loyalty: this.rng.next(0, 100),
+                    trauma: this.rng.next(0, 100)
+                };
+
+                // Profissão baseada em traços
+                this.profession = this.selectProfession();
+                
+                // Nome procedural
+                this.name = this.generateName();
+                
+                // História de vida
+                this.lifeStory = this.generateLifeStory();
+                
+                // Memórias do jogador (o que este NPC lembra das interações)
+                this.playerMemories = [];
+                
+                // Ciclo de vida
+                this.age = this.rng.next(18, 70);
+                this.maxAge = this.age + this.rng.next(5, 30);
+                this.isAlive = true;
+
+                // Aparência única (silhueta)
+                this.silhouette = this.generateSilhouette();
             }
-        }
-        return biomas;
-    }
-    
-    gerarAgentes(quantidade) {
-        const nomes = ['Aria','Kael','Mira','Thorn','Luna','Sol','Nyx','Orion','Vesper','Dawn',
-                      'Ash','Ember','River','Stone','Sky','Flame','Shadow','Light','Storm','Calm',
-                      'Zephyr','Frost','Iron','Gold','Silver','Copper','Lead','Mercury','Sulfur','Salt',
-                      'Echo','Silence','Noise','Music','Rhythm','Blues','Jazz','Rock','Pop','Folk'];
-        const profissoes = ['agricultor','guerreiro','mercador','artesao','sabio','ladrao'];
-        
-        for (let i = 0; i < quantidade; i++) {
-            const x = Math.floor(Math.random() * this.tamanhoGrid);
-            const y = Math.floor(Math.random() * this.tamanhoGrid);
-            const bioma = this.biomas.find(b => b.x === x && b.y === y);
-            
-            let prof = profissoes[Math.floor(Math.random() * profissoes.length)];
-            if (bioma.tipo === 'floresta' && Math.random() < 0.6) prof = 'agricultor';
-            else if (bioma.tipo === 'deserto' && Math.random() < 0.5) prof = Math.random() < 0.5 ? 'mercador' : 'guerreiro';
-            else if (bioma.tipo === 'montanha' && Math.random() < 0.5) prof = Math.random() < 0.5 ? 'artesao' : 'guerreiro';
-            
-            this.agentes.push(new Agente({
-                id: `NPC_${i}`,
-                nome: nomes[i % nomes.length],
-                x: x, y: y,
-                profissao: prof,
-                bioma: bioma.tipo,
-                vivo: true,
-                saude: 0.7 + Math.random() * 0.3,
-                energia: 0.6 + Math.random() * 0.4,
-                fome: Math.random() * 0.3,
-                faccao: null,
-                religiao: null,
-                humor: ['alegria','raiva','medo','neutro'][Math.floor(Math.random() * 4)]
-            }));
-        }
-        
-        this.jogador = new Agente({
-            id: 'JOGADOR',
-            nome: 'Você',
-            x: 10, y: 10,
-            profissao: 'viajante',
-            bioma: 'planicie',
-            vivo: true,
-            saude: 1.0,
-            energia: 1.0,
-            fome: 0,
-            faccao: null,
-            religiao: null,
-            humor: 'curiosidade'
-        });
-        this.agentes.push(this.jogador);
-        this.atualizarUI();
-    }
-    
-    desenhar() {
-        // Fundo
-        this.ctx.fillStyle = '#0a0a0f';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        
-        // Biomas
-        for (let bioma of this.biomas) {
-            this.ctx.fillStyle = bioma.cor;
-            this.ctx.globalAlpha = 0.4;
-            this.ctx.fillRect(bioma.x * this.tamanhoCell, bioma.y * this.tamanhoCell, this.tamanhoCell, this.tamanhoCell);
-        }
-        this.ctx.globalAlpha = 1;
-        
-        // Grid
-        this.ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-        this.ctx.lineWidth = 1;
-        for (let i = 0; i <= this.tamanhoGrid; i++) {
-            this.ctx.beginPath();
-            this.ctx.moveTo(i * this.tamanhoCell, 0);
-            this.ctx.lineTo(i * this.tamanhoCell, this.canvas.height);
-            this.ctx.stroke();
-            this.ctx.beginPath();
-            this.ctx.moveTo(0, i * this.tamanhoCell);
-            this.ctx.lineTo(this.canvas.width, i * this.tamanhoCell);
-            this.ctx.stroke();
-        }
-        
-        // Agentes
-        for (let agente of this.agentes) {
-            agente.desenhar(this.ctx, this.tamanhoCell, agente === this.jogador);
-        }
-    }
-    
-    simularTurno() {
-        if (this.pausado) return;
-        this.turno++;
-        let eventosTurno = 0;
-        
-        for (let agente of this.agentes) {
-            if (!agente.vivo || agente.id === 'JOGADOR') continue;
-            
-            // Movimento
-            if (Math.random() < 0.3) {
-                const dx = Math.floor(Math.random() * 3) - 1;
-                const dy = Math.floor(Math.random() * 3) - 1;
-                agente.x = Math.max(0, Math.min(this.tamanhoGrid-1, agente.x + dx));
-                agente.y = Math.max(0, Math.min(this.tamanhoGrid-1, agente.y + dy));
-                const novoBioma = this.biomas.find(b => b.x === agente.x && b.y === agente.y);
-                if (novoBioma) agente.bioma = novoBioma.tipo;
+
+            selectProfession() {
+                const professions = [
+                    { name: 'Necromante de Lágrimas', req: t => t.trauma > 60 && t.curiosity > 50 },
+                    { name: 'Ferreira de Ossos', req: t => t.aggression > 60 && t.paranoia < 40 },
+                    { name: 'Mercador de Memórias', req: t => t.altruism < 30 && t.curiosity > 70 },
+                    { name: 'Herege do Sangue', req: t => t.trauma > 70 && t.loyalty < 30 },
+                    { name: 'Jardineiro de Fungos', req: t => t.altruism > 60 && t.aggression < 40 },
+                    { name: 'Caçador de Ecos', req: t => t.aggression > 70 && t.paranoia > 50 },
+                    { name: 'Sacerdote Podre', req: t => t.loyalty > 70 && t.trauma > 40 },
+                    { name: 'Alquimista de Carne', req: t => t.curiosity > 80 && t.altruism < 50 },
+                    { name: 'Pescador de Almas', req: t => t.trauma > 50 && t.aggression < 50 },
+                    { name: 'Escriba de Cicatrizes', req: t => t.curiosity > 60 && t.paranoia > 40 }
+                ];
+
+                const valid = professions.filter(p => p.req(this.traits));
+                return valid.length > 0 
+                    ? valid[this.rng.next(0, valid.length - 1)].name 
+                    : professions[0].name;
             }
-            
-            // Mudar humor
-            if (Math.random() < 0.1) {
-                agente.humor = ['alegria','raiva','medo','neutro'][Math.floor(Math.random() * 4)];
+
+            generateName() {
+                const prefixes = ['Kael', 'Mira', 'Zeth', 'Lys', 'Vorn', 'Iris', 'Obl', 'Xan', 'Yul', 'Kor'];
+                const suffixes = ['-7', ' o Manchado', ' Vazio', ' de Cinzas', '-Null', ' ++', ' Ω', ' Ð', ' the Hollow', ' Prime'];
+                const prefix = prefixes[this.rng.next(0, prefixes.length - 1)];
+                const suffix = this.rng.next(0, 100) > 70 ? suffixes[this.rng.next(0, suffixes.length - 1)] : '';
+                return prefix + suffix;
             }
-            
-            // Fome e saúde
-            agente.fome += 0.02;
-            agente.energia -= 0.01;
-            if (agente.fome > 0.7) agente.saude -= 0.02;
-            
-            // Morte
-            if (agente.saude <= 0) {
-                agente.vivo = false;
-                this.logEvento('morte', `${agente.nome} faleceu.`);
-                eventosTurno++;
+
+            generateLifeStory() {
+                const events = [
+                    'testemunhou a queda do deus',
+                    'perdeu a família para a podridão',
+                    'foi traído por um eco',
+                    'descobriu uma verdade proibida',
+                    'foi ressuscitado 3 vezes',
+                    'vendeu suas memórias de infância',
+                    'possuiu um deus menor',
+                    'sobreviveu ao colapso do fígado'
+                ];
+                
+                const event = events[this.rng.next(0, events.length - 1)];
+                return `Um ${this.profession.toLowerCase()} que ${event}.`;
             }
-            
-            // Formar facção
-            if (!agente.faccao && Math.random() < 0.02) {
-                const aliado = this.agentes.find(a => 
-                    a.vivo && a.id !== agente.id && !a.faccao && 
-                    Math.abs(a.x - agente.x) <= 2 && Math.abs(a.y - agente.y) <= 2
-                );
-                if (aliado) {
-                    const nomeFaccao = `Ordem_${agente.nome}`;
-                    agente.faccao = nomeFaccao;
-                    aliado.faccao = nomeFaccao;
-                    this.faccoes.push(nomeFaccao);
-                    this.logEvento('social', `${nomeFaccao} fundada por ${agente.nome} e ${aliado.nome}!`);
-                    eventosTurno++;
+
+            generateSilhouette() {
+                // Gera parâmetros únicos para desenhar a silhueta
+                return {
+                    height: this.rng.next(0.8, 1.4),
+                    width: this.rng.next(0.6, 1.2),
+                    hunch: this.rng.next(-0.3, 0.3),
+                    limbs: this.rng.next(0.7, 1.3),
+                    corruption: this.rng.next(0, this.traits.trauma / 100)
+                };
+            }
+
+            interact(player, context) {
+                // Lógica de diálogo baseada em memórias e traços
+                let disposition = 50;
+                
+                // Modificadores baseados em memórias
+                this.playerMemories.forEach(mem => {
+                    if (mem.type === 'betrayal') disposition -= 40;
+                    if (mem.type === 'help') disposition += 30;
+                    if (mem.type === 'trade_fair') disposition += 20;
+                    if (mem.type === 'possessed_friend') disposition -= 60;
+                });
+
+                // Modificadores de traços
+                if (this.traits.paranoia > 70) disposition -= 20;
+                if (this.traits.altruism > 70) disposition += 15;
+
+                // Verifica se reconhece o jogador em corpo diferente
+                const recognized = this.playerMemories.length > 0 && 
+                    this.playerMemories.some(m => m.playerId === player.id);
+
+                return {
+                    disposition: Math.max(0, Math.min(100, disposition)),
+                    recognized,
+                    dialogue: this.generateDialogue(disposition, recognized, context),
+                    options: this.generateOptions(disposition, context)
+                };
+            }
+
+            generateDialogue(disposition, recognized, context) {
+                if (recognized && disposition < 30) {
+                    return `Eu te reconheço, eco. Não importa que carne você veste agora. Você me traiu antes, e eu não esqueço.`;
+                }
+                if (recognized && disposition > 70) {
+                    return `Ah, é você! Mesmo nesse novo vaso de carne, eu reconheço sua... essência. O que precisa, amigo?`;
+                }
+                if (this.traits.paranoia > 80) {
+                    return `Não chegue perto. Eu sei o que você é. Eu sei o que TODOS são. Os ecos estão em toda parte.`;
+                }
+                if (context === 'first_meeting') {
+                    return `Um novo eco flutuando pelo corpo do deus? Cuidado, carne estrangeira. Nem todos aqui apreciam... turistas.`;
+                }
+                return `Sou ${this.name}, ${this.profession.toLowerCase()}. O que você busca nas entranhas do cadáver divino?`;
+            }
+
+            generateOptions(disposition, context) {
+                const options = [];
+                if (disposition > 40) {
+                    options.push({ text: 'Comércio', action: 'trade' });
+                    options.push({ text: 'Informações', action: 'info' });
+                }
+                if (disposition > 70) {
+                    options.push({ text: 'Seguir-me (Companion)', action: 'follow' });
+                }
+                if (this.profession.includes('Necromante') || this.profession.includes('Alquimista')) {
+                    options.push({ text: 'Ressurreição', action: 'resurrect' });
+                }
+                options.push({ text: 'Ameaçar', action: 'threaten' });
+                options.push({ text: 'Sair', action: 'leave' });
+                return options;
+            }
+
+            addMemory(type, playerId, details) {
+                this.playerMemories.push({ type, playerId, details, timestamp: Date.now() });
+                // NPCs esquecem memórias antigas baseado em trauma (mais trauma = mais obsessivo = não esquece)
+                const memoryLimit = 5 + Math.floor(this.traits.trauma / 20);
+                if (this.playerMemories.length > memoryLimit) {
+                    this.playerMemories.shift();
                 }
             }
-            
-            // Religião
-            if (Math.random() < 0.005 && !agente.religiao) {
-                const deuses = ['Sol','Lua','Terra','Fogo','Água'];
-                const deus = deuses[Math.floor(Math.random() * deuses.length)];
-                agente.religiao = deus;
-                if (!this.religioes.includes(deus)) {
-                    this.religioes.push(deus);
-                    this.logEvento('religiao', `${agente.nome} teve visão de ${deus}!`);
-                    eventosTurno++;
+
+            update(deltaTime) {
+                this.age += deltaTime / 3600; // envelhece em horas reais
+                if (this.age >= this.maxAge && this.rng.next(0, 1000) < 1) {
+                    this.isAlive = false;
+                    return 'died_natural';
+                }
+                return 'alive';
+            }
+        }
+
+        // Gerador de números pseudo-aleatórios seedable
+        class RNG {
+            constructor(seed) {
+                this.seed = seed;
+            }
+            next(min = 0, max = 1) {
+                this.seed = (this.seed * 9301 + 49297) % 233280;
+                const rnd = this.seed / 233280;
+                return min + rnd * (max - min);
+            }
+        }
+
+        // SISTEMA DE CORPOS/JOGADOR
+        class Body {
+            constructor(type, dna = null) {
+                this.type = type;
+                this.dna = dna;
+                this.id = Math.random().toString(36).substr(2, 9);
+                this.health = 100;
+                this.maxHealth = 100;
+                this.abilities = this.getAbilities();
+                this.stats = this.getStats();
+                this.age = 0;
+                this.corruption = 0;
+            }
+
+            getAbilities() {
+                const abilities = {
+                    human: ['usar_itens', 'falar', 'comercio', 'correr'],
+                    wolf: ['farejar', 'correr_rapido', 'morder', 'uivar'],
+                    fungus: ['espores_venenosos', 'regeneracao', 'controle_micelio', 'crescer'],
+                    fish: ['respirar_agua', 'nadar_rapido', 'bioluminescencia', 'eletrorecepção'],
+                    bird: ['voar', 'visao_agucada', 'canto', 'mergulho'],
+                    golem_flesh: ['forca_bruta', 'resistencia', 'auto_reparo', 'absorver_dano']
+                };
+                return abilities[this.type] || abilities.human;
+            }
+
+            getStats() {
+                const stats = {
+                    human: { speed: 1, damage: 10, defense: 10, special: 5 },
+                    wolf: { speed: 2.5, damage: 15, defense: 5, special: 8 },
+                    fungus: { speed: 0.3, damage: 20, defense: 20, special: 10 },
+                    fish: { speed: 1.5, damage: 5, defense: 3, special: 7 },
+                    bird: { speed: 3, damage: 8, defense: 2, special: 6 },
+                    golem_flesh: { speed: 0.5, damage: 25, defense: 30, special: 3 }
+                };
+                return stats[this.type] || stats.human;
+            }
+
+            takeDamage(amount) {
+                this.health -= amount * (1 - this.stats.defense / 100);
+                return this.health <= 0;
+            }
+
+            heal(amount) {
+                this.health = Math.min(this.maxHealth, this.health + amount);
+            }
+        }
+
+        // SISTEMA DE BIOMAS (ÓRGÃOS DO DEUS)
+        class Biome {
+            constructor(name, type, x, y, width, height) {
+                this.name = name;
+                this.type = type;
+                this.x = x;
+                this.y = y;
+                this.width = width;
+                this.height = height;
+                this.decayLevel = 0;
+                this.entities = [];
+                this.connections = [];
+                this.hazards = this.generateHazards();
+                this.resources = this.generateResources();
+            }
+
+            generateHazards() {
+                const hazards = {
+                    'heart': [{ type: 'lava_vein', damage: 20, x: 100, y: 100 }],
+                    'lung': [{ type: 'acid_pool', damage: 15, x: 200, y: 300 }],
+                    'brain': [{ type: 'neural_blast', damage: 25, x: 150, y: 150 }],
+                    'liver': [{ type: 'toxin_cloud', damage: 10, x: 300, y: 200 }],
+                    'stomach': [{ type: 'acid_wave', damage: 30, x: 400, y: 400 }]
+                };
+                return hazards[this.type] || [];
+            }
+
+            generateResources() {
+                return Array(5).fill(null).map((_, i) => ({
+                    type: ['seed', 'memory_fragment', 'flesh_chunk', 'neural_crystal'][Math.floor(Math.random() * 4)],
+                    x: this.x + Math.random() * this.width,
+                    y: this.y + Math.random() * this.height,
+                    collected: false
+                }));
+            }
+
+            update(deltaTime, globalDecay) {
+                this.decayLevel += globalDecay * deltaTime;
+                
+                // Bioma morre se decair demais
+                if (this.decayLevel > 100) {
+                    return 'collapsed';
+                }
+
+                // Atualiza entidades
+                this.entities = this.entities.filter(e => {
+                    if (e instanceof DNA) {
+                        return e.isAlive;
+                    }
+                    return true;
+                });
+
+                return 'active';
+            }
+
+            getVisualData() {
+                return {
+                    color: this.getBiomeColor(),
+                    particles: this.generateParticles(),
+                    silhouette: this.generateBiomeSilhouette()
+                };
+            }
+
+            getBiomeColor() {
+                const colors = {
+                    'heart': `hsl(0, ${70 - this.decayLevel}%, ${30 + this.decayLevel/3}%)`,
+                    'lung': `hsl(120, ${60 - this.decayLevel/2}%, ${25 + this.decayLevel/4}%)`,
+                    'brain': `hsl(220, ${80 - this.decayLevel}%, ${40 + this.decayLevel/5}%)`,
+                    'liver': `hsl(30, ${90 - this.decayLevel}%, ${20 + this.decayLevel/3}%)`,
+                    'stomach': `hsl(60, ${50 - this.decayLevel/2}%, ${15 + this.decayLevel/2}%)`
+                };
+                return colors[this.type] || '#333';
+            }
+
+            generateParticles() {
+                // Partículas baseadas no estado de decomposição
+                const count = Math.floor(this.decayLevel / 10);
+                return Array(count).fill(null).map(() => ({
+                    x: this.x + Math.random() * this.width,
+                    y: this.y + Math.random() * this.height,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5,
+                    life: Math.random() * 100,
+                    type: this.type === 'lung' ? 'spore' : 'dust'
+                }));
+            }
+
+            generateBiomeSilhouette() {
+                // Gera formas orgânicas únicas para cada bioma
+                const points = [];
+                const segments = 20;
+                for (let i = 0; i < segments; i++) {
+                    const angle = (i / segments) * Math.PI * 2;
+                    const radius = 100 + Math.sin(angle * 3) * 30 + Math.random() * 20;
+                    points.push({
+                        x: Math.cos(angle) * radius,
+                        y: Math.sin(angle) * radius
+                    });
+                }
+                return points;
+            }
+        }
+
+        // MOTOR DO JOGO PRINCIPAL
+        class Game {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.width = window.innerWidth;
+                this.height = window.innerHeight;
+                this.canvas.width = this.width;
+                this.canvas.height = this.height;
+
+                this.camera = { x: 0, y: 0, zoom: 1, rotation: 0 };
+                this.player = {
+                    id: 'player_' + Math.random().toString(36).substr(2, 9),
+                    x: 0,
+                    y: 0,
+                    currentBody: null,
+                    bodies: [],
+                    echoMode: false,
+                    sanity: 100,
+                    maxSanity: 100,
+                    seeds: 0,
+                    memoriesSold: 0,
+                    corruption: 5,
+                    path: 'Eco Errante',
+                    pathProgress: 0,
+                    mapAnnotations: []
+                };
+
+                this.npcs = [];
+                this.biomes = [];
+                this.corpses = [];
+                this.particles = [];
+                this.globalDecay = 0.001; // 72 horas para decomposição total
+                this.startTime = Date.now();
+                this.lastTime = Date.now();
+
+                this.keys = {};
+                this.mouse = { x: 0, y: 0, clicked: false };
+
+                this.init();
+            }
+
+            async init() {
+                this.generateWorld();
+                this.setupEventListeners();
+                this.startGameLoop();
+                
+                // Remove tela de loading
+                setTimeout(() => {
+                    document.getElementById('loading-screen').classList.add('hidden');
+                    this.showNotification('Bem-vindo ao Cadáver', 'Você acordou nas entranhas de um deus morto. Encontre um corpo antes que seu eco se dissipe.');
+                }, 3500);
+            }
+
+            generateWorld() {
+                // Gera biomas (órgãos do deus)
+                const organLayout = [
+                    { name: 'Coração Ardente', type: 'heart', x: 0, y: 0, w: 800, h: 600 },
+                    { name: 'Pulmão do Pântano', type: 'lung', x: -1000, y: -500, w: 900, h: 700 },
+                    { name: 'Corteza Neural', type: 'brain', x: 1000, y: -800, w: 1000, h: 800 },
+                    { name: 'Fígado Tóxico', type: 'liver', x: -800, y: 800, w: 700, h: 600 },
+                    { name: 'Estômago Ácido', type: 'stomach', x: 1200, y: 600, w: 800, h: 700 }
+                ];
+
+                organLayout.forEach(organ => {
+                    this.biomes.push(new Biome(organ.name, organ.type, organ.x, organ.y, organ.w, organ.h));
+                });
+
+                // Gera 200+ NPCs com DNA único
+                for (let i = 0; i < 200; i++) {
+                    const biome = this.biomes[Math.floor(Math.random() * this.biomes.length)];
+                    const dna = new DNA(Math.random());
+                    const npc = {
+                        dna: dna,
+                        x: biome.x + Math.random() * biome.width,
+                        y: biome.y + Math.random() * biome.height,
+                        biome: biome,
+                        vx: (Math.random() - 0.5) * 0.5,
+                        vy: (Math.random() - 0.5) * 0.5,
+                        state: 'idle',
+                        target: null
+                    };
+                    this.npcs.push(npc);
+                    biome.entities.push(dna);
+                }
+
+                // Corpo inicial do jogador (cadáver aleatório)
+                const startBiome = this.biomes[0];
+                this.player.x = startBiome.x + startBiome.width / 2;
+                this.player.y = startBiome.y + startBiome.height / 2;
+                
+                const initialBody = new Body('human');
+                this.player.currentBody = initialBody;
+                this.player.bodies.push(initialBody);
+
+                // Gera alguns cadáveres iniciais
+                for (let i = 0; i < 10; i++) {
+                    this.spawnCorpse();
                 }
             }
-        }
-        
-        if (Math.random() < 0.03) {
-            const eventos = ['Colheita abundante!', 'Seca no deserto!', 'Bandidos atacam!'];
-            this.logEvento('economia', eventos[Math.floor(Math.random() * eventos.length)]);
-        }
-        
-        this.atualizarUI();
-        this.desenhar();
-    }
-    
-    logEvento(tipo, mensagem) {
-        const cores = {guerra: '#ff4444', religiao: '#ffaa00', social: '#00d4ff', economia: '#44ff44', morte: '#888888'};
-        const log = document.getElementById('log-eventos');
-        const div = document.createElement('div');
-        div.className = `evento evento-${tipo}`;
-        div.innerHTML = `<strong style="color:${cores[tipo] || '#fff'}">[T${this.turno}]</strong> ${mensagem}`;
-        log.insertBefore(div, log.firstChild);
-        if (log.children.length > 15) log.removeChild(log.lastChild);
-    }
-    
-    atualizarUI() {
-        const vivos = this.agentes.filter(a => a.vivo).length;
-        document.getElementById('info-pop').textContent = vivos;
-        document.getElementById('info-fac').textContent = new Set(this.agentes.map(a => a.faccao).filter(f => f)).size;
-        document.getElementById('info-rel').textContent = this.religioes.length;
-        document.getElementById('info-turno').textContent = this.turno;
-        document.getElementById('ind-turno').textContent = this.turno;
-        document.getElementById('ind-pop').textContent = vivos;
-        
-        if (this.jogador) {
-            document.getElementById('stat-saude').textContent = Math.floor(this.jogador.saude * 100) + '%';
-            document.getElementById('stat-energia').textContent = Math.floor(this.jogador.energia * 100) + '%';
-        }
-    }
-    
-    inicializar() {
-        this.desenhar();
-        setInterval(() => this.simularTurno(), 1000);
-        
-        // Clique no canvas
-        this.canvas.addEventListener('click', (e) => {
-            const rect = this.canvas.getBoundingClientRect();
-            const x = Math.floor((e.clientX - rect.left) / this.tamanhoCell);
-            const y = Math.floor((e.clientY - rect.top) / this.tamanhoCell);
-            
-            if (this.modo === 'mover') {
-                this.jogador.x = x;
-                this.jogador.y = y;
-                this.desenhar();
-                return;
+
+            spawnCorpse() {
+                const biome = this.biomes[Math.floor(Math.random() * this.biomes.length)];
+                const types = ['human', 'wolf', 'fungus', 'fish', 'bird', 'golem_flesh'];
+                const type = types[Math.floor(Math.random() * types.length)];
+                
+                this.corpses.push({
+                    type: type,
+                    x: biome.x + Math.random() * biome.width,
+                    y: biome.y + Math.random() * biome.height,
+                    biome: biome,
+                    decay: 0,
+                    body: new Body(type)
+                });
             }
-            
-            const agente = this.agentes.find(a => a.vivo && a.x === x && a.y === y);
-            if (agente && agente.id !== 'JOGADOR') {
-                if (this.modo === 'atacar') {
-                    this.atacarAgente(agente);
+
+            setupEventListeners() {
+                window.addEventListener('keydown', (e) => {
+                    this.keys[e.key.toLowerCase()] = true;
+                    this.handleInput(e.key.toLowerCase());
+                });
+
+                window.addEventListener('keyup', (e) => {
+                    this.keys[e.key.toLowerCase()] = false;
+                });
+
+                window.addEventListener('mousemove', (e) => {
+                    this.mouse.x = e.clientX;
+                    this.mouse.y = e.clientY;
+                });
+
+                window.addEventListener('click', (e) => {
+                    this.mouse.clicked = true;
+                    setTimeout(() => this.mouse.clicked = false, 100);
+                });
+
+                window.addEventListener('resize', () => {
+                    this.width = window.innerWidth;
+                    this.height = window.innerHeight;
+                    this.canvas.width = this.width;
+                    this.canvas.height = this.height;
+                });
+
+                // Mapa de memória
+                const mapCanvas = document.getElementById('mapCanvas');
+                mapCanvas.width = 300;
+                mapCanvas.height = 200;
+                
+                mapCanvas.addEventListener('click', (e) => {
+                    const rect = mapCanvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    this.addMapAnnotation(x, y);
+                });
+            }
+
+            handleInput(key) {
+                if (key === ' ') {
+                    this.toggleEchoMode();
+                } else if (key === 'q') {
+                    this.cycleBody();
+                } else if (key === 'e') {
+                    this.interact();
+                } else if (key === 'm') {
+                    this.toggleMap();
+                }
+            }
+
+            toggleEchoMode() {
+                if (this.player.echoMode) {
+                    this.player.echoMode = false;
+                    document.getElementById('echo-mode').classList.remove('active');
                 } else {
-                    this.selecionarAgente(agente);
+                    this.player.echoMode = true;
+                    this.updateEchoUI();
+                    document.getElementById('echo-mode').classList.add('active');
+                    document.getElementById('possession-vfx').classList.add('active');
+                    setTimeout(() => {
+                        document.getElementById('possession-vfx').classList.remove('active');
+                    }, 1000);
                 }
             }
-        });
-        
-        // Mouse move para tooltip
-        this.canvas.addEventListener('mousemove', (e) => {
-            const rect = this.canvas.getBoundingClientRect();
-            const x = Math.floor((e.clientX - rect.left) / this.tamanhoCell);
-            const y = Math.floor((e.clientY - rect.top) / this.tamanhoCell);
-            
-            const agente = this.agentes.find(a => a.vivo && a.x === x && a.y === y);
-            const tooltip = document.getElementById('tooltip');
-            
-            if (agente) {
-                tooltip.style.display = 'block';
-                tooltip.style.left = (e.clientX + 15) + 'px';
-                tooltip.style.top = (e.clientY + 15) + 'px';
-                tooltip.innerHTML = `
-                    <strong style="color:#00d4ff; font-size:14px;">${agente.icones[agente.profissao]} ${agente.nome}</strong><br>
-                    <span style="color:#888;">Profissão:</span> <span style="color:${agente.cores[agente.profissao]}">${agente.profissao}</span><br>
-                    <span style="color:#888;">Saúde:</span> <span style="color:${agente.saude > 0.7 ? '#44ff44' : agente.saude > 0.4 ? '#ffaa00' : '#ff4444'}">${Math.floor(agente.saude * 100)}%</span><br>
-                    <span style="color:#888;">Humor:</span> ${agente.humor}<br>
-                    ${agente.faccao ? `<span style="color:#888;">Facção:</span> ${agente.faccao}<br>` : ''}
-                    ${agente.religiao ? `<span style="color:#888;">Religião:</span> <span style="color:#ffdd00">${agente.religiao}</span>` : ''}
-                `;
-            } else {
-                tooltip.style.display = 'none';
-            }
-        });
-    }
-    
-    setModo(modo) {
-        this.modo = modo;
-        document.querySelectorAll('.btn-acao').forEach(btn => btn.classList.remove('ativo'));
-        document.getElementById(`btn-${modo}`).classList.add('ativo');
-    }
-    
-    pausar() {
-        this.pausado = !this.pausado;
-        document.getElementById('btn-pausa').innerHTML = this.pausado ? '▶️ Continuar' : '⏸️ Pausar';
-    }
-    
-    umTurno() {
-        const eraPausado = this.pausado;
-        this.pausado = false;
-        this.simularTurno();
-        this.pausado = eraPausado;
-    }
-    
-    selecionarAgente(agente) {
-        this.agenteSelecionado = agente;
-        document.getElementById('painel-titulo').textContent = `${agente.icones[agente.profissao]} ${agente.nome}`;
-        document.getElementById('painel-interacao').style.display = 'flex';
-    }
-    
-    fecharPainel() {
-        document.getElementById('painel-interacao').style.display = 'none';
-        this.agenteSelecionado = null;
-    }
-    
-    acaoAgente(acao) {
-        if (!this.agenteSelecionado) return;
-        const alvo = this.agenteSelecionado;
-        
-        switch(acao) {
-            case 'conversar':
-                alvo.humor = 'alegria';
-                this.logEvento('social', `Você conversou com ${alvo.nome}.`);
-                break;
-            case 'dar_comida':
-                alvo.fome = Math.max(0, alvo.fome - 0.3);
-                alvo.humor = 'alegria';
-                this.logEvento('social', `Você deu comida para ${alvo.nome}.`);
-                break;
-            case 'atacar':
-                this.atacarAgente(alvo);
-                return;
-        }
-        
-        this.fecharPainel();
-        this.atualizarUI();
-        this.desenhar();
-    }
-    
-    atacarAgente(alvo) {
-        alvo.saude -= 0.4;
-        alvo.humor = 'raiva';
-        this.logEvento('guerra', `Você atacou ${alvo.nome}!`);
-        
-        if (alvo.saude <= 0) {
-            alvo.vivo = false;
-            this.logEvento('morte', `${alvo.nome} foi morto por você!`);
-            const amigos = this.agentes.filter(a => a.vivo && a.faccao === alvo.faccao && a.id !== alvo.id);
-            for (let amigo of amigos) amigo.humor = 'raiva';
-            if (amigos.length > 0) this.logEvento('guerra', `Aliados de ${alvo.nome} estão furiosos!`);
-        }
-        
-        this.fecharPainel();
-        this.atualizarUI();
-        this.desenhar();
-    }
-}
 
-const jogo = new Jogo();
-</script>
+            updateEchoUI() {
+                const corpseList = document.getElementById('corpse-list');
+                corpseList.innerHTML = '';
+                
+                // Mostra cadáveres próximos
+                const nearby = this.corpses.filter(c => {
+                    const dist = Math.hypot(c.x - this.player.x, c.y - this.player.y);
+                    return dist < 300 && c.decay < 80;
+                });
+
+                if (nearby.length === 0) {
+                    corpseList.innerHTML = '<p style="color: var(--flesh);">Nenhum cadáver viável próximo...</p>';
+                    return;
+                }
+
+                nearby.forEach(corpse => {
+                    const div = document.createElement('div');
+                    div.className = 'corpse-target';
+                    div.innerHTML = `
+                        <div style="font-size: 24px; margin-bottom: 10px;">${this.getBodyEmoji(corpse.type)}</div>
+                        <div style="font-weight: bold; color: var(--toxic);">${corpse.type.toUpperCase()}</div>
+                        <div style="font-size: 10px; color: var(--bone); margin-top: 5px;">
+                            Decomposição: ${Math.floor(corpse.decay)}%<br>
+                            Habilidades: ${corpse.body.abilities.slice(0, 2).join(', ')}
+                        </div>
+                    `;
+                    div.onclick = () => this.possess(corpse);
+                    corpseList.appendChild(div);
+                });
+            }
+
+            getBodyEmoji(type) {
+                const emojis = {
+                    human: '👤',
+                    wolf: '🐺',
+                    fungus: '🍄',
+                    fish: '🐟',
+                    bird: '🦅',
+                    golem_flesh: '🧟'
+                };
+                return emojis[type] || '👤';
+            }
+
+            possess(corpse) {
+                // Custa sanidade máxima permanente
+                this.player.maxSanity -= 5;
+                this.player.sanity = Math.min(this.player.sanity, this.player.maxSanity);
+                
+                // Adiciona corpo ao inventário
+                this.player.bodies.push(corpse.body);
+                this.player.currentBody = corpse.body;
+                
+                // Remove cadáver do mundo
+                this.corpses = this.corpses.filter(c => c !== corpse);
+                
+                // Atualiza progresso de caminho
+                this.player.pathProgress++;
+                this.updatePath();
+                
+                this.toggleEchoMode();
+                this.showNotification('Possessão Completa', `Você agora habita um ${corpse.type}. Sanidade máxima reduzida para ${this.player.maxSanity}.`);
+                this.updateUI();
+            }
+
+            updatePath() {
+                const progress = this.player.pathProgress;
+                if (progress > 100) this.player.path = 'Necromante de Carne';
+                else if (progress > 50) this.player.path = 'Colecionador de Vessels';
+                else if (progress > 20) this.player.path = 'Eco Faminto';
+                
+                // Verifica caminhos especiais
+                const fungusTime = this.player.bodies.filter(b => b.type === 'fungus').length;
+                if (fungusTime > 10) this.player.path = 'Sinfonia Fúngica';
+                
+                const kills = this.player.bodies.filter(b => b.type === 'human').length;
+                if (kills > 30) this.player.path = 'Carnívoro de Consciências';
+            }
+
+            cycleBody() {
+                if (this.player.bodies.length < 2) return;
+                
+                const currentIndex = this.player.bodies.indexOf(this.player.currentBody);
+                const nextIndex = (currentIndex + 1) % this.player.bodies.length;
+                this.player.currentBody = this.player.bodies[nextIndex];
+                
+                this.showNotification('Troca de Corpo', `Agora controlando: ${this.player.currentBody.type}`);
+                this.updateUI();
+            }
+
+            interact() {
+                // Verifica NPCs próximos
+                const nearby = this.npcs.filter(n => {
+                    const dist = Math.hypot(n.x - this.player.x, n.y - this.player.y);
+                    return dist < 100;
+                });
+
+                if (nearby.length > 0) {
+                    this.startDialogue(nearby[0]);
+                }
+            }
+
+            startDialogue(npc) {
+                const interaction = npc.dna.interact(this.player, 'first_meeting');
+                const box = document.getElementById('dialogue-box');
+                
+                document.getElementById('npc-name').textContent = npc.dna.name;
+                document.getElementById('npc-mood').style.background = 
+                    interaction.disposition > 70 ? '#22c55e' : 
+                    interaction.disposition > 40 ? '#eab308' : '#ef4444';
+                
+                // Mostra traços
+                const traitsDiv = document.getElementById('npc-traits');
+                traitsDiv.innerHTML = '';
+                Object.entries(npc.dna.traits).forEach(([trait, value]) => {
+                    if (value > 70) {
+                        const badge = document.createElement('span');
+                        badge.className = `trait-badge trait-${trait}`;
+                        badge.textContent = `${trait}: ${value}`;
+                        traitsDiv.appendChild(badge);
+                    }
+                });
+
+                document.getElementById('npc-text').textContent = interaction.dialogue;
+                
+                const optionsDiv = document.getElementById('dialogue-options');
+                optionsDiv.innerHTML = '';
+                interaction.options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = 'dialogue-btn';
+                    btn.textContent = opt.text;
+                    btn.onclick = () => this.handleDialogueOption(opt, npc);
+                    optionsDiv.appendChild(btn);
+                });
+
+                box.classList.add('active');
+            }
+
+            handleDialogueOption(option, npc) {
+                if (option.action === 'leave') {
+                    document.getElementById('dialogue-box').classList.remove('active');
+                } else if (option.action === 'trade') {
+                    this.showNotification('Comércio', 'Sistema de troca em desenvolvimento...');
+                } else if (option.action === 'threaten') {
+                    npc.dna.addMemory('betrayal', this.player.id, 'Ameaçado durante diálogo');
+                    this.showNotification('Ameaça', `${npc.dna.name} agora teme você.`);
+                    document.getElementById('dialogue-box').classList.remove('active');
+                }
+            }
+
+            addMapAnnotation(x, y) {
+                this.player.mapAnnotations.push({ x, y, text: prompt('Anotação:') || '?' });
+                this.showNotification('Mapa', 'Anotação adicionada ao mapa de memória.');
+            }
+
+            updateUI() {
+                // Barra de corpos
+                const bodyList = document.getElementById('body-list');
+                bodyList.innerHTML = '';
+                this.player.bodies.forEach((body, index) => {
+                    const div = document.createElement('div');
+                    div.className = `body-slot ${body === this.player.currentBody ? 'active' : ''}`;
+                    div.innerHTML = `
+                        <div class="body-icon">${this.getBodyEmoji(body.type)}</div>
+                        <div class="body-info">
+                            <div class="body-name">${body.type.toUpperCase()} #${index + 1}</div>
+                            <div class="body-condition">Saúde: ${Math.floor(body.health)}% | Corrupção: ${Math.floor(body.corruption)}%</div>
+                            <div class="health-bar">
+                                <div class="health-fill" style="width: ${body.health}%"></div>
+                            </div>
+                        </div>
+                    `;
+                    bodyList.appendChild(div);
+                });
+
+                // Status do mundo
+                document.getElementById('seeds-count').textContent = this.player.seeds;
+                document.getElementById('memories-count').textContent = this.player.memoriesSold;
+                document.getElementById('current-path').textContent = this.player.path;
+                document.getElementById('path-progress').textContent = 
+                    `${this.player.pathProgress} corpos consumidos`;
+
+                // Corrupção
+                document.getElementById('corruption-fill').style.height = `${this.player.corruption}%`;
+
+                // Timer de decadência
+                const elapsed = (Date.now() - this.startTime) / 1000;
+                const remaining = Math.max(0, 72 * 3600 - elapsed);
+                const hours = Math.floor(remaining / 3600);
+                const minutes = Math.floor((remaining % 3600) / 60);
+                const seconds = Math.floor(remaining % 60);
+                document.getElementById('decay-timer').textContent = 
+                    `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+
+            showNotification(title, text) {
+                const notif = document.createElement('div');
+                notif.className = 'notification';
+                notif.innerHTML = `
+                    <div class="notification-title">${title}</div>
+                    <div class="notification-text">${text}</div>
+                `;
+                document.body.appendChild(notif);
+                
+                setTimeout(() => notif.classList.add('show'), 100);
+                setTimeout(() => {
+                    notif.classList.remove('show');
+                    setTimeout(() => notif.remove(), 500);
+                }, 5000);
+            }
+
+            update(deltaTime) {
+                // Atualiza biomas (decadência)
+                this.biomes.forEach(biome => {
+                    const status = biome.update(deltaTime, this.globalDecay);
+                    if (status === 'collapsed') {
+                        this.showNotification('Colapso', `${biome.name} apodreceu completamente!`);
+                    }
+                });
+
+                // Atualiza NPCs
+                this.npcs.forEach(npc => {
+                    // Movimento simples
+                    if (Math.random() < 0.02) {
+                        npc.vx = (Math.random() - 0.5) * 0.5;
+                        npc.vy = (Math.random() - 0.5) * 0.5;
+                    }
+                    
+                    npc.x += npc.vx * deltaTime * 0.1;
+                    npc.y += npc.vy * deltaTime * 0.1;
+
+                    // Mantém dentro do bioma
+                    if (npc.x < npc.biome.x) npc.x = npc.biome.x;
+                    if (npc.x > npc.biome.x + npc.biome.width) npc.x = npc.biome.x + npc.biome.width;
+                    if (npc.y < npc.biome.y) npc.y = npc.biome.y;
+                    if (npc.y > npc.biome.y + npc.biome.height) npc.y = npc.biome.y + npc.biome.height;
+
+                    // Atualiza DNA
+                    npc.dna.update(deltaTime);
+                });
+
+                // Atualiza cadáveres (decomposição)
+                this.corpses.forEach(corpse => {
+                    corpse.decay += this.globalDecay * deltaTime * 10;
+                });
+                this.corpses = this.corpses.filter(c => c.decay < 100);
+
+                // Spawn de novos cadáveres
+                if (Math.random() < 0.001) this.spawnCorpse();
+
+                // Movimento do jogador
+                if (!this.player.echoMode) {
+                    const speed = this.player.currentBody ? this.player.currentBody.stats.speed * 2 : 1;
+                    if (this.keys['w']) this.player.y -= speed;
+                    if (this.keys['s']) this.player.y += speed;
+                    if (this.keys['a']) this.player.x -= speed;
+                    if (this.keys['d']) this.player.x += speed;
+                }
+
+                // Atualiza câmera (parallax)
+                this.camera.x += (this.player.x - this.camera.x) * 0.1;
+                this.camera.y += (this.player.y - this.camera.y) * 0.1;
+
+                // Atualiza UI periodicamente
+                if (Math.random() < 0.05) this.updateUI();
+            }
+
+            render() {
+                // Limpa canvas
+                this.ctx.fillStyle = '#0a0a0f';
+                this.ctx.fillRect(0, 0, this.width, this.height);
+
+                // Renderiza biomas (camadas de parallax)
+                this.biomes.forEach((biome, index) => {
+                    const parallax = 0.5 + index * 0.1;
+                    const bx = (biome.x - this.camera.x) * parallax + this.width / 2;
+                    const by = (biome.y - this.camera.y) * parallax + this.height / 2;
+                    
+                    // Silhueta do bioma
+                    this.ctx.save();
+                    this.ctx.translate(bx, by);
+                    this.ctx.fillStyle = biome.getBiomeColor();
+                    this.ctx.globalAlpha = 0.3;
+                    
+                    const silhouette = biome.generateBiomeSilhouette();
+                    this.ctx.beginPath();
+                    silhouette.forEach((point, i) => {
+                        if (i === 0) this.ctx.moveTo(point.x, point.y);
+                        else this.ctx.lineTo(point.x, point.y);
+                    });
+                    this.ctx.closePath();
+                    this.ctx.fill();
+                    this.ctx.restore();
+
+                    // Partículas
+                    const particles = biome.generateParticles();
+                    particles.forEach(p => {
+                        this.ctx.fillStyle = biome.type === 'lung' ? 'rgba(57, 255, 20, 0.5)' : 'rgba(139, 38, 53, 0.3)';
+                        this.ctx.fillRect(
+                            (p.x - this.camera.x) * parallax + this.width / 2,
+                            (p.y - this.camera.y) * parallax + this.height / 2,
+                            2, 2
+                        );
+                    });
+                });
+
+                // Renderiza cadáveres
+                this.corpses.forEach(corpse => {
+                    const cx = (corpse.x - this.camera.x) + this.width / 2;
+                    const cy = (corpse.y - this.camera.y) + this.height / 2;
+                    
+                    this.ctx.font = '30px Arial';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.globalAlpha = 1 - (corpse.decay / 100);
+                    this.ctx.fillText(this.getBodyEmoji(corpse.type), cx, cy);
+                    this.ctx.globalAlpha = 1;
+                    
+                    // Indicador de decomposição
+                    this.ctx.fillStyle = `rgb(${corpse.decay * 2.55}, ${255 - corpse.decay * 2.55}, 0)`;
+                    this.ctx.fillRect(cx - 15, cy + 20, 30 * (1 - corpse.decay / 100), 3);
+                });
+
+                // Renderiza NPCs
+                this.npcs.forEach(npc => {
+                    if (!npc.dna.isAlive) return;
+                    
+                    const nx = (npc.x - this.camera.x) + this.width / 2;
+                    const ny = (npc.y - this.camera.y) + this.height / 2;
+                    
+                    // Silhueta procedural baseada no DNA
+                    this.ctx.save();
+                    this.ctx.translate(nx, ny);
+                    
+                    const sil = npc.dna.silhouette;
+                    this.ctx.scale(sil.width, sil.height);
+                    this.ctx.rotate(sil.hunch);
+                    
+                    this.ctx.fillStyle = `rgba(232, 220, 196, ${0.5 + sil.corruption})`;
+                    this.ctx.beginPath();
+                    this.ctx.arc(0, 0, 20, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    
+                    // Indicador de profissão
+                    this.ctx.fillStyle = '#ffd700';
+                    this.ctx.font = '12px Arial';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.fillText(npc.dna.profession.split(' ')[0], 0, -30);
+                    
+                    this.ctx.restore();
+                });
+
+                // Renderiza jogador
+                const px = this.width / 2;
+                const py = this.height / 2;
+                
+                if (this.player.echoMode) {
+                    // Visual de eco
+                    this.ctx.save();
+                    this.ctx.translate(px, py);
+                    this.ctx.strokeStyle = '#9400d3';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.globalAlpha = 0.5 + Math.sin(Date.now() / 200) * 0.3;
+                    this.ctx.beginPath();
+                    this.ctx.arc(0, 0, 30 + Math.sin(Date.now() / 300) * 5, 0, Math.PI * 2);
+                    this.ctx.stroke();
+                    this.ctx.fillStyle = '#9400d3';
+                    this.ctx.font = '20px Arial';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.fillText('◈', 0, 5);
+                    this.ctx.restore();
+                } else {
+                    // Corpo atual
+                    this.ctx.font = '40px Arial';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.fillText(
+                        this.getBodyEmoji(this.player.currentBody.type),
+                        px, py + 10
+                    );
+                    
+                    // Aura de corrupção
+                    if (this.player.corruption > 20) {
+                        this.ctx.save();
+                        this.ctx.translate(px, py);
+                        this.ctx.strokeStyle = `rgba(148, 0, 211, ${this.player.corruption / 200})`;
+                        this.ctx.lineWidth = 3;
+                        this.ctx.beginPath();
+                        this.ctx.arc(0, 0, 40, 0, Math.PI * 2);
+                        this.ctx.stroke();
+                        this.ctx.restore();
+                    }
+                }
+
+                // Renderiza mapa de memória
+                this.renderMap();
+            }
+
+            renderMap() {
+                const mapCanvas = document.getElementById('mapCanvas');
+                const ctx = mapCanvas.getContext('2d');
+                
+                ctx.fillStyle = '#0a0a0f';
+                ctx.fillRect(0, 0, 300, 200);
+                
+                const scale = 0.05;
+                const offsetX = 150;
+                const offsetY = 100;
+                
+                // Biomas no mapa
+                this.biomes.forEach(biome => {
+                    ctx.fillStyle = biome.getBiomeColor();
+                    ctx.globalAlpha = 0.5;
+                    ctx.fillRect(
+                        offsetX + biome.x * scale,
+                        offsetY + biome.y * scale,
+                        biome.width * scale,
+                        biome.height * scale
+                    );
+                });
+                
+                // Jogador
+                ctx.fillStyle = '#39ff14';
+                ctx.globalAlpha = 1;
+                ctx.beginPath();
+                ctx.arc(
+                    offsetX + this.player.x * scale,
+                    offsetY + this.player.y * scale,
+                    3, 0, Math.PI * 2
+                );
+                ctx.fill();
+                
+                // Anotações
+                ctx.fillStyle = '#ffd700';
+                this.player.mapAnnotations.forEach(note => {
+                    ctx.fillRect(note.x - 2, note.y - 2, 4, 4);
+                });
+            }
+
+            startGameLoop() {
+                const loop = () => {
+                    const now = Date.now();
+                    const deltaTime = now - this.lastTime;
+                    this.lastTime = now;
+
+                    this.update(deltaTime);
+                    this.render();
+
+                    requestAnimationFrame(loop);
+                };
+                requestAnimationFrame(loop);
+            }
+
+            respawn(method) {
+                document.getElementById('death-screen').classList.remove('active');
+                
+                if (method === 'near' && this.player.seeds > 0) {
+                    this.player.seeds--;
+                    this.showNotification('Ressurreição', 'Você retornou perto do corpo morto.');
+                } else if (method === 'random') {
+                    const biome = this.biomes[Math.floor(Math.random() * this.biomes.length)];
+                    this.player.x = biome.x + Math.random() * biome.width;
+                    this.player.y = biome.y + Math.random() * biome.height;
+                    this.showNotification('Eco Aleatório', 'Você emergiu em um novo bioma.');
+                } else if (method === 'possess') {
+                    this.player.maxSanity *= 0.5;
+                    this.showNotification('Possessão Forçada', 'Você tomou o corpo do inimigo, mas sua sanidade está quebrada.');
+                }
+
+                // Recupera um corpo básico
+                const newBody = new Body('human');
+                this.player.bodies = [newBody];
+                this.player.currentBody = newBody;
+                this.player.health = 100;
+            }
+        }
+
+        // Inicia o jogo quando a página carregar
+        window.onload = () => {
+            window.game = new Game();
+        };
+    </script>
 </body>
-</html>'''
+</html>
