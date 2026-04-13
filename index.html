@@ -3,1611 +3,1105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaskR - Micro-empregos Locais</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>Siquera JR - Rhythm Game</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap');
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
-        :root {
-            --primary: #FF6B35;
-            --primary-dark: #E85A2B;
-            --secondary: #004E89;
-            --success: #00C853;
-            --warning: #FFD600;
-            --danger: #FF1744;
-            --dark: #1A1A2E;
-            --gray-100: #F8F9FA;
-            --gray-200: #E9ECEF;
-            --gray-300: #DEE2E6;
-            --gray-600: #6C757D;
-            --gray-800: #343A40;
-            --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
-            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
-            --shadow-lg: 0 10px 25px rgba(0,0,0,0.15);
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 16px;
-        }
-
+        
         body {
-            font-family: 'Inter', sans-serif;
-            background: var(--gray-100);
-            color: var(--dark);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        /* Navegação */
-        .navbar {
-            background: white;
-            box-shadow: var(--shadow-sm);
-            position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: 1000;
-            padding: 1rem 0;
-        }
-
-        .nav-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: var(--primary);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .logo span {
-            color: var(--secondary);
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            align-items: center;
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            color: var(--gray-800);
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-
-        .nav-links a:hover {
-            color: var(--primary);
-        }
-
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: var(--radius-md);
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.95rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .btn-secondary {
-            background: var(--secondary);
-            color: white;
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 2px solid var(--primary);
-            color: var(--primary);
-        }
-
-        .btn-outline:hover {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-
-        /* Hero Section */
-        .hero {
-            margin-top: 80px;
-            background: linear-gradient(135deg, var(--dark) 0%, var(--secondary) 100%);
-            color: white;
-            padding: 4rem 1.5rem;
-            text-align: center;
-            position: relative;
+            background: #0a0a0f;
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
             overflow: hidden;
+            user-select: none;
         }
-
-        .hero::before {
+        
+        #gameContainer {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(ellipse at center, #1a0a2e 0%, #0a0a0f 70%);
+            position: relative;
+        }
+        
+        /* Background particles */
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #00d4ff;
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float 10s infinite ease-in-out;
+            pointer-events: none;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
+        }
+        
+        /* Main game area */
+        #playfield {
+            width: 800px;
+            height: 600px;
+            position: relative;
+            background: radial-gradient(ellipse at center, rgba(20, 10, 40, 0.8) 0%, transparent 70%);
+            border-radius: 20px;
+            box-shadow: 0 0 100px rgba(138, 43, 226, 0.3);
+        }
+        
+        /* PUMP-style receptor buttons (5 panels) */
+        .receptor {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            font-weight: 900;
+            transition: all 0.05s;
+            cursor: pointer;
+            z-index: 10;
+        }
+        
+        .receptor::before {
             content: '';
             position: absolute;
-            top: -50%;
-            right: -10%;
-            width: 600px;
-            height: 600px;
-            background: rgba(255,107,53,0.1);
-            border-radius: 50%;
-            animation: pulse 4s ease-in-out infinite;
+            inset: -5px;
+            border-radius: 20px;
+            opacity: 0;
+            transition: opacity 0.1s;
         }
-
+        
+        .receptor.active {
+            transform: scale(0.9);
+            filter: brightness(1.5);
+        }
+        
+        .receptor.active::before {
+            opacity: 1;
+            animation: pulse 0.3s ease-out;
+        }
+        
         @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 0.5; }
-            50% { transform: scale(1.1); opacity: 0.8; }
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.5); opacity: 0; }
         }
-
-        .hero-content {
-            max-width: 800px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 1;
+        
+        /* PUMP layout: UL, UR, C, DL, DR */
+        #receptor-UL { 
+            top: 50px; 
+            left: 200px; 
+            background: linear-gradient(135deg, #ff006e, #ff4d9e);
+            box-shadow: 0 0 30px #ff006e, inset 0 0 20px rgba(255,255,255,0.2);
+            transform: rotate(-45deg);
         }
-
-        .hero h1 {
-            font-size: 3rem;
-            font-weight: 800;
-            margin-bottom: 1rem;
-            line-height: 1.2;
+        #receptor-UL::before { border: 3px solid #ff006e; }
+        #receptor-UL span { transform: rotate(45deg); }
+        
+        #receptor-UR { 
+            top: 50px; 
+            right: 200px; 
+            background: linear-gradient(135deg, #00d4ff, #4de8ff);
+            box-shadow: 0 0 30px #00d4ff, inset 0 0 20px rgba(255,255,255,0.2);
+            transform: rotate(45deg);
         }
-
-        .hero p {
-            font-size: 1.25rem;
-            opacity: 0.9;
-            margin-bottom: 2rem;
+        #receptor-UR::before { border: 3px solid #00d4ff; }
+        #receptor-UR span { transform: rotate(-45deg); }
+        
+        #receptor-C { 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            box-shadow: 0 0 40px #ffd700, inset 0 0 20px rgba(255,255,255,0.3);
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
         }
-
-        .hero-stats {
-            display: flex;
-            justify-content: center;
-            gap: 3rem;
-            margin-top: 3rem;
-            flex-wrap: wrap;
+        #receptor-C::before { border: 3px solid #ffd700; border-radius: 50%; }
+        
+        #receptor-DL { 
+            bottom: 50px; 
+            left: 200px; 
+            background: linear-gradient(135deg, #8b5cf6, #b794f6);
+            box-shadow: 0 0 30px #8b5cf6, inset 0 0 20px rgba(255,255,255,0.2);
+            transform: rotate(45deg);
         }
-
-        .stat {
-            text-align: center;
+        #receptor-DL::before { border: 3px solid #8b5cf6; }
+        #receptor-DL span { transform: rotate(-45deg); }
+        
+        #receptor-DR { 
+            bottom: 50px; 
+            right: 200px; 
+            background: linear-gradient(135deg, #10b981, #34d399);
+            box-shadow: 0 0 30px #10b981, inset 0 0 20px rgba(255,255,255,0.2);
+            transform: rotate(-45deg);
         }
-
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--primary);
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
+        #receptor-DR::before { border: 3px solid #10b981; }
+        #receptor-DR span { transform: rotate(45deg); }
+        
+        /* osu! style approach circles */
+        .approach-circle {
+            position: absolute;
+            border: 4px solid;
+            border-radius: 15px;
             opacity: 0.8;
+            pointer-events: none;
+            animation: approach 1s linear forwards;
         }
-
-        /* Filtros e Busca */
-        .filters-section {
-            background: white;
-            padding: 1.5rem;
-            margin: 2rem auto;
-            max-width: 1200px;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-md);
-            position: sticky;
-            top: 80px;
+        
+        @keyframes approach {
+            0% { transform: scale(2); opacity: 0.3; }
+            100% { transform: scale(1); opacity: 0; }
+        }
+        
+        .approach-circle.center {
+            border-radius: 50%;
+        }
+        
+        /* Notes */
+        .note {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 900;
+            z-index: 5;
+            box-shadow: 0 0 20px currentColor;
+        }
+        
+        .note.center {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+        }
+        
+        .note-UL { 
+            background: linear-gradient(135deg, #ff006e, #ff4d9e);
+            color: #ff006e;
+            left: 200px;
+        }
+        .note-UR { 
+            background: linear-gradient(135deg, #00d4ff, #4de8ff);
+            color: #00d4ff;
+            right: 200px;
+        }
+        .note-C { 
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #ffd700;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .note-DL { 
+            background: linear-gradient(135deg, #8b5cf6, #b794f6);
+            color: #8b5cf6;
+            left: 200px;
+        }
+        .note-DR { 
+            background: linear-gradient(135deg, #10b981, #34d399);
+            color: #10b981;
+            right: 200px;
+        }
+        
+        /* Hit effects */
+        .hit-effect {
+            position: absolute;
+            pointer-events: none;
+            animation: hitBurst 0.5s ease-out forwards;
+            z-index: 20;
+        }
+        
+        @keyframes hitBurst {
+            0% { transform: scale(0.5); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+        
+        .hit-perfect {
+            width: 100px;
+            height: 100px;
+            border: 3px solid #ffd700;
+            border-radius: 50%;
+            box-shadow: 0 0 30px #ffd700, inset 0 0 30px #ffd700;
+        }
+        
+        .hit-great {
+            width: 80px;
+            height: 80px;
+            border: 3px solid #00d4ff;
+            border-radius: 50%;
+            box-shadow: 0 0 20px #00d4ff;
+        }
+        
+        .hit-good {
+            width: 60px;
+            height: 60px;
+            border: 3px solid #10b981;
+            border-radius: 50%;
+        }
+        
+        .hit-miss {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #ef4444;
+            border-radius: 50%;
+            animation: missShake 0.3s ease-out;
+        }
+        
+        @keyframes missShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        /* Judgment text */
+        .judgment {
+            position: absolute;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 36px;
+            font-weight: 900;
+            text-shadow: 0 0 20px currentColor;
+            pointer-events: none;
+            animation: judgmentFloat 0.8s ease-out forwards;
+            z-index: 30;
+        }
+        
+        @keyframes judgmentFloat {
+            0% { transform: translateY(0) scale(0.8); opacity: 1; }
+            100% { transform: translateY(-50px) scale(1.2); opacity: 0; }
+        }
+        
+        .judgment-perfect { color: #ffd700; text-shadow: 0 0 30px #ffd700; }
+        .judgment-great { color: #00d4ff; text-shadow: 0 0 20px #00d4ff; }
+        .judgment-good { color: #10b981; }
+        .judgment-miss { color: #ef4444; }
+        
+        /* UI Elements */
+        #ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
             z-index: 100;
         }
-
-        .filters-container {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            align-items: center;
+        
+        .ui-panel {
+            background: rgba(10, 10, 15, 0.9);
+            border: 1px solid rgba(138, 43, 226, 0.5);
+            border-radius: 10px;
+            padding: 15px 25px;
+            backdrop-filter: blur(10px);
         }
-
-        .search-box {
-            flex: 1;
-            min-width: 250px;
-            position: relative;
+        
+        .score-display {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 32px;
+            font-weight: 900;
+            color: #ffd700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
         }
-
-        .search-box input {
-            width: 100%;
-            padding: 0.75rem 1rem 0.75rem 2.5rem;
-            border: 2px solid var(--gray-200);
-            border-radius: var(--radius-md);
-            font-size: 1rem;
-            transition: border-color 0.3s;
+        
+        .combo-display {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 48px;
+            font-weight: 900;
+            color: #00d4ff;
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.6);
         }
-
-        .search-box input:focus {
-            outline: none;
-            border-color: var(--primary);
+        
+        .combo-label {
+            font-size: 14px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
-
-        .search-box::before {
-            content: '🔍';
+        
+        .accuracy-bar {
+            width: 200px;
+            height: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        
+        .accuracy-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ef4444, #ffd700, #00d4ff);
+            transition: width 0.3s;
+        }
+        
+        .health-bar {
+            width: 300px;
+            height: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+        
+        .health-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ef4444, #ffd700, #10b981);
+            transition: width 0.2s;
+            box-shadow: 0 0 20px currentColor;
+        }
+        
+        /* Progress bar */
+        #progressBar {
             position: absolute;
-            left: 0.75rem;
-            top: 50%;
-            transform: translateY(-50%);
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: rgba(255,255,255,0.1);
         }
-
-        .filter-select {
-            padding: 0.75rem 1rem;
-            border: 2px solid var(--gray-200);
-            border-radius: var(--radius-md);
-            background: white;
-            cursor: pointer;
-            min-width: 150px;
+        
+        #progressFill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff006e, #00d4ff, #ffd700);
+            width: 0%;
+            transition: width 0.1s linear;
+            box-shadow: 0 0 20px #00d4ff;
         }
-
-        /* Layout Principal */
-        .main-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1.5rem 3rem;
-            display: grid;
-            grid-template-columns: 280px 1fr;
-            gap: 2rem;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            position: sticky;
-            top: 200px;
-            height: fit-content;
-        }
-
-        .category-list {
-            background: white;
-            border-radius: var(--radius-lg);
-            padding: 1.5rem;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .category-list h3 {
-            margin-bottom: 1rem;
-            color: var(--dark);
-        }
-
-        .category-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0.75rem;
-            margin-bottom: 0.5rem;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .category-item:hover, .category-item.active {
-            background: var(--gray-100);
-            color: var(--primary);
-        }
-
-        .category-item.active {
-            font-weight: 600;
-            background: rgba(255,107,53,0.1);
-        }
-
-        .category-count {
-            background: var(--gray-200);
-            padding: 0.25rem 0.5rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        /* Feed de Tarefas */
-        .tasks-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .tasks-header h2 {
-            font-size: 1.5rem;
-        }
-
-        .sort-select {
-            padding: 0.5rem 1rem;
-            border: 1px solid var(--gray-300);
-            border-radius: var(--radius-sm);
-            background: white;
-        }
-
-        .tasks-grid {
-            display: grid;
-            gap: 1.5rem;
-        }
-
-        .task-card {
-            background: white;
-            border-radius: var(--radius-lg);
-            padding: 1.5rem;
-            box-shadow: var(--shadow-sm);
-            transition: all 0.3s;
-            border: 2px solid transparent;
-            cursor: pointer;
-        }
-
-        .task-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-lg);
-            border-color: var(--primary);
-        }
-
-        .task-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            margin-bottom: 1rem;
-        }
-
-        .task-type {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.25rem 0.75rem;
-            background: rgba(255,107,53,0.1);
-            color: var(--primary);
-            border-radius: 20px;
-            font-size: 0.875rem;
-            font-weight: 600;
-        }
-
-        .task-price {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--success);
-        }
-
-        .task-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            color: var(--dark);
-        }
-
-        .task-description {
-            color: var(--gray-600);
-            margin-bottom: 1rem;
-            line-height: 1.5;
-        }
-
-        .task-meta {
-            display: flex;
-            gap: 1.5rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .task-meta-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.875rem;
-            color: var(--gray-600);
-        }
-
-        .task-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 1rem;
-            border-top: 1px solid var(--gray-200);
-        }
-
-        .task-author {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .author-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-        }
-
-        .author-info {
+        
+        /* Start screen */
+        #startScreen {
+            position: absolute;
+            inset: 0;
+            background: rgba(10, 10, 15, 0.95);
             display: flex;
             flex-direction: column;
-        }
-
-        .author-name {
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        .author-rating {
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-            font-size: 0.8rem;
-            color: var(--warning);
-        }
-
-        .verified-badge {
-            color: var(--success);
-            font-size: 0.9rem;
-        }
-
-        .task-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .btn-small {
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-        }
-
-        /* Modal */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.6);
-            display: none;
             align-items: center;
             justify-content: center;
-            z-index: 2000;
-            backdrop-filter: blur(4px);
-        }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .modal {
-            background: white;
-            border-radius: var(--radius-lg);
-            max-width: 600px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: slideUp 0.3s ease;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .modal-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--gray-200);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-header h2 {
-            font-size: 1.5rem;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--gray-600);
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: all 0.3s;
-        }
-
-        .close-btn:hover {
-            background: var(--gray-100);
-            color: var(--dark);
-        }
-
-        .modal-body {
-            padding: 1.5rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 2px solid var(--gray-200);
-            border-radius: var(--radius-sm);
-            font-family: inherit;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        .price-input {
-            position: relative;
-        }
-
-        .price-input::before {
-            content: 'R$';
-            position: absolute;
-            left: 0.75rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray-600);
-            font-weight: 600;
-        }
-
-        .price-input input {
-            padding-left: 2.5rem;
-        }
-
-        .modal-footer {
-            padding: 1.5rem;
-            border-top: 1px solid var(--gray-200);
-            display: flex;
-            justify-content: flex-end;
-            gap: 1rem;
-        }
-
-        /* Chat Modal */
-        .chat-modal {
-            max-width: 500px;
-        }
-
-        .chat-messages {
-            height: 400px;
-            overflow-y: auto;
-            background: var(--gray-100);
-            border-radius: var(--radius-md);
-            padding: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .message {
-            margin-bottom: 1rem;
-            max-width: 80%;
-        }
-
-        .message.sent {
-            margin-left: auto;
-            text-align: right;
-        }
-
-        .message-bubble {
-            display: inline-block;
-            padding: 0.75rem 1rem;
-            border-radius: var(--radius-md);
-            background: white;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .message.sent .message-bubble {
-            background: var(--primary);
-            color: white;
-        }
-
-        .message-time {
-            font-size: 0.75rem;
-            color: var(--gray-600);
-            margin-top: 0.25rem;
-        }
-
-        .chat-input {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .chat-input input {
-            flex: 1;
-            padding: 0.75rem;
-            border: 2px solid var(--gray-200);
-            border-radius: var(--radius-md);
-        }
-
-        /* Responsividade */
-        @media (max-width: 768px) {
-            .main-container {
-                grid-template-columns: 1fr;
-            }
-
-            .sidebar {
-                position: relative;
-                top: 0;
-                order: 2;
-            }
-
-            .hero h1 {
-                font-size: 2rem;
-            }
-
-            .hero-stats {
-                gap: 1.5rem;
-            }
-
-            .nav-links {
-                display: none;
-            }
-
-            .filters-container {
-                flex-direction: column;
-            }
-
-            .search-box {
-                min-width: 100%;
-            }
-        }
-
-        /* Loading e Empty States */
-        .empty-state {
-            text-align: center;
-            padding: 4rem 2rem;
-            color: var(--gray-600);
-        }
-
-        .empty-state-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
-        }
-
-        /* Toast Notification */
-        .toast {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            background: var(--dark);
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-lg);
-            display: none;
-            align-items: center;
-            gap: 0.75rem;
-            z-index: 3000;
-            animation: slideInRight 0.3s ease;
-        }
-
-        .toast.show {
-            display: flex;
-        }
-
-        @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        .toast.success {
-            background: var(--success);
-        }
-
-        /* User Menu */
-        .user-menu {
-            position: relative;
-        }
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            cursor: pointer;
-            border: 3px solid white;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .dropdown {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            margin-top: 0.5rem;
-            background: white;
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-lg);
-            min-width: 200px;
-            display: none;
-            overflow: hidden;
-        }
-
-        .dropdown.show {
-            display: block;
-        }
-
-        .dropdown-item {
-            padding: 0.75rem 1rem;
-            cursor: pointer;
-            transition: background 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .dropdown-item:hover {
-            background: var(--gray-100);
-        }
-
-        .dropdown-divider {
-            height: 1px;
-            background: var(--gray-200);
-            margin: 0.5rem 0;
-        }
-
-        /* Urgency Badge */
-        .urgency {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .urgency.high {
-            background: rgba(255,23,68,0.1);
-            color: var(--danger);
-        }
-
-        .urgency.medium {
-            background: rgba(255,214,0,0.1);
-            color: #F9A825;
-        }
-
-        .urgency.low {
-            background: rgba(0,200,83,0.1);
-            color: var(--success);
-        }
-
-        /* Animations */
-        .fade-in {
-            animation: fadeIn 0.5s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Mobile Bottom Nav */
-        .mobile-nav {
-            display: none;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: white;
-            box-shadow: 0 -4px 6px rgba(0,0,0,0.1);
-            padding: 0.75rem;
             z-index: 1000;
         }
-
-        .mobile-nav-items {
-            display: flex;
-            justify-content: space-around;
+        
+        .game-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 72px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ff006e, #00d4ff, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 60px rgba(0, 212, 255, 0.5);
+            margin-bottom: 20px;
+            animation: titlePulse 2s ease-in-out infinite;
         }
-
-        .mobile-nav-item {
+        
+        @keyframes titlePulse {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.3); }
+        }
+        
+        .subtitle {
+            font-size: 24px;
+            color: #888;
+            margin-bottom: 40px;
+            letter-spacing: 5px;
+        }
+        
+        .controls-info {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .key-box {
+            width: 60px;
+            height: 60px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 10px;
             display: flex;
-            flex-direction: column;
             align-items: center;
-            gap: 0.25rem;
-            color: var(--gray-600);
-            text-decoration: none;
-            font-size: 0.75rem;
-            padding: 0.5rem;
-            border-radius: var(--radius-sm);
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
             transition: all 0.3s;
         }
-
-        .mobile-nav-item.active, .mobile-nav-item:hover {
-            color: var(--primary);
-            background: rgba(255,107,53,0.1);
+        
+        .key-q { border-color: #ff006e; color: #ff006e; box-shadow: 0 0 20px rgba(255, 0, 110, 0.3); }
+        .key-w { border-color: #00d4ff; color: #00d4ff; box-shadow: 0 0 20px rgba(0, 212, 255, 0.3); }
+        .key-s { border-color: #ffd700; color: #ffd700; box-shadow: 0 0 20px rgba(255, 215, 0, 0.3); }
+        .key-a { border-color: #8b5cf6; color: #8b5cf6; box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
+        .key-d { border-color: #10b981; color: #10b981; box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
+        
+        .btn-start {
+            padding: 20px 60px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff006e, #00d4ff);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            box-shadow: 0 0 40px rgba(255, 0, 110, 0.5);
         }
-
-        .mobile-nav-item span {
-            font-size: 1.25rem;
+        
+        .btn-start:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 60px rgba(0, 212, 255, 0.7);
         }
-
-        @media (max-width: 768px) {
-            .mobile-nav {
-                display: block;
-            }
-            
-            body {
-                padding-bottom: 80px;
-            }
+        
+        /* Results screen */
+        #resultsScreen {
+            position: absolute;
+            inset: 0;
+            background: rgba(10, 10, 15, 0.98);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
         }
+        
+        .grade-display {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 150px;
+            font-weight: 900;
+            margin-bottom: 30px;
+            animation: gradePop 0.5s ease-out;
+        }
+        
+        @keyframes gradePop {
+            0% { transform: scale(0) rotate(-180deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+        
+        .grade-SS { color: #ffd700; text-shadow: 0 0 60px #ffd700; }
+        .grade-S { color: #c0c0c0; text-shadow: 0 0 40px #c0c0c0; }
+        .grade-A { color: #ff6b35; text-shadow: 0 0 40px #ff6b35; }
+        .grade-B { color: #00d4ff; text-shadow: 0 0 40px #00d4ff; }
+        .grade-C { color: #8b5cf6; text-shadow: 0 0 40px #8b5cf6; }
+        .grade-D { color: #ef4444; text-shadow: 0 0 40px #ef4444; }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-box {
+            background: rgba(255,255,255,0.05);
+            padding: 20px 40px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 36px;
+            font-weight: 900;
+            color: #00d4ff;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 5px;
+        }
+        
+        /* Key hints */
+        .key-hint {
+            position: absolute;
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+            font-family: 'Orbitron', sans-serif;
+            pointer-events: none;
+        }
+        
+        #hint-q { top: 30px; left: 230px; }
+        #hint-w { top: 30px; right: 230px; }
+        #hint-s { top: 50%; left: 50%; transform: translate(-50%, -120%); }
+        #hint-a { bottom: 30px; left: 230px; }
+        #hint-d { bottom: 30px; right: 230px; }
+        
+        /* Lane lines (osu! style) */
+        .lane-line {
+            position: absolute;
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.1), transparent);
+            pointer-events: none;
+        }
+        
+        .lane-UL { left: 239px; }
+        .lane-UR { right: 239px; }
+        .lane-C { left: 50%; transform: translateX(-50%); width: 4px; background: linear-gradient(to bottom, transparent, rgba(255,215,0,0.2), transparent); }
+        .lane-DL { left: 239px; }
+        .lane-DR { right: 239px; }
     </style>
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="#" class="logo">
-                🛠️ Task<span>R</span>
-            </a>
-            <div class="nav-links">
-                <a href="#" onclick="showToast('Explorar tarefas')">Explorar</a>
-                <a href="#" onclick="showToast('Minhas tarefas')">Minhas Tarefas</a>
-                <a href="#" onclick="showToast('Mensagens')">Mensagens</a>
-                <button class="btn btn-primary" onclick="openModal('createTaskModal')">
-                    + Publicar Tarefa
-                </button>
-                <div class="user-menu">
-                    <div class="user-avatar" onclick="toggleDropdown()">JD</div>
-                    <div class="dropdown" id="userDropdown">
-                        <div class="dropdown-item">👤 Meu Perfil</div>
-                        <div class="dropdown-item">⭐ Minha Reputação (4.8)</div>
-                        <div class="dropdown-item">💰 Ganhos: R$ 1.240</div>
-                        <div class="dropdown-divider"></div>
-                        <div class="dropdown-item">⚙️ Configurações</div>
-                        <div class="dropdown-item">🚪 Sair</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-content">
-            <h1>Trabalho rápido, dinheiro na hora 💪</h1>
-            <p>Conecte-se com pessoas da sua cidade que precisam de ajuda. 
-               Sem burocracia, sem espera. <em>Renda extra imediata.</em></p>
-            <button class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem;" onclick="openModal('createTaskModal')">
-                Quero Trabalhar Agora 🚀
-            </button>
+    <div id="gameContainer">
+        <!-- Background particles -->
+        <div id="particles"></div>
+        
+        <div id="playfield">
+            <!-- Lane lines -->
+            <div class="lane-line lane-UL"></div>
+            <div class="lane-line lane-UR"></div>
+            <div class="lane-line lane-C"></div>
             
-            <div class="hero-stats">
-                <div class="stat">
-                    <div class="stat-number" id="statTasks">1.247</div>
-                    <div class="stat-label">Tarefas Hoje</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-number" id="statWorkers">8.532</div>
-                    <div class="stat-label">Trabalhadores</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-number" id="statEarned">R$ 45K</div>
-                    <div class="stat-label">Pagos Hoje</div>
-                </div>
+            <!-- Receptors (PUMP style) -->
+            <div class="receptor" id="receptor-UL" data-key="q"><span>↖</span></div>
+            <div class="receptor" id="receptor-UR" data-key="w"><span>↗</span></div>
+            <div class="receptor center" id="receptor-C" data-key="s"><span>●</span></div>
+            <div class="receptor" id="receptor-DL" data-key="a"><span>↙</span></div>
+            <div class="receptor" id="receptor-DR" data-key="d"><span>↘</span></div>
+            
+            <!-- Key hints -->
+            <div class="key-hint" id="hint-q">Q</div>
+            <div class="key-hint" id="hint-w">W</div>
+            <div class="key-hint" id="hint-s">S</div>
+            <div class="key-hint" id="hint-a">A</div>
+            <div class="key-hint" id="hint-d">D</div>
+            
+            <!-- Notes container -->
+            <div id="notesContainer"></div>
+            
+            <!-- Effects container -->
+            <div id="effectsContainer"></div>
+            
+            <!-- Progress bar -->
+            <div id="progressBar">
+                <div id="progressFill"></div>
             </div>
         </div>
-    </section>
-
-    <!-- Filtros -->
-    <section class="filters-section">
-        <div class="filters-container">
-            <div class="search-box">
-                <input type="text" placeholder="Buscar: cortar grama, pintar parede..." id="searchInput" onkeyup="filterTasks()">
-            </div>
-            <select class="filter-select" id="cityFilter" onchange="filterTasks()">
-                <option value="">Todas as cidades</option>
-                <option value="sp">São Paulo, SP</option>
-                <option value="rj">Rio de Janeiro, RJ</option>
-                <option value="bh">Belo Horizonte, MG</option>
-                <option value="curitiba">Curitiba, PR</option>
-            </select>
-            <select class="filter-select" id="priceFilter" onchange="filterTasks()">
-                <option value="">Qualquer preço</option>
-                <option value="0-50">Até R$ 50</option>
-                <option value="50-100">R$ 50 - R$ 100</option>
-                <option value="100-200">R$ 100 - R$ 200</option>
-                <option value="200+">Acima de R$ 200</option>
-            </select>
-            <select class="filter-select" id="urgencyFilter" onchange="filterTasks()">
-                <option value="">Urgência</option>
-                <option value="high">🔴 Urgente (Hoje)</option>
-                <option value="medium">🟡 Esta semana</option>
-                <option value="low">🟢 Sem pressa</option>
-            </select>
-        </div>
-    </section>
-
-    <!-- Main Content -->
-    <div class="main-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="category-list">
-                <h3>📂 Categorias</h3>
-                <div class="category-item active" onclick="filterByCategory('all')">
-                    <span>🎯 Todas</span>
-                    <span class="category-count">124</span>
+        
+        <!-- UI -->
+        <div id="ui">
+            <div class="ui-panel">
+                <div class="score-display" id="scoreDisplay">00000000</div>
+                <div class="accuracy-bar">
+                    <div class="accuracy-fill" id="accuracyFill" style="width: 100%"></div>
                 </div>
-                <div class="category-item" onclick="filterByCategory('jardinagem')">
-                    <span>🌱 Jardinagem</span>
-                    <span class="category-count">23</span>
-                </div>
-                <div class="category-item" onclick="filterByCategory('mudanca')">
-                    <span>📦 Mudança</span>
-                    <span class="category-count">18</span>
-                </div>
-                <div class="category-item" onclick="filterByCategory('limpeza')">
-                    <span>🧹 Limpeza</span>
-                    <span class="category-count">31</span>
-                </div>
-                <div class="category-item" onclick="filterByCategory('reparos')">
-                    <span>🔧 Reparos</span>
-                    <span class="category-count">27</span>
-                </div>
-                <div class="category-item" onclick="filterByCategory('pets')">
-                    <span>🐕 Pets</span>
-                    <span class="category-count">15</span>
-                </div>
-                <div class="category-item" onclick="filterByCategory('tecnologia')">
-                    <span>💻 Tecnologia</span>
-                    <span class="category-count">10</span>
-                </div>
-            </div>
-        </aside>
-
-        <!-- Task Feed -->
-        <main>
-            <div class="tasks-header">
-                <h2>🔥 Tarefas Disponíveis Agora</h2>
-                <select class="sort-select" onchange="sortTasks(this.value)">
-                    <option value="recent">Mais recentes</option>
-                    <option value="price-high">Maior preço</option>
-                    <option value="price-low">Menor preço</option>
-                    <option value="distance">Mais próximas</option>
-                </select>
             </div>
             
-            <div class="tasks-grid" id="tasksContainer">
-                <!-- Tasks will be injected here by JS -->
+            <div class="ui-panel" style="text-align: center;">
+                <div class="combo-display" id="comboDisplay">0</div>
+                <div class="combo-label">COMBO</div>
             </div>
-        </main>
-    </div>
-
-    <!-- Mobile Bottom Nav -->
-    <nav class="mobile-nav">
-        <div class="mobile-nav-items">
-            <a href="#" class="mobile-nav-item active">
-                <span>🏠</span>
-                Início
-            </a>
-            <a href="#" class="mobile-nav-item" onclick="openModal('createTaskModal')">
-                <span>➕</span>
-                Publicar
-            </a>
-            <a href="#" class="mobile-nav-item">
-                <span>💬</span>
-                Chat
-            </a>
-            <a href="#" class="mobile-nav-item">
-                <span>👤</span>
-                Perfil
-            </a>
-        </div>
-    </nav>
-
-    <!-- Modal: Criar Tarefa -->
-    <div class="modal-overlay" id="createTaskModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h2>📢 Publicar Nova Tarefa</h2>
-                <button class="close-btn" onclick="closeModal('createTaskModal')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label>Título da tarefa *</label>
-                    <input type="text" placeholder="Ex: Preciso cortar grama do quintal" id="taskTitle">
-                </div>
-                <div class="form-group">
-                    <label>Descrição detalhada *</label>
-                    <textarea placeholder="Descreva o que precisa ser feito, tamanho do quintal, se precisa levar ferramentas..." id="taskDesc"></textarea>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                    <div class="form-group">
-                        <label>Categoria *</label>
-                        <select id="taskCategory">
-                            <option value="">Selecione...</option>
-                            <option value="jardinagem">🌱 Jardinagem</option>
-                            <option value="mudanca">📦 Mudança</option>
-                            <option value="limpeza">🧹 Limpeza</option>
-                            <option value="reparos">🔧 Reparos</option>
-                            <option value="pets">🐕 Pets</option>
-                            <option value="tecnologia">💻 Tecnologia</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Urgência *</label>
-                        <select id="taskUrgency">
-                            <option value="low">🟢 Sem pressa</option>
-                            <option value="medium">🟡 Esta semana</option>
-                            <option value="high">🔴 Urgente (Hoje)</option>
-                        </select>
-                    </div>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                    <div class="form-group">
-                        <label>Valor oferecido (R$) *</label>
-                        <div class="price-input">
-                            <input type="number" placeholder="150,00" id="taskPrice">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>CEP / Bairro *</label>
-                        <input type="text" placeholder="Ex: Vila Mariana, SP" id="taskLocation">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>📍 Endereço completo (visível apenas para quem você aceitar)</label>
-                    <input type="text" placeholder="Rua, número, complemento" id="taskAddress">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline" onclick="closeModal('createTaskModal')">Cancelar</button>
-                <button class="btn btn-primary" onclick="createTask()">Publicar Tarefa 🚀</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal: Chat -->
-    <div class="modal-overlay" id="chatModal">
-        <div class="modal chat-modal">
-            <div class="modal-header">
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <div class="author-avatar" id="chatAvatar">M</div>
-                    <div>
-                        <h3 id="chatName">Maria S.</h3>
-                        <small style="color: var(--gray-600);">Online agora</small>
-                    </div>
-                </div>
-                <button class="close-btn" onclick="closeModal('chatModal')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="chat-messages" id="chatMessages">
-                    <div class="message">
-                        <div class="message-bubble">Oi! Vi sua tarefa de cortar grama. Ainda precisa de ajuda?</div>
-                        <div class="message-time">14:32</div>
-                    </div>
-                    <div class="message sent">
-                        <div class="message-bubble">Oi! Sim, ainda preciso. Consegue hoje à tarde?</div>
-                        <div class="message-time">14:35</div>
-                    </div>
-                    <div class="message">
-                        <div class="message-bubble">Consigo sim! Tenho todos os equipamentos. Posso chegar às 15h.</div>
-                        <div class="message-time">14:36</div>
-                    </div>
-                </div>
-                <div class="chat-input">
-                    <input type="text" placeholder="Digite sua mensagem..." id="chatInput" onkeypress="handleChatKey(event)">
-                    <button class="btn btn-primary" onclick="sendMessage()">Enviar</button>
+            
+            <div class="ui-panel">
+                <div class="health-bar">
+                    <div class="health-fill" id="healthFill" style="width: 100%"></div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Toast -->
-    <div class="toast" id="toast">
-        <span id="toastIcon">✅</span>
-        <span id="toastMessage">Operação realizada!</span>
+        
+        <!-- Start Screen -->
+        <div id="startScreen">
+            <h1 class="game-title">NEURO: PULSE</h1>
+            <p class="subtitle">PUMP STYLE × OSU! PRECISION</p>
+            
+            <div class="controls-info">
+                <div class="key-box key-q">Q</div>
+                <div class="key-box key-w">W</div>
+                <div class="key-box key-s">S</div>
+                <div class="key-box key-a">A</div>
+                <div class="key-box key-d">D</div>
+            </div>
+            
+            <button class="btn-start" onclick="startGame()">INICIAR</button>
+        </div>
+        
+        <!-- Results Screen -->
+        <div id="resultsScreen">
+            <div class="grade-display" id="gradeDisplay">S</div>
+            
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value" id="finalScore">0</div>
+                    <div class="stat-label">Pontuação</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="finalAccuracy">0%</div>
+                    <div class="stat-label">Precisão</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="finalCombo">0</div>
+                    <div class="stat-label">Max Combo</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="finalPerfect">0</div>
+                    <div class="stat-label">Perfects</div>
+                </div>
+            </div>
+            
+            <button class="btn-start" onclick="restartGame()">JOGAR NOVAMENTE</button>
+        </div>
     </div>
 
     <script>
-        // Dados simulados
-        let tasks = [
-            {
-                id: 1,
-                title: "Cortar grama do quintal",
-                description: "Quintal de aproximadamente 50m². Grama alta, precisa de roçadeira. Posso fornecer o equipamento se não tiver.",
-                category: "jardinagem",
-                price: 80,
-                urgency: "medium",
-                location: "Vila Mariana, SP",
-                author: "Maria S.",
-                authorInitial: "M",
-                rating: 4.8,
-                reviews: 12,
-                verified: true,
-                time: "Há 20 min",
-                image: "🌱"
-            },
-            {
-                id: 2,
-                title: "Montar guarda-roupas novo",
-                description: "Comprei um guarda-roupas na IKEA e preciso de ajuda para montar. Tem manual e todas as peças.",
-                category: "reparos",
-                price: 120,
-                urgency: "high",
-                location: "Pinheiros, SP",
-                author: "João P.",
-                authorInitial: "J",
-                rating: 4.5,
-                reviews: 8,
-                verified: true,
-                time: "Há 5 min",
-                image: "🔧"
-            },
-            {
-                id: 3,
-                title: "Passear com meu cachorro",
-                description: "Preciso de alguém para passear com meu labrador por 1 hora todos os dias durante esta semana.",
-                category: "pets",
-                price: 50,
-                urgency: "high",
-                location: "Jardins, SP",
-                author: "Ana C.",
-                authorInitial: "A",
-                rating: 5.0,
-                reviews: 23,
-                verified: true,
-                time: "Há 1 hora",
-                image: "🐕"
-            },
-            {
-                id: 4,
-                title: "Limpeza pós-obra apartamento",
-                description: "Reformei meu apartamento de 60m² e preciso de limpeza profunda. Tinta, poeira, restos de material.",
-                category: "limpeza",
-                price: 300,
-                urgency: "low",
-                location: "Moema, SP",
-                author: "Carlos R.",
-                authorInitial: "C",
-                rating: 4.2,
-                reviews: 5,
-                verified: false,
-                time: "Há 3 horas",
-                image: "🧹"
-            },
-            {
-                id: 5,
-                title: "Ajuda com mudança rápida",
-                description: "Mudança de um apartamento studio para outro no mesmo bairro. Preciso de ajuda para carregar caixas e móveis pequenos.",
-                category: "mudanca",
-                price: 150,
-                urgency: "medium",
-                location: "Consolação, SP",
-                author: "Fernanda L.",
-                authorInitial: "F",
-                rating: 4.9,
-                reviews: 15,
-                verified: true,
-                time: "Há 45 min",
-                image: "📦"
-            },
-            {
-                id: 6,
-                title: "Instalar ventilador de teto",
-                description: "Comprei um ventilador e preciso instalar no quarto. Teto é de gesso, precisa de experiência.",
-                category: "reparos",
-                price: 100,
-                urgency: "medium",
-                location: "Santana, SP",
-                author: "Roberto M.",
-                authorInitial: "R",
-                rating: 4.6,
-                reviews: 9,
-                verified: true,
-                time: "Há 2 horas",
-                image: "🔧"
-            },
-            {
-                id: 7,
-                title: "Formatar notebook e instalar Windows",
-                description: "Notebook lento, preciso formatar e instalar Windows 10. Tenho a licença, só preciso da mão de obra.",
-                category: "tecnologia",
-                price: 80,
-                urgency: "low",
-                location: "Brooklin, SP",
-                author: "Patricia K.",
-                authorInitial: "P",
-                rating: 4.7,
-                reviews: 11,
-                verified: true,
-                time: "Há 4 horas",
-                image: "💻"
-            },
-            {
-                id: 8,
-                title: "Limpar calha e telhado",
-                description: "Casa térrea, preciso limpar calhas cheias de folhas antes da chuva de verão.",
-                category: "jardinagem",
-                price: 120,
-                urgency: "high",
-                location: "Lapa, SP",
-                author: "Eduardo S.",
-                authorInitial: "E",
-                rating: 4.4,
-                reviews: 7,
-                verified: false,
-                time: "Há 30 min",
-                image: "🌱"
+        // Game state
+        let gameState = {
+            isPlaying: false,
+            score: 0,
+            combo: 0,
+            maxCombo: 0,
+            health: 100,
+            accuracy: 100,
+            perfects: 0,
+            greats: 0,
+            goods: 0,
+            misses: 0,
+            totalNotes: 0,
+            startTime: 0,
+            bpm: 128
+        };
+        
+        // Note positions (matching PUMP layout)
+        const notePositions = {
+            'UL': { x: 200, y: 50, key: 'q', label: '↖' },
+            'UR': { x: 520, y: 50, key: 'w', label: '↗' },
+            'C': { x: 355, y: 260, key: 's', label: '●', isCenter: true },
+            'DL': { x: 200, y: 470, key: 'a', label: '↙' },
+            'DR': { x: 520, y: 470, key: 'd', label: '↘' }
+        };
+        
+        // Timing windows (osu! style - in milliseconds)
+        const timingWindows = {
+            perfect: 45,  // Marvellous
+            great: 90,    // Perfect  
+            good: 135,    // Great
+            miss: 180     // Miss
+        };
+        
+        let notes = [];
+        let noteIdCounter = 0;
+        let gameLoopId;
+        let spawnIntervalId;
+        let audioContext;
+        
+        // Initialize particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 10 + 's';
+                particle.style.animationDuration = (10 + Math.random() * 10) + 's';
+                container.appendChild(particle);
             }
-        ];
-
-        let currentCategory = 'all';
-        let currentFilter = '';
-
-        // Inicialização
-        document.addEventListener('DOMContentLoaded', () => {
-            renderTasks();
-            animateStats();
-        });
-
-        // Renderizar tarefas
-        function renderTasks(filteredTasks = tasks) {
-            const container = document.getElementById('tasksContainer');
-            container.innerHTML = '';
-
-            if (filteredTasks.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">🔍</div>
-                        <h3>Nenhuma tarefa encontrada</h3>
-                        <p>Tente ajustar seus filtros ou volte mais tarde.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            filteredTasks.forEach(task => {
-                const urgencyClass = task.urgency;
-                const urgencyText = {
-                    'high': '🔴 Urgente',
-                    'medium': '🟡 Esta semana',
-                    'low': '🟢 Sem pressa'
-                }[task.urgency];
-
-                const card = document.createElement('div');
-                card.className = 'task-card fade-in';
-                card.innerHTML = `
-                    <div class="task-header">
-                        <span class="task-type">${task.image} ${getCategoryName(task.category)}</span>
-                        <span class="task-price">R$ ${task.price}</span>
-                    </div>
-                    <h3 class="task-title">${task.title}</h3>
-                    <p class="task-description">${task.description}</p>
-                    <div class="task-meta">
-                        <span class="task-meta-item">📍 ${task.location}</span>
-                        <span class="task-meta-item">⏰ ${task.time}</span>
-                        <span class="urgency ${urgencyClass}">${urgencyText}</span>
-                    </div>
-                    <div class="task-footer">
-                        <div class="task-author">
-                            <div class="author-avatar">${task.authorInitial}</div>
-                            <div class="author-info">
-                                <span class="author-name">${task.author} ${task.verified ? '<span class="verified-badge">✓</span>' : ''}</span>
-                                <span class="author-rating">⭐ ${task.rating} (${task.reviews})</span>
-                            </div>
-                        </div>
-                        <div class="task-actions">
-                            <button class="btn btn-outline btn-small" onclick="openChat('${task.author}', '${task.authorInitial}')">💬 Chat</button>
-                            <button class="btn btn-success btn-small" onclick="acceptTask(${task.id})">Aceitar ✅</button>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
         }
-
-        function getCategoryName(cat) {
-            const names = {
-                'jardinagem': 'Jardinagem',
-                'mudanca': 'Mudança',
-                'limpeza': 'Limpeza',
-                'reparos': 'Reparos',
-                'pets': 'Pets',
-                'tecnologia': 'Tecnologia'
-            };
-            return names[cat] || cat;
+        
+        // Audio synthesis (Web Audio API)
+        function initAudio() {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
         }
-
-        // Filtrar por categoria
-        function filterByCategory(category) {
-            currentCategory = category;
+        
+        function playHitSound(type) {
+            if (!audioContext) return;
             
-            // Atualizar UI
-            document.querySelectorAll('.category-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            event.target.closest('.category-item').classList.add('active');
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
             
-            applyFilters();
-        }
-
-        // Filtrar tasks
-        function filterTasks() {
-            applyFilters();
-        }
-
-        function applyFilters() {
-            const search = document.getElementById('searchInput').value.toLowerCase();
-            const city = document.getElementById('cityFilter').value;
-            const price = document.getElementById('priceFilter').value;
-            const urgency = document.getElementById('urgencyFilter').value;
-
-            let filtered = tasks.filter(task => {
-                // Categoria
-                if (currentCategory !== 'all' && task.category !== currentCategory) return false;
-                
-                // Busca
-                if (search && !task.title.toLowerCase().includes(search) && 
-                    !task.description.toLowerCase().includes(search)) return false;
-                
-                // Cidade (simulado)
-                if (city && !task.location.toLowerCase().includes(city === 'sp' ? 'sp' : city)) return false;
-                
-                // Preço
-                if (price) {
-                    const [min, max] = price.split('-').map(p => p.replace('+', ''));
-                    if (max && (task.price < parseInt(min) || task.price > parseInt(max))) return false;
-                    if (!max && task.price < parseInt(min)) return false;
-                }
-                
-                // Urgência
-                if (urgency && task.urgency !== urgency) return false;
-                
-                return true;
-            });
-
-            renderTasks(filtered);
-        }
-
-        // Ordenar
-        function sortTasks(sortType) {
-            let sorted = [...tasks];
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
             
-            switch(sortType) {
-                case 'price-high':
-                    sorted.sort((a, b) => b.price - a.price);
+            const now = audioContext.currentTime;
+            
+            switch(type) {
+                case 'perfect':
+                    osc.frequency.setValueAtTime(880, now);
+                    osc.frequency.exponentialRampToValueAtTime(1760, now + 0.1);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
                     break;
-                case 'price-low':
-                    sorted.sort((a, b) => a.price - b.price);
+                case 'great':
+                    osc.frequency.setValueAtTime(660, now);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
                     break;
-                case 'recent':
-                    sorted.sort((a, b) => b.id - a.id);
+                case 'good':
+                    osc.frequency.setValueAtTime(440, now);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                    break;
+                case 'miss':
+                    osc.frequency.setValueAtTime(150, now);
+                    osc.frequency.exponentialRampToValueAtTime(100, now + 0.2);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
                     break;
             }
             
-            renderTasks(sorted);
+            osc.start(now);
+            osc.stop(now + 0.3);
         }
-
-        // Criar tarefa
-        function createTask() {
-            const title = document.getElementById('taskTitle').value;
-            const desc = document.getElementById('taskDesc').value;
-            const category = document.getElementById('taskCategory').value;
-            const price = document.getElementById('taskPrice').value;
-            const location = document.getElementById('taskLocation').value;
-            const urgency = document.getElementById('taskUrgency').value;
-
-            if (!title || !desc || !category || !price || !location) {
-                showToast('⚠️ Preencha todos os campos obrigatórios!');
-                return;
-            }
-
-            const newTask = {
-                id: tasks.length + 1,
-                title: title,
-                description: desc,
-                category: category,
-                price: parseFloat(price),
-                urgency: urgency,
-                location: location,
-                author: "Você",
-                authorInitial: "V",
-                rating: 5.0,
-                reviews: 0,
-                verified: true,
-                time: "Agora",
-                image: getCategoryEmoji(category)
-            };
-
-            tasks.unshift(newTask);
-            renderTasks();
-            closeModal('createTaskModal');
-            showToast('✅ Tarefa publicada com sucesso!');
+        
+        // Spawn note with osu! approach circle
+        function spawnNote(lane) {
+            const container = document.getElementById('notesContainer');
+            const pos = notePositions[lane];
+            const id = noteIdCounter++;
             
-            // Limpar formulário
-            document.getElementById('taskTitle').value = '';
-            document.getElementById('taskDesc').value = '';
-            document.getElementById('taskPrice').value = '';
-        }
-
-        function getCategoryEmoji(cat) {
-            const emojis = {
-                'jardinagem': '🌱',
-                'mudanca': '📦',
-                'limpeza': '🧹',
-                'reparos': '🔧',
-                'pets': '🐕',
-                'tecnologia': '💻'
-            };
-            return emojis[cat] || '📋';
-        }
-
-        // Aceitar tarefa
-        function acceptTask(id) {
-            const task = tasks.find(t => t.id === id);
-            showToast(`💰 Você aceitou: ${task.title}`);
-            setTimeout(() => {
-                showToast(`📱 Envie uma mensagem para ${task.author} para combinar os detalhes!`);
-            }, 2000);
-        }
-
-        // Chat
-        function openChat(name, initial) {
-            document.getElementById('chatName').textContent = name;
-            document.getElementById('chatAvatar').textContent = initial;
-            openModal('chatModal');
-        }
-
-        function sendMessage() {
-            const input = document.getElementById('chatInput');
-            const text = input.value.trim();
-            if (!text) return;
-
-            const container = document.getElementById('chatMessages');
-            const time = new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
-            
-            const msgDiv = document.createElement('div');
-            msgDiv.className = 'message sent';
-            msgDiv.innerHTML = `
-                <div class="message-bubble">${text}</div>
-                <div class="message-time">${time}</div>
+            // Create approach circle (osu! style)
+            const approach = document.createElement('div');
+            approach.className = `approach-circle ${pos.isCenter ? 'center' : ''}`;
+            approach.style.cssText = `
+                width: ${pos.isCenter ? 90 : 80}px;
+                height: ${pos.isCenter ? 90 : 80}px;
+                left: ${pos.x}px;
+                top: ${pos.y}px;
+                border-color: ${getLaneColor(lane)};
+                transform: translate(-50%, -50%);
             `;
-            container.appendChild(msgDiv);
-            container.scrollTop = container.scrollHeight;
-            input.value = '';
-
-            // Simular resposta
-            setTimeout(() => {
-                const replyDiv = document.createElement('div');
-                replyDiv.className = 'message';
-                replyDiv.innerHTML = `
-                    <div class="message-bubble">Perfeito! Posso fazer isso. Quando seria um bom horário?</div>
-                    <div class="message-time">${time}</div>
-                `;
-                container.appendChild(replyDiv);
-                container.scrollTop = container.scrollHeight;
-            }, 1500);
+            container.appendChild(approach);
+            
+            // Create note
+            const noteEl = document.createElement('div');
+            noteEl.className = `note note-${lane} ${pos.isCenter ? 'center' : ''}`;
+            noteEl.id = `note-${id}`;
+            noteEl.style.cssText = `
+                left: ${pos.x}px;
+                top: ${pos.y}px;
+                transform: translate(-50%, -50%);
+            `;
+            noteEl.innerHTML = `<span style="${pos.isCenter ? '' : `display: inline-block; transform: rotate(${lane === 'UL' || lane === 'DR' ? '45' : '-45'}deg)`}">${pos.label}</span>`;
+            
+            container.appendChild(noteEl);
+            
+            const note = {
+                id: id,
+                lane: lane,
+                spawnTime: Date.now(),
+                hitTime: Date.now() + 1000, // 1 second approach time
+                element: noteEl,
+                approach: approach,
+                hit: false
+            };
+            
+            notes.push(note);
+            gameState.totalNotes++;
         }
-
-        function handleChatKey(e) {
-            if (e.key === 'Enter') sendMessage();
+        
+        function getLaneColor(lane) {
+            const colors = {
+                'UL': '#ff006e',
+                'UR': '#00d4ff',
+                'C': '#ffd700',
+                'DL': '#8b5cf6',
+                'DR': '#10b981'
+            };
+            return colors[lane];
         }
-
-        // Modal controls
-        function openModal(id) {
-            document.getElementById(id).classList.add('active');
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('active');
-        }
-
-        // Dropdown
-        function toggleDropdown() {
-            document.getElementById('userDropdown').classList.toggle('show');
-        }
-
-        // Toast
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toastMessage').textContent = message;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 3000);
-        }
-
-        // Animação de números
-        function animateStats() {
-            const stats = [
-                {id: 'statTasks', end: 1247, suffix: ''},
-                {id: 'statWorkers', end: 8532, suffix: ''},
-                {id: 'statEarned', end: 45, suffix: 'K', prefix: 'R$ '}
-            ];
-
-            stats.forEach(stat => {
-                const el = document.getElementById(stat.id);
-                const duration = 2000;
-                const start = 0;
-                const increment = stat.end / (duration / 16);
-                let current = start;
-
-                const timer = setInterval(() => {
-                    current += increment;
-                    if (current >= stat.end) {
-                        current = stat.end;
-                        clearInterval(timer);
-                    }
-                    const prefix = stat.prefix || '';
-                    const suffix = stat.suffix || '';
-                    el.textContent = `${prefix}${Math.floor(current)}${suffix}`;
-                }, 16);
-            });
-        }
-
-        // Fechar dropdown ao clicar fora
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.user-menu')) {
-                document.getElementById('userDropdown').classList.remove('show');
-            }
-        });
-
-        // Fechar modal ao clicar no overlay
-        document.querySelectorAll('.modal-overlay').forEach(overlay => {
-            overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) {
-                    overlay.classList.remove('active');
+        
+        // Game loop
+        function gameLoop() {
+            if (!gameState.isPlaying) return;
+            
+            const now = Date.now();
+            
+            // Check for missed notes
+            notes.forEach((note, index) => {
+                if (note.hit) return;
+                
+                const timeDiff = now - note.hitTime;
+                
+                if (timeDiff > timingWindows.miss) {
+                    // Miss
+                    showJudgment('miss', note.lane);
+                    createHitEffect('miss', note.lane);
+                    playHitSound('miss');
+                    handleMiss();
+                    removeNote(index);
                 }
             });
+            
+            // Update progress
+            const progress = Math.min(100, ((now - gameState.startTime) / 60000) * 100);
+            document.getElementById('progressFill').style.width = progress + '%';
+            
+            // Check game over
+            if (gameState.health <= 0) {
+                endGame();
+            }
+            
+            gameLoopId = requestAnimationFrame(gameLoop);
+        }
+        
+        // Handle input
+        function handleInput(lane) {
+            if (!gameState.isPlaying) return;
+            
+            const now = Date.now();
+            const receptor = document.getElementById(`receptor-${lane}`);
+            
+            // Visual feedback
+            receptor.classList.add('active');
+            setTimeout(() => receptor.classList.remove('active'), 100);
+            
+            // Find closest note in this lane
+            const laneNotes = notes.filter(n => n.lane === lane && !n.hit);
+            if (laneNotes.length === 0) return;
+            
+            const closestNote = laneNotes.reduce((closest, note) => {
+                const closestDiff = Math.abs(now - closest.hitTime);
+                const noteDiff = Math.abs(now - note.hitTime);
+                return noteDiff < closestDiff ? note : closest;
+            });
+            
+            const timeDiff = Math.abs(now - closestNote.hitTime);
+            
+            // Judge timing
+            let judgment = 'miss';
+            if (timeDiff <= timingWindows.perfect) judgment = 'perfect';
+            else if (timeDiff <= timingWindows.great) judgment = 'great';
+            else if (timeDiff <= timingWindows.good) judgment = 'good';
+            
+            if (judgment !== 'miss') {
+                closestNote.hit = true;
+                showJudgment(judgment, lane);
+                createHitEffect(judgment, lane);
+                playHitSound(judgment);
+                handleHit(judgment);
+                removeNote(notes.indexOf(closestNote));
+            }
+        }
+        
+        function handleHit(judgment) {
+            const multipliers = { perfect: 1, great: 0.8, good: 0.5 };
+            const baseScore = 300;
+            
+            gameState.combo++;
+            if (gameState.combo > gameState.maxCombo) gameState.maxCombo = gameState.combo;
+            
+            const comboMultiplier = 1 + (Math.floor(gameState.combo / 10) * 0.1);
+            const points = Math.floor(baseScore * multipliers[judgment] * comboMultiplier);
+            
+            gameState.score += points;
+            
+            // Update counters
+            if (judgment === 'perfect') gameState.perfects++;
+            else if (judgment === 'great') gameState.greats++;
+            else if (judgment === 'good') gameState.goods++;
+            
+            // Health
+            gameState.health = Math.min(100, gameState.health + (judgment === 'perfect' ? 2 : 1));
+            
+            updateUI();
+        }
+        
+        function handleMiss() {
+            gameState.combo = 0;
+            gameState.misses++;
+            gameState.health = Math.max(0, gameState.health - 10);
+            updateUI();
+        }
+        
+        function updateUI() {
+            document.getElementById('scoreDisplay').textContent = gameState.score.toString().padStart(8, '0');
+            document.getElementById('comboDisplay').textContent = gameState.combo;
+            document.getElementById('healthFill').style.width = gameState.health + '%';
+            
+            // Calculate accuracy
+            const hitNotes = gameState.perfects + gameState.greats + gameState.goods;
+            const totalJudged = hitNotes + gameState.misses;
+            const accuracy = totalJudged > 0 ? (hitNotes / totalJudged) * 100 : 100;
+            gameState.accuracy = accuracy;
+            document.getElementById('accuracyFill').style.width = accuracy + '%';
+        }
+        
+        function showJudgment(type, lane) {
+            const container = document.getElementById('effectsContainer');
+            const pos = notePositions[lane];
+            
+            const judgment = document.createElement('div');
+            judgment.className = `judgment judgment-${type}`;
+            judgment.textContent = type.toUpperCase();
+            judgment.style.cssText = `
+                left: ${pos.x}px;
+                top: ${pos.y - 50}px;
+                transform: translateX(-50%);
+            `;
+            
+            container.appendChild(judgment);
+            setTimeout(() => judgment.remove(), 800);
+        }
+        
+        function createHitEffect(type, lane) {
+            const container = document.getElementById('effectsContainer');
+            const pos = notePositions[lane];
+            
+            const effect = document.createElement('div');
+            effect.className = `hit-effect hit-${type}`;
+            effect.style.cssText = `
+                left: ${pos.x}px;
+                top: ${pos.y}px;
+                transform: translate(-50%, -50%);
+            `;
+            
+            container.appendChild(effect);
+            setTimeout(() => effect.remove(), 500);
+        }
+        
+        function removeNote(index) {
+            if (index >= 0 && index < notes.length) {
+                const note = notes[index];
+                if (note.element) note.element.remove();
+                if (note.approach) note.approach.remove();
+                notes.splice(index, 1);
+            }
+        }
+        
+        // Note spawning patterns
+        function startSpawning() {
+            const lanes = ['UL', 'UR', 'C', 'DL', 'DR'];
+            let patternIndex = 0;
+            
+            // Predefined patterns (PUMP style)
+            const patterns = [
+                ['C'], ['UL', 'DR'], ['UR', 'DL'], ['C'],
+                ['UL', 'UR'], ['DL', 'DR'], ['C'],
+                ['UL', 'C', 'DR'], ['UR', 'C', 'DL'],
+                ['UL', 'UR', 'DL', 'DR'], ['C'],
+                ['UL', 'UR', 'C', 'DL', 'DR']
+            ];
+            
+            spawnIntervalId = setInterval(() => {
+                if (!gameState.isPlaying) return;
+                
+                const pattern = patterns[patternIndex % patterns.length];
+                pattern.forEach((lane, i) => {
+                    setTimeout(() => spawnNote(lane), i * 100);
+                });
+                
+                patternIndex++;
+            }, 500); // Spawn every 500ms (128 BPM feel)
+        }
+        
+        function startGame() {
+            initAudio();
+            document.getElementById('startScreen').style.display = 'none';
+            
+            // Reset state
+            gameState = {
+                isPlaying: true,
+                score: 0,
+                combo: 0,
+                maxCombo: 0,
+                health: 100,
+                accuracy: 100,
+                perfects: 0,
+                greats: 0,
+                goods: 0,
+                misses: 0,
+                totalNotes: 0,
+                startTime: Date.now(),
+                bpm: 128
+            };
+            
+            notes = [];
+            noteIdCounter = 0;
+            
+            // Clear containers
+            document.getElementById('notesContainer').innerHTML = '';
+            document.getElementById('effectsContainer').innerHTML = '';
+            
+            updateUI();
+            gameLoop();
+            startSpawning();
+            
+            // Auto-end after 60 seconds
+            setTimeout(endGame, 60000);
+        }
+        
+        function endGame() {
+            gameState.isPlaying = false;
+            clearInterval(spawnIntervalId);
+            cancelAnimationFrame(gameLoopId);
+            
+            // Calculate grade
+            const hitNotes = gameState.perfects + gameState.greats + gameState.goods;
+            const total = hitNotes + gameState.misses;
+            const accuracy = total > 0 ? (hitNotes / total) * 100 : 0;
+            
+            let grade = 'D';
+            if (accuracy >= 95 && gameState.misses === 0) grade = 'SS';
+            else if (accuracy >= 90) grade = 'S';
+            else if (accuracy >= 80) grade = 'A';
+            else if (accuracy >= 70) grade = 'B';
+            else if (accuracy >= 60) grade = 'C';
+            
+            // Show results
+            document.getElementById('gradeDisplay').textContent = grade;
+            document.getElementById('gradeDisplay').className = `grade-display grade-${grade}`;
+            document.getElementById('finalScore').textContent = gameState.score.toLocaleString();
+            document.getElementById('finalAccuracy').textContent = accuracy.toFixed(1) + '%';
+            document.getElementById('finalCombo').textContent = gameState.maxCombo;
+            document.getElementById('finalPerfect').textContent = gameState.perfects;
+            
+            document.getElementById('resultsScreen').style.display = 'flex';
+        }
+        
+        function restartGame() {
+            document.getElementById('resultsScreen').style.display = 'none';
+            startGame();
+        }
+        
+        // Keyboard input
+        document.addEventListener('keydown', (e) => {
+            if (e.repeat) return;
+            
+            const keyMap = {
+                'q': 'UL', 'Q': 'UL',
+                'w': 'UR', 'W': 'UR',
+                's': 'C', 'S': 'C',
+                'a': 'DL', 'A': 'DL',
+                'd': 'DR', 'D': 'DR',
+                '7': 'UL', '9': 'UR', '5': 'C', '1': 'DL', '3': 'DR' // Numpad style
+            };
+            
+            if (keyMap[e.key]) {
+                e.preventDefault();
+                handleInput(keyMap[e.key]);
+            }
         });
+        
+        // Mouse/touch input
+        Object.keys(notePositions).forEach(lane => {
+            const receptor = document.getElementById(`receptor-${lane}`);
+            receptor.addEventListener('mousedown', () => handleInput(lane));
+            receptor.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                handleInput(lane);
+            });
+        });
+        
+        // Initialize
+        createParticles();
     </script>
 </body>
 </html>
