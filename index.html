@@ -1,1107 +1,1600 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Siquera JR - Rhythm Game</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Turistou · Presidente Prudente</title>
+
+    <!-- Leaflet CSS (mapa) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap');
-        
-        * {
+        /* ===== RESET & VARIABLES ===== */
+        *,
+        *::before,
+        *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #0d47a1;
+            --primary-light: #e8f0fe;
+            --secondary: #34a853;
+            --accent: #fbbc04;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+            --radius: 16px;
+            --radius-sm: 10px;
+            --radius-xs: 6px;
+            --transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            --font: 'Poppins', sans-serif;
+            --header-h: 70px;
+            --max-w: 1200px;
+        }
+
+        .dark {
+            --primary: #4da3ff;
+            --primary-dark: #82b1ff;
+            --primary-light: #1a2a4a;
+            --secondary: #81c784;
+            --accent: #fdd835;
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --text: #f1f5f9;
+            --text-light: #94a3b8;
+            --border: #334155;
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        html { scroll-behavior: smooth; }
+
         body {
-            background: #0a0a0f;
-            color: #fff;
-            font-family: 'Rajdhani', sans-serif;
-            overflow: hidden;
-            user-select: none;
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            transition: background var(--transition), color var(--transition);
+            line-height: 1.7;
+            padding-top: var(--header-h);
+            overflow-x: hidden;
         }
-        
-        #gameContainer {
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: radial-gradient(ellipse at center, #1a0a2e 0%, #0a0a0f 70%);
-            position: relative;
+
+        .container {
+            max-width: var(--max-w);
+            margin: 0 auto;
+            padding: 0 24px;
         }
-        
-        /* Background particles */
-        .particle {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: #00d4ff;
-            border-radius: 50%;
-            opacity: 0.6;
-            animation: float 10s infinite ease-in-out;
-            pointer-events: none;
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
-            10% { opacity: 0.6; }
-            90% { opacity: 0.6; }
-            100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
-        }
-        
-        /* Main game area */
-        #playfield {
-            width: 800px;
-            height: 600px;
-            position: relative;
-            background: radial-gradient(ellipse at center, rgba(20, 10, 40, 0.8) 0%, transparent 70%);
-            border-radius: 20px;
-            box-shadow: 0 0 100px rgba(138, 43, 226, 0.3);
-        }
-        
-        /* PUMP-style receptor buttons (5 panels) */
-        .receptor {
-            position: absolute;
-            width: 80px;
-            height: 80px;
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 30px;
-            font-weight: 900;
-            transition: all 0.05s;
-            cursor: pointer;
-            z-index: 10;
-        }
-        
-        .receptor::before {
-            content: '';
-            position: absolute;
-            inset: -5px;
-            border-radius: 20px;
-            opacity: 0;
-            transition: opacity 0.1s;
-        }
-        
-        .receptor.active {
-            transform: scale(0.9);
-            filter: brightness(1.5);
-        }
-        
-        .receptor.active::before {
-            opacity: 1;
-            animation: pulse 0.3s ease-out;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(1.5); opacity: 0; }
-        }
-        
-        /* PUMP layout: UL, UR, C, DL, DR */
-        #receptor-UL { 
-            top: 50px; 
-            left: 200px; 
-            background: linear-gradient(135deg, #ff006e, #ff4d9e);
-            box-shadow: 0 0 30px #ff006e, inset 0 0 20px rgba(255,255,255,0.2);
-            transform: rotate(-45deg);
-        }
-        #receptor-UL::before { border: 3px solid #ff006e; }
-        #receptor-UL span { transform: rotate(45deg); }
-        
-        #receptor-UR { 
-            top: 50px; 
-            right: 200px; 
-            background: linear-gradient(135deg, #00d4ff, #4de8ff);
-            box-shadow: 0 0 30px #00d4ff, inset 0 0 20px rgba(255,255,255,0.2);
-            transform: rotate(45deg);
-        }
-        #receptor-UR::before { border: 3px solid #00d4ff; }
-        #receptor-UR span { transform: rotate(-45deg); }
-        
-        #receptor-C { 
-            top: 50%; 
-            left: 50%; 
-            transform: translate(-50%, -50%);
-            background: linear-gradient(135deg, #ffd700, #ffed4e);
-            box-shadow: 0 0 40px #ffd700, inset 0 0 20px rgba(255,255,255,0.3);
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-        }
-        #receptor-C::before { border: 3px solid #ffd700; border-radius: 50%; }
-        
-        #receptor-DL { 
-            bottom: 50px; 
-            left: 200px; 
-            background: linear-gradient(135deg, #8b5cf6, #b794f6);
-            box-shadow: 0 0 30px #8b5cf6, inset 0 0 20px rgba(255,255,255,0.2);
-            transform: rotate(45deg);
-        }
-        #receptor-DL::before { border: 3px solid #8b5cf6; }
-        #receptor-DL span { transform: rotate(-45deg); }
-        
-        #receptor-DR { 
-            bottom: 50px; 
-            right: 200px; 
-            background: linear-gradient(135deg, #10b981, #34d399);
-            box-shadow: 0 0 30px #10b981, inset 0 0 20px rgba(255,255,255,0.2);
-            transform: rotate(-45deg);
-        }
-        #receptor-DR::before { border: 3px solid #10b981; }
-        #receptor-DR span { transform: rotate(45deg); }
-        
-        /* osu! style approach circles */
-        .approach-circle {
-            position: absolute;
-            border: 4px solid;
-            border-radius: 15px;
-            opacity: 0.8;
-            pointer-events: none;
-            animation: approach 1s linear forwards;
-        }
-        
-        @keyframes approach {
-            0% { transform: scale(2); opacity: 0.3; }
-            100% { transform: scale(1); opacity: 0; }
-        }
-        
-        .approach-circle.center {
-            border-radius: 50%;
-        }
-        
-        /* Notes */
-        .note {
-            position: absolute;
-            width: 80px;
-            height: 80px;
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            font-weight: 900;
-            z-index: 5;
-            box-shadow: 0 0 20px currentColor;
-        }
-        
-        .note.center {
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-        }
-        
-        .note-UL { 
-            background: linear-gradient(135deg, #ff006e, #ff4d9e);
-            color: #ff006e;
-            left: 200px;
-        }
-        .note-UR { 
-            background: linear-gradient(135deg, #00d4ff, #4de8ff);
-            color: #00d4ff;
-            right: 200px;
-        }
-        .note-C { 
-            background: linear-gradient(135deg, #ffd700, #ffed4e);
-            color: #ffd700;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        .note-DL { 
-            background: linear-gradient(135deg, #8b5cf6, #b794f6);
-            color: #8b5cf6;
-            left: 200px;
-        }
-        .note-DR { 
-            background: linear-gradient(135deg, #10b981, #34d399);
-            color: #10b981;
-            right: 200px;
-        }
-        
-        /* Hit effects */
-        .hit-effect {
-            position: absolute;
-            pointer-events: none;
-            animation: hitBurst 0.5s ease-out forwards;
-            z-index: 20;
-        }
-        
-        @keyframes hitBurst {
-            0% { transform: scale(0.5); opacity: 1; }
-            100% { transform: scale(2); opacity: 0; }
-        }
-        
-        .hit-perfect {
-            width: 100px;
-            height: 100px;
-            border: 3px solid #ffd700;
-            border-radius: 50%;
-            box-shadow: 0 0 30px #ffd700, inset 0 0 30px #ffd700;
-        }
-        
-        .hit-great {
-            width: 80px;
-            height: 80px;
-            border: 3px solid #00d4ff;
-            border-radius: 50%;
-            box-shadow: 0 0 20px #00d4ff;
-        }
-        
-        .hit-good {
-            width: 60px;
-            height: 60px;
-            border: 3px solid #10b981;
-            border-radius: 50%;
-        }
-        
-        .hit-miss {
-            width: 50px;
-            height: 50px;
-            border: 2px solid #ef4444;
-            border-radius: 50%;
-            animation: missShake 0.3s ease-out;
-        }
-        
-        @keyframes missShake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
-        
-        /* Judgment text */
-        .judgment {
-            position: absolute;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 36px;
-            font-weight: 900;
-            text-shadow: 0 0 20px currentColor;
-            pointer-events: none;
-            animation: judgmentFloat 0.8s ease-out forwards;
-            z-index: 30;
-        }
-        
-        @keyframes judgmentFloat {
-            0% { transform: translateY(0) scale(0.8); opacity: 1; }
-            100% { transform: translateY(-50px) scale(1.2); opacity: 0; }
-        }
-        
-        .judgment-perfect { color: #ffd700; text-shadow: 0 0 30px #ffd700; }
-        .judgment-great { color: #00d4ff; text-shadow: 0 0 20px #00d4ff; }
-        .judgment-good { color: #10b981; }
-        .judgment-miss { color: #ef4444; }
-        
-        /* UI Elements */
-        #ui {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            right: 20px;
-            display: flex;
-            justify-content: space-between;
-            z-index: 100;
-        }
-        
-        .ui-panel {
-            background: rgba(10, 10, 15, 0.9);
-            border: 1px solid rgba(138, 43, 226, 0.5);
-            border-radius: 10px;
-            padding: 15px 25px;
-            backdrop-filter: blur(10px);
-        }
-        
-        .score-display {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 32px;
-            font-weight: 900;
-            color: #ffd700;
-            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
-        }
-        
-        .combo-display {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 48px;
-            font-weight: 900;
-            color: #00d4ff;
-            text-shadow: 0 0 30px rgba(0, 212, 255, 0.6);
-        }
-        
-        .combo-label {
-            font-size: 14px;
-            color: #888;
+
+        section { padding: 80px 0; }
+
+        .section-tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 2px;
+            color: var(--primary);
+            background: var(--primary-light);
+            padding: 4px 14px;
+            border-radius: 50px;
+            margin-bottom: 12px;
         }
-        
-        .accuracy-bar {
-            width: 200px;
-            height: 10px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 5px;
-            overflow: hidden;
-            margin-top: 10px;
+
+        .section-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            color: var(--text);
+            line-height: 1.25;
         }
-        
-        .accuracy-fill {
+
+        .section-sub {
+            color: var(--text-light);
+            margin-bottom: 40px;
+            font-size: 1.05rem;
+            max-width: 600px;
+        }
+
+        .section-title.center,
+        .section-sub.center { text-align: center; margin-left: auto; margin-right: auto; }
+
+        /* ===== HEADER ===== */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-h);
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 1px 12px rgba(0,0,0,0.04);
+            z-index: 1000;
+            transition: background var(--transition), border-color var(--transition);
+        }
+
+        header .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             height: 100%;
-            background: linear-gradient(90deg, #ef4444, #ffd700, #00d4ff);
-            transition: width 0.3s;
         }
-        
-        .health-bar {
-            width: 300px;
-            height: 20px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+        .logo i { font-size: 1.7rem; }
+        .logo span { color: var(--text); }
+        .logo span.highlight { color: var(--primary); }
+
+        nav {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        nav a {
+            padding: 8px 14px;
+            border-radius: var(--radius-xs);
+            font-weight: 500;
+            font-size: 0.85rem;
+            transition: background var(--transition), color var(--transition);
+            color: var(--text-light);
+            white-space: nowrap;
+        }
+
+        nav a:hover,
+        nav a.active {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .menu-toggle {
+            display: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text);
+            background: none;
+            border: none;
+            padding: 4px;
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            min-height: calc(100vh - var(--header-h));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 60px 24px;
+            background: linear-gradient(135deg, #0d47a1 0%, #1a73e8 60%, #4da3ff 100%);
+            color: #fff;
+            position: relative;
             overflow: hidden;
-            border: 2px solid rgba(255,255,255,0.2);
         }
-        
-        .health-fill {
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 20% 80%, rgba(255,255,255,0.08) 0%, transparent 70%),
+                radial-gradient(ellipse at 80% 20%, rgba(255,255,255,0.06) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .hero-waves {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 120px;
+            overflow: hidden;
+        }
+
+        .hero-waves svg {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, #ef4444, #ffd700, #10b981);
-            transition: width 0.2s;
-            box-shadow: 0 0 20px currentColor;
         }
-        
-        /* Progress bar */
-        #progressBar {
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(4px);
+            padding: 6px 20px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 16px;
+            line-height: 1.15;
+            letter-spacing: -0.5px;
+        }
+
+        .hero h1 i { margin-right: 12px; }
+
+        .hero p {
+            font-size: 1.15rem;
+            opacity: 0.92;
+            margin-bottom: 36px;
+            max-width: 560px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 34px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.25s, box-shadow 0.25s, background 0.25s;
+            background: #fff;
+            color: var(--primary-dark);
+            font-family: var(--font);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid rgba(255,255,255,0.7);
+            color: #fff;
+        }
+
+        .btn-outline:hover {
+            background: #fff;
+            color: var(--primary);
+        }
+
+        /* ===== ABOUT ===== */
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 48px;
+            align-items: center;
+        }
+
+        .about-text h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 12px; }
+        .about-text p { color: var(--text-light); margin-bottom: 12px; font-size: 1rem; }
+
+        .about-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 28px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 20px 12px;
+            text-align: center;
+            transition: transform var(--transition), box-shadow var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-card .number {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .stat-card .label {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-top: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .about-image {
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            background: linear-gradient(135deg, var(--primary-light), var(--surface));
+            aspect-ratio: 4/3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            color: var(--primary);
+            border: 1px solid var(--border);
+        }
+
+        .about-image i { font-size: 5rem; }
+        .about-image span { font-size: 0.85rem; color: var(--text-light); }
+
+        /* ===== HISTORY ===== */
+        #historia {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            transition: background var(--transition);
+        }
+
+        .history-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        .history-text h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-top: 20px;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+
+        .history-text h3:first-child { margin-top: 0; }
+        .history-text p { color: var(--text-light); margin-bottom: 12px; }
+
+        .culture-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .culture-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 20px;
+            text-align: center;
+            transition: transform var(--transition);
+        }
+
+        .culture-card:hover { transform: translateY(-3px); }
+        .culture-card i { font-size: 1.8rem; color: var(--primary); margin-bottom: 8px; }
+        .culture-card h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 4px; }
+        .culture-card p { font-size: 0.8rem; color: var(--text-light); }
+
+        /* ===== EVENTS ===== */
+        .events-filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 20px;
+            border-radius: 50px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text-light);
+            font-weight: 500;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all var(--transition);
+            font-family: var(--font);
+        }
+
+        .filter-btn.active,
+        .filter-btn:hover {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .event-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: transform var(--transition), box-shadow var(--transition);
+        }
+
+        .event-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow);
+        }
+
+        .event-card-header {
+            padding: 20px 20px 12px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .event-date-badge {
+            min-width: 52px;
+            text-align: center;
+            background: var(--primary-light);
+            border-radius: var(--radius-xs);
+            padding: 8px 4px;
+        }
+
+        .event-date-badge .day {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1;
+        }
+
+        .event-date-badge .month {
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-light);
+        }
+
+        .event-card-body { padding: 0 20px 20px; }
+        .event-card-body h4 { font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
+        .event-card-body p { font-size: 0.85rem; color: var(--text-light); margin-bottom: 4px; }
+        .event-card-body p i { width: 18px; color: var(--primary); }
+        .event-tag {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 2px 10px;
+            border-radius: 50px;
+            background: var(--primary-light);
+            color: var(--primary);
+            margin-top: 8px;
+        }
+
+        /* ===== PLACES / FEED DO LOCAL ===== */
+        .places-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .place-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: transform var(--transition), box-shadow var(--transition);
+        }
+
+        .place-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+        }
+
+        .place-image {
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            color: #fff;
+            position: relative;
+        }
+
+        .place-image .place-overlay {
             position: absolute;
             bottom: 0;
             left: 0;
             right: 0;
-            height: 5px;
-            background: rgba(255,255,255,0.1);
+            padding: 12px 16px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.6));
+            color: #fff;
+            font-weight: 600;
+            font-size: 1rem;
         }
-        
-        #progressFill {
-            height: 100%;
-            background: linear-gradient(90deg, #ff006e, #00d4ff, #ffd700);
-            width: 0%;
-            transition: width 0.1s linear;
-            box-shadow: 0 0 20px #00d4ff;
+
+        .place-info { padding: 16px; }
+        .place-info p { font-size: 0.85rem; color: var(--text-light); margin-bottom: 6px; }
+        .place-info p i { width: 18px; color: var(--primary); }
+
+        .place-bg-1 { background: linear-gradient(135deg, #1a73e8, #4da3ff); }
+        .place-bg-2 { background: linear-gradient(135deg, #e65100, #ff9800); }
+        .place-bg-3 { background: linear-gradient(135deg, #2e7d32, #66bb6a); }
+        .place-bg-4 { background: linear-gradient(135deg, #6a1b9a, #ab47bc); }
+        .place-bg-5 { background: linear-gradient(135deg, #c62828, #ef5350); }
+        .place-bg-6 { background: linear-gradient(135deg, #00695c, #26a69a); }
+
+        /* ===== MAP ===== */
+        #mapa-section {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            transition: background var(--transition);
         }
-        
-        /* Start screen */
-        #startScreen {
-            position: absolute;
-            inset: 0;
-            background: rgba(10, 10, 15, 0.95);
+
+        #map {
+            height: 450px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            z-index: 1;
+        }
+
+        /* ===== GALLERY ===== */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .gallery-item {
+            aspect-ratio: 4/3;
+            border-radius: var(--radius-sm);
+            background: var(--surface);
+            border: 1px solid var(--border);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
-        }
-        
-        .game-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 72px;
-            font-weight: 900;
-            background: linear-gradient(135deg, #ff006e, #00d4ff, #ffd700);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 0 0 60px rgba(0, 212, 255, 0.5);
-            margin-bottom: 20px;
-            animation: titlePulse 2s ease-in-out infinite;
-        }
-        
-        @keyframes titlePulse {
-            0%, 100% { filter: brightness(1); }
-            50% { filter: brightness(1.3); }
-        }
-        
-        .subtitle {
-            font-size: 24px;
-            color: #888;
-            margin-bottom: 40px;
-            letter-spacing: 5px;
-        }
-        
-        .controls-info {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 20px;
-            margin-bottom: 40px;
-        }
-        
-        .key-box {
-            width: 60px;
-            height: 60px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 20px;
-            font-weight: 700;
-            transition: all 0.3s;
-        }
-        
-        .key-q { border-color: #ff006e; color: #ff006e; box-shadow: 0 0 20px rgba(255, 0, 110, 0.3); }
-        .key-w { border-color: #00d4ff; color: #00d4ff; box-shadow: 0 0 20px rgba(0, 212, 255, 0.3); }
-        .key-s { border-color: #ffd700; color: #ffd700; box-shadow: 0 0 20px rgba(255, 215, 0, 0.3); }
-        .key-a { border-color: #8b5cf6; color: #8b5cf6; box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
-        .key-d { border-color: #10b981; color: #10b981; box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
-        
-        .btn-start {
-            padding: 20px 60px;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 24px;
-            font-weight: 700;
-            background: linear-gradient(135deg, #ff006e, #00d4ff);
-            border: none;
-            border-radius: 50px;
-            color: white;
+            gap: 12px;
+            font-size: 2.5rem;
+            color: var(--text-light);
+            transition: transform var(--transition), box-shadow var(--transition);
             cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            box-shadow: 0 0 40px rgba(255, 0, 110, 0.5);
         }
-        
-        .btn-start:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 60px rgba(0, 212, 255, 0.7);
+
+        .gallery-item:hover {
+            transform: scale(1.03);
+            box-shadow: var(--shadow-sm);
         }
-        
-        /* Results screen */
-        #resultsScreen {
+
+        .gallery-item span {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        /* ===== CURIOSITIES ===== */
+        .curiosities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 20px;
+        }
+
+        .curio-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 24px;
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            transition: transform var(--transition);
+        }
+
+        .curio-card:hover { transform: translateY(-3px); }
+        .curio-card i {
+            font-size: 1.5rem;
+            color: var(--primary);
+            min-width: 40px;
+            text-align: center;
+            margin-top: 2px;
+        }
+
+        .curio-card h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; }
+        .curio-card p { font-size: 0.82rem; color: var(--text-light); }
+
+        /* ===== ROUTE ===== */
+        .route-timeline {
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .route-timeline::before {
+            content: '';
             position: absolute;
-            inset: 0;
-            background: rgba(10, 10, 15, 0.98);
-            display: none;
-            flex-direction: column;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--border);
+            border-radius: 10px;
+        }
+
+        .route-item {
+            position: relative;
+            margin-bottom: 28px;
+        }
+
+        .route-item::before {
+            content: '';
+            position: absolute;
+            left: -29px;
+            top: 4px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: 3px solid var(--bg);
+        }
+
+        .route-item .time {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--primary);
+        }
+
+        .route-item h4 { font-size: 1rem; font-weight: 600; margin: 2px 0 4px; }
+        .route-item p { font-size: 0.85rem; color: var(--text-light); }
+
+        /* ===== FOOTER ===== */
+        footer {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: 48px 0 32px;
+            transition: background var(--transition);
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 32px;
+        }
+
+        .footer-brand .logo { font-size: 1.3rem; margin-bottom: 12px; }
+        .footer-brand p { font-size: 0.85rem; color: var(--text-light); margin-bottom: 16px; }
+
+        .footer-social {
+            display: flex;
+            gap: 12px;
+        }
+
+        .footer-social a {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
+            color: var(--text-light);
+            transition: all var(--transition);
         }
-        
-        .grade-display {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 150px;
-            font-weight: 900;
-            margin-bottom: 30px;
-            animation: gradePop 0.5s ease-out;
+
+        .footer-social a:hover {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
         }
-        
-        @keyframes gradePop {
-            0% { transform: scale(0) rotate(-180deg); }
-            100% { transform: scale(1) rotate(0deg); }
-        }
-        
-        .grade-SS { color: #ffd700; text-shadow: 0 0 60px #ffd700; }
-        .grade-S { color: #c0c0c0; text-shadow: 0 0 40px #c0c0c0; }
-        .grade-A { color: #ff6b35; text-shadow: 0 0 40px #ff6b35; }
-        .grade-B { color: #00d4ff; text-shadow: 0 0 40px #00d4ff; }
-        .grade-C { color: #8b5cf6; text-shadow: 0 0 40px #8b5cf6; }
-        .grade-D { color: #ef4444; text-shadow: 0 0 40px #ef4444; }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .stat-box {
-            background: rgba(255,255,255,0.05);
-            padding: 20px 40px;
-            border-radius: 10px;
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .stat-value {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 36px;
-            font-weight: 900;
-            color: #00d4ff;
-        }
-        
-        .stat-label {
-            font-size: 14px;
-            color: #666;
+
+        .footer-col h4 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 16px;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-top: 5px;
+            letter-spacing: 1px;
         }
-        
-        /* Key hints */
-        .key-hint {
-            position: absolute;
-            font-size: 12px;
-            color: rgba(255,255,255,0.5);
-            font-family: 'Orbitron', sans-serif;
-            pointer-events: none;
+
+        .footer-col a {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-bottom: 8px;
+            transition: color var(--transition);
         }
-        
-        #hint-q { top: 30px; left: 230px; }
-        #hint-w { top: 30px; right: 230px; }
-        #hint-s { top: 50%; left: 50%; transform: translate(-50%, -120%); }
-        #hint-a { bottom: 30px; left: 230px; }
-        #hint-d { bottom: 30px; right: 230px; }
-        
-        /* Lane lines (osu! style) */
-        .lane-line {
-            position: absolute;
-            width: 2px;
-            height: 100%;
-            background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.1), transparent);
-            pointer-events: none;
+
+        .footer-col a:hover { color: var(--primary); }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 32px;
+            margin-top: 32px;
+            border-top: 1px solid var(--border);
+            font-size: 0.8rem;
+            color: var(--text-light);
         }
-        
-        .lane-UL { left: 239px; }
-        .lane-UR { right: 239px; }
-        .lane-C { left: 50%; transform: translateX(-50%); width: 4px; background: linear-gradient(to bottom, transparent, rgba(255,215,0,0.2), transparent); }
-        .lane-DL { left: 239px; }
-        .lane-DR { right: 239px; }
+
+        /* ===== SCROLL REVEAL ===== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ===== DARK TOGGLE ===== */
+        .theme-toggle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            transition: all var(--transition);
+            margin-left: 8px;
+        }
+
+        .theme-toggle:hover {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+
+        /* ===== HIGHLIGHT BANNER ===== */
+        .highlight-banner {
+            background: linear-gradient(135deg, #00695c, #26a69a);
+            color: #fff;
+            border-radius: var(--radius);
+            padding: 32px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+            margin-bottom: 32px;
+        }
+
+        .highlight-banner-icon {
+            font-size: 3rem;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .highlight-banner-content { flex: 1; min-width: 200px; }
+        .highlight-banner-content h3 { font-size: 1.3rem; font-weight: 700; margin-bottom: 4px; }
+        .highlight-banner-content p { font-size: 0.9rem; opacity: 0.9; }
+
+        .highlight-banner .btn-small {
+            background: #fff;
+            color: #00695c;
+            padding: 10px 24px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s;
+            white-space: nowrap;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .highlight-banner .btn-small:hover { transform: scale(1.05); }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 900px) {
+            .about-grid,
+            .history-grid { grid-template-columns: 1fr; }
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+            .hero h1 { font-size: 2.5rem; }
+        }
+
+        @media (max-width: 768px) {
+            section { padding: 56px 0; }
+            .section-title { font-size: 1.6rem; }
+            .hero h1 { font-size: 2rem; }
+            .menu-toggle { display: block; }
+
+            nav {
+                position: fixed;
+                top: var(--header-h);
+                left: 0;
+                right: 0;
+                background: var(--surface);
+                flex-direction: column;
+                padding: 16px 24px;
+                border-bottom: 1px solid var(--border);
+                box-shadow: var(--shadow);
+                transform: translateY(-120%);
+                opacity: 0;
+                transition: transform 0.4s ease, opacity 0.4s ease;
+                pointer-events: none;
+                z-index: 999;
+            }
+
+            nav.open {
+                transform: translateY(0);
+                opacity: 1;
+                pointer-events: all;
+            }
+
+            nav a { padding: 12px 16px; width: 100%; }
+
+            .about-stats { grid-template-columns: 1fr 1fr; }
+            .culture-cards { grid-template-columns: 1fr; }
+            .events-grid { grid-template-columns: 1fr; }
+            .footer-grid { grid-template-columns: 1fr; text-align: center; }
+            .footer-social { justify-content: center; }
+            .highlight-banner { flex-direction: column; text-align: center; }
+        }
+
+        @media (max-width: 480px) {
+            .about-stats { grid-template-columns: 1fr; }
+            .hero-buttons { flex-direction: column; align-items: center; }
+            .hero h1 { font-size: 1.7rem; }
+            .container { padding: 0 16px; }
+            .stat-card .number { font-size: 1.2rem; }
+        }
     </style>
 </head>
 <body>
-    <div id="gameContainer">
-        <!-- Background particles -->
-        <div id="particles"></div>
-        
-        <div id="playfield">
-            <!-- Lane lines -->
-            <div class="lane-line lane-UL"></div>
-            <div class="lane-line lane-UR"></div>
-            <div class="lane-line lane-C"></div>
-            
-            <!-- Receptors (PUMP style) -->
-            <div class="receptor" id="receptor-UL" data-key="q"><span>↖</span></div>
-            <div class="receptor" id="receptor-UR" data-key="w"><span>↗</span></div>
-            <div class="receptor center" id="receptor-C" data-key="s"><span>●</span></div>
-            <div class="receptor" id="receptor-DL" data-key="a"><span>↙</span></div>
-            <div class="receptor" id="receptor-DR" data-key="d"><span>↘</span></div>
-            
-            <!-- Key hints -->
-            <div class="key-hint" id="hint-q">Q</div>
-            <div class="key-hint" id="hint-w">W</div>
-            <div class="key-hint" id="hint-s">S</div>
-            <div class="key-hint" id="hint-a">A</div>
-            <div class="key-hint" id="hint-d">D</div>
-            
-            <!-- Notes container -->
-            <div id="notesContainer"></div>
-            
-            <!-- Effects container -->
-            <div id="effectsContainer"></div>
-            
-            <!-- Progress bar -->
-            <div id="progressBar">
-                <div id="progressFill"></div>
+
+    <!-- ===== HEADER ===== -->
+    <header>
+        <div class="container">
+            <a href="#home" class="logo">
+                <i class="fas fa-compass"></i>
+                <span>Turist<span class="highlight">ou</span></span>
+            </a>
+
+            <nav id="navbar">
+                <a href="#home" class="active">Home</a>
+                <a href="#sobre">Sobre</a>
+                <a href="#historia">História</a>
+                <a href="#eventos">Eventos</a>
+                <a href="#pontos">Pontos</a>
+                <a href="#galeria">Galeria</a>
+                <a href="#mapa-section">Mapa</a>
+                <a href="#roteiro">Roteiro</a>
+                <button class="theme-toggle" id="themeToggle" aria-label="Alternar tema">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </nav>
+
+            <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- ===== HERO ===== -->
+    <section class="hero" id="home">
+        <div class="hero-waves">
+            <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
+                <path fill="var(--bg)" d="M0,64L48,69.3C96,75,192,85,288,80C384,75,480,53,576,48C672,43,768,53,864,64C960,75,1056,85,1152,80C1248,75,1344,53,1392,42.7L1440,32L1440,120L1392,120C1344,120,1248,120,1152,120C1056,120,960,120,864,120C768,120,672,120,576,120C480,120,384,120,288,120C192,120,96,120,48,120L0,120Z" opacity="0.4"/>
+            </svg>
+        </div>
+
+        <div class="hero-content">
+            <div class="hero-badge">
+                <i class="fas fa-map-pin"></i> Presidente Prudente · SP
+            </div>
+            <h1>
+                <i class="fas fa-compass"></i> Turistou
+            </h1>
+            <p>
+                Descubra os encantos do Oeste Paulista. Natureza, cultura, história
+                e lazer esperam por você em Presidente Prudente.
+            </p>
+            <div class="hero-buttons">
+                <a href="#sobre" class="btn">
+                    <i class="fas fa-info-circle"></i> Explorar
+                </a>
+                <a href="#eventos" class="btn btn-outline">
+                    <i class="fas fa-calendar-alt"></i> Eventos
+                </a>
+                <a href="#mapa-section" class="btn btn-outline">
+                    <i class="fas fa-map-marked-alt"></i> Mapa
+                </a>
             </div>
         </div>
-        
-        <!-- UI -->
-        <div id="ui">
-            <div class="ui-panel">
-                <div class="score-display" id="scoreDisplay">00000000</div>
-                <div class="accuracy-bar">
-                    <div class="accuracy-fill" id="accuracyFill" style="width: 100%"></div>
+    </section>
+
+    <!-- ===== ABOUT ===== -->
+    <section id="sobre">
+        <div class="container">
+            <div class="about-grid">
+                <div class="about-text reveal">
+                    <span class="section-tag"><i class="fas fa-city"></i> A cidade</span>
+                    <h2>Bem-vindo a Presidente Prudente</h2>
+                    <p>
+                        <strong>Presidente Prudente</strong> é um município brasileiro no estado de São Paulo,
+                        localizado no <strong>Oeste Paulista</strong>. Com mais de <strong>225 mil habitantes</strong>
+                        (estimativa de 235 mil em 2025), é a principal cidade da região e um importante polo
+                        de serviços, educação e saúde.
+                    </p>
+                    <p>
+                        A cidade se destaca por sua <strong>excelente qualidade de vida</strong>, com parques
+                        bem cuidados, uma agenda cultural vibrante e uma economia movimentada. É conhecida como
+                        a "Capital do Oeste Paulista" e recebe visitantes de toda a região.
+                    </p>
+
+                    <div class="about-stats">
+                        <div class="stat-card">
+                            <div class="number">235 mil</div>
+                            <div class="label">Habitantes</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="number">R$ 11,6 bi</div>
+                            <div class="label">PIB municipal</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="number">IDHM 0,806</div>
+                            <div class="label">Muito alto</div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="ui-panel" style="text-align: center;">
-                <div class="combo-display" id="comboDisplay">0</div>
-                <div class="combo-label">COMBO</div>
-            </div>
-            
-            <div class="ui-panel">
-                <div class="health-bar">
-                    <div class="health-fill" id="healthFill" style="width: 100%"></div>
+
+                <div class="about-image reveal">
+                    <i class="fas fa-landmark"></i>
+                    <span>Presidente Prudente · SP</span>
                 </div>
             </div>
         </div>
-        
-        <!-- Start Screen -->
-        <div id="startScreen">
-            <h1 class="game-title">NEURO: PULSE</h1>
-            <p class="subtitle">PUMP STYLE × OSU! PRECISION</p>
-            
-            <div class="controls-info">
-                <div class="key-box key-q">Q</div>
-                <div class="key-box key-w">W</div>
-                <div class="key-box key-s">S</div>
-                <div class="key-box key-a">A</div>
-                <div class="key-box key-d">D</div>
+    </section>
+
+    <!-- ===== HISTORY & CULTURE ===== -->
+    <section id="historia">
+        <div class="container">
+            <div class="history-grid">
+                <div class="history-text reveal">
+                    <span class="section-tag"><i class="fas fa-book-open"></i> História</span>
+                    <h2 class="section-title">Nossa História</h2>
+
+                    <h3><i class="fas fa-tree"></i> Fundação</h3>
+                    <p>
+                        A cidade nasceu como <strong>Vila Goulart</strong>, fundada em
+                        <strong>14 de setembro de 1917</strong> pelo Coronel Francisco de Paula Goulart,
+                        herdeiro da Fazenda Pirapó-Santo Anastácio. Em <strong>28 de novembro de 1921</strong>,
+                        pela lei estadual nº 1.798, foi emancipada e batizada como
+                        <strong>Presidente Prudente</strong>, em homenagem a
+                        <strong>Prudente de Morais</strong> — primeiro presidente civil do Brasil
+                        e ex-presidente do estado de São Paulo.
+                    </p>
+
+                    <h3><i class="fas fa-chart-line"></i> Desenvolvimento</h3>
+                    <p>
+                        Originalmente agropecuária, a cidade se modernizou e hoje tem sua economia
+                        baseada no <strong>setor de serviços (73% do PIB)</strong>, seguido pela
+                        indústria (14%) e administração pública (11%). É um importante centro regional
+                        de educação, com destaque para <strong>UNESP</strong>, <strong>UNOESTE</strong>
+                        e o <strong>SENAC</strong>.
+                    </p>
+                </div>
+
+                <div class="reveal">
+                    <span class="section-tag"><i class="fas fa-music"></i> Cultura</span>
+                    <h2 class="section-title">Tradições & Cultura</h2>
+                    <div class="culture-cards">
+                        <div class="culture-card">
+                            <i class="fas fa-mask"></i>
+                            <h4>PrudenFolia</h4>
+                            <p>Carnaval da cidade com desfile de escolas de samba, patrimônio cultural imaterial desde 2017.</p>
+                        </div>
+                        <div class="culture-card">
+                            <i class="fas fa-guitar"></i>
+                            <h4>Feira do Rock</h4>
+                            <p>Evento tradicional no Centro Cultural Matarazzo reunindo bandas locais e regionais.</p>
+                        </div>
+                        <div class="culture-card">
+                            <i class="fas fa-palette"></i>
+                            <h4>Revelando SP</h4>
+                            <p>Festival de cultura paulista com gastronomia, artesanato e manifestações artísticas.</p>
+                        </div>
+                        <div class="culture-card">
+                            <i class="fas fa-theater-masks"></i>
+                            <h4>Centro Cultural Matarazzo</h4>
+                            <p>Principal polo cultural com teatro, cinema, galeria de exposições e biblioteca.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-            
-            <button class="btn-start" onclick="startGame()">INICIAR</button>
         </div>
-        
-        <!-- Results Screen -->
-        <div id="resultsScreen">
-            <div class="grade-display" id="gradeDisplay">S</div>
-            
-            <div class="stats-grid">
-                <div class="stat-box">
-                    <div class="stat-value" id="finalScore">0</div>
-                    <div class="stat-label">Pontuação</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value" id="finalAccuracy">0%</div>
-                    <div class="stat-label">Precisão</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value" id="finalCombo">0</div>
-                    <div class="stat-label">Max Combo</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value" id="finalPerfect">0</div>
-                    <div class="stat-label">Perfects</div>
+    </section>
+
+    <!-- ===== EVENTS ===== -->
+    <section id="eventos">
+        <div class="container">
+            <div class="reveal">
+                <span class="section-tag center" style="display:table;margin:0 auto 12px;">
+                    <i class="fas fa-calendar-alt"></i> Programação
+                </span>
+                <h2 class="section-title center">Feed de Eventos</h2>
+                <p class="section-sub center">
+                    Fique por dentro do que acontece em Presidente Prudente.
+                </p>
+            </div>
+
+            <!-- DESTAQUE: CASA ABERTA SENAC -->
+            <div class="reveal">
+                <div class="highlight-banner">
+                    <div class="highlight-banner-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div class="highlight-banner-content">
+                        <h3><i class="fas fa-star"></i> Casa Aberta SENAC 2026 — HOJE!</h3>
+                        <p>28 de agosto · Das 9h às 21h · Atividades gratuitas de tecnologia, saúde, gastronomia, design e bem-estar. Venha conhecer!</p>
+                    </div>
+                    <a href="https://www.sp.senac.br/senac-presidente-prudente" target="_blank" class="btn-small">
+                        <i class="fas fa-external-link-alt"></i> Saiba mais
+                    </a>
                 </div>
             </div>
-            
-            <button class="btn-start" onclick="restartGame()">JOGAR NOVAMENTE</button>
+
+            <div class="events-filters reveal">
+                <button class="filter-btn active" data-filter="all">Todos</button>
+                <button class="filter-btn" data-filter="cultural">Cultural</button>
+                <button class="filter-btn" data-filter="musical">Musical</button>
+                <button class="filter-btn" data-filter="festival">Festival</button>
+                <button class="filter-btn" data-filter="gratuito">Gratuito</button>
+            </div>
+
+            <div class="events-grid" id="eventsGrid">
+                <!-- gerado via JS -->
+            </div>
         </div>
-    </div>
+    </section>
+
+    <!-- ===== PLACES ===== -->
+    <section id="pontos">
+        <div class="container">
+            <div class="reveal">
+                <span class="section-tag center" style="display:table;margin:0 auto 12px;">
+                    <i class="fas fa-map-signs"></i> Pontos Turísticos
+                </span>
+                <h2 class="section-title center">Feed do Local</h2>
+                <p class="section-sub center">
+                    Lugares imperdíveis para visitar em Presidente Prudente.
+                </p>
+            </div>
+
+            <div class="places-grid" id="placesGrid">
+                <!-- gerado via JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== GALLERY ===== -->
+    <section id="galeria">
+        <div class="container">
+            <div class="reveal">
+                <span class="section-tag center" style="display:table;margin:0 auto 12px;">
+                    <i class="fas fa-images"></i> Galeria
+                </span>
+                <h2 class="section-title center">Galeria de Fotos</h2>
+                <p class="section-sub center">
+                    Um passeio visual pelos principais cartões-postais da cidade.
+                </p>
+            </div>
+
+            <div class="gallery-grid reveal">
+                <div class="gallery-item">
+                    <i class="fas fa-tree"></i>
+                    <span>Parque do Povo</span>
+                </div>
+                <div class="gallery-item">
+                    <i class="fas fa-theater-masks"></i>
+                    <span>Centro Cultural Matarazzo</span>
+                </div>
+                <div class="gallery-item">
+                    <i class="fas fa-swimmer"></i>
+                    <span>Sesc Thermas</span>
+                </div>
+                <div class="gallery-item">
+                    <i class="fas fa-church"></i>
+                    <span>Catedral São Sebastião</span>
+                </div>
+                <div class="gallery-item">
+                    <i class="fas fa-water"></i>
+                    <span>Balneário da Amizade</span>
+                </div>
+                <div class="gallery-item">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>SENAC Prudente</span>
+                </div>
+                <div class="gallery-item">
+                    <i class="fas fa-university"></i>
+                    <span>UNESP</span>
+                </div>
+                <div class="gallery-item">
+                    <i class="fas fa-city"></i>
+                    <span>Vista Aérea da Cidade</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CURIOSITIES ===== -->
+    <section id="curiosidades" style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);transition:background var(--transition);">
+        <div class="container">
+            <div class="reveal">
+                <span class="section-tag center" style="display:table;margin:0 auto 12px;">
+                    <i class="fas fa-lightbulb"></i> Sabia que…
+                </span>
+                <h2 class="section-title center">Curiosidades</h2>
+                <p class="section-sub center">
+                    Fatos interessantes sobre Presidente Prudente.
+                </p>
+            </div>
+
+            <div class="curiosities-grid reveal">
+                <div class="curio-card">
+                    <i class="fas fa-trophy"></i>
+                    <div>
+                        <h4>Primeira cidade planejada do Oeste Paulista</h4>
+                        <p>Presidente Prudente foi uma das primeiras cidades da região a ter um planejamento urbano estruturado.</p>
+                    </div>
+                </div>
+                <div class="curio-card">
+                    <i class="fas fa-graduation-cap"></i>
+                    <div>
+                        <h4>Polo universitário regional</h4>
+                        <p>A cidade abriga UNESP, UNOESTE, FATEC e SENAC, atraindo milhares de estudantes de toda a região.</p>
+                    </div>
+                </div>
+                <div class="curio-card">
+                    <i class="fas fa-cloud-sun"></i>
+                    <div>
+                        <h4>Clima privilegiado</h4>
+                        <p>Com temperaturas agradáveis na maior parte do ano, é um dos destinos preferidos do interior paulista.</p>
+                    </div>
+                </div>
+                <div class="curio-card">
+                    <i class="fas fa-running"></i>
+                    <div>
+                        <h4>Parque do Povo: 460 mil m²</h4>
+                        <p>Um dos maiores parques urbanos do interior de SP, com pistas, ciclovia, skate park e muito verde.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== ROUTE ===== -->
+    <section id="roteiro">
+        <div class="container">
+            <div class="reveal">
+                <span class="section-tag center" style="display:table;margin:0 auto 12px;">
+                    <i class="fas fa-route"></i> Roteiro
+                </span>
+                <h2 class="section-title center">O que fazer em 24h</h2>
+                <p class="section-sub center">
+                    Um roteiro completo para aproveitar o melhor de Presidente Prudente em um dia.
+                </p>
+            </div>
+
+            <div class="route-timeline reveal" style="max-width:600px;margin:0 auto;">
+                <div class="route-item">
+                    <span class="time">08:00 – 10:00</span>
+                    <h4><i class="fas fa-coffee"></i> Café da manhã + Parque do Povo</h4>
+                    <p>Comece o dia com um café colonial e depois faça uma caminhada matinal pelo parque.</p>
+                </div>
+                <div class="route-item">
+                    <span class="time">10:00 – 12:00</span>
+                    <h4><i class="fas fa-church"></i> Matarazzo & Catedral</h4>
+                    <p>Visite o Centro Cultural Matarazzo e conheça a Catedral de São Sebastião.</p>
+                </div>
+                <div class="route-item">
+                    <span class="time">12:00 – 14:00</span>
+                    <h4><i class="fas fa-utensils"></i> Almoço</h4>
+                    <p>Experimente a culinária local nos restaurantes da cidade.</p>
+                </div>
+                <div class="route-item">
+                    <span class="time">14:00 – 17:00</span>
+                    <h4><i class="fas fa-swimmer"></i> Sesc Thermas</h4>
+                    <p>Tarde de lazer no Sesc com piscinas, quadras e programação cultural.</p>
+                </div>
+                <div class="route-item">
+                    <span class="time">17:00 – 19:00</span>
+                    <h4><i class="fas fa-graduation-cap"></i> SENAC Prudente</h4>
+                    <p>Conheça a unidade do SENAC na Av. Manoel Goulart — referência em educação profissional.</p>
+                </div>
+                <div class="route-item">
+                    <span class="time">19:00 – 22:00</span>
+                    <h4><i class="fas fa-music"></i> Vida Noturna</h4>
+                    <p>Jantar e evento cultural no Matarazzo, Sesc ou programação da cidade.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== MAP ===== -->
+    <section id="mapa-section">
+        <div class="container">
+            <div class="reveal">
+                <span class="section-tag center" style="display:table;margin:0 auto 12px;">
+                    <i class="fas fa-map-marked-alt"></i> Mapa
+                </span>
+                <h2 class="section-title center">Se localize</h2>
+                <p class="section-sub center">
+                    Para você não se perder! Todos os pontos turísticos no mapa.
+                </p>
+            </div>
+            <div id="map" class="reveal"></div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="logo">
+                        <i class="fas fa-compass"></i>
+                        <span>Turist<span class="highlight">ou</span></span>
+                    </div>
+                    <p>
+                        Descubra Presidente Prudente. O melhor do Oeste Paulista em um só lugar.
+                    </p>
+                    <div class="footer-social">
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="#" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+
+                <div class="footer-col">
+                    <h4>Navegação</h4>
+                    <a href="#home">Home</a>
+                    <a href="#sobre">Sobre</a>
+                    <a href="#historia">História</a>
+                    <a href="#eventos">Eventos</a>
+                    <a href="#pontos">Pontos Turísticos</a>
+                </div>
+
+                <div class="footer-col">
+                    <h4>Links Úteis</h4>
+                    <a href="https://www.presidenteprudente.sp.gov.br" target="_blank">Prefeitura</a>
+                    <a href="https://turismopp.sp.gov.br" target="_blank">Turismo PP</a>
+                    <a href="https://www.sp.senac.br/senac-presidente-prudente" target="_blank">SENAC Prudente</a>
+                    <a href="https://www.sescsp.org.br/unidades/presidente-prudente/" target="_blank">Sesc Prudente</a>
+                </div>
+
+                <div class="footer-col">
+                    <h4>Contato</h4>
+                    <a href="#"><i class="fas fa-phone"></i> (18) 3226-0400</a>
+                    <a href="#"><i class="fas fa-envelope"></i> turismo@pp.sp.gov.br</a>
+                    <a href="#"><i class="fas fa-map-pin"></i> Centro, Presidente Prudente</a>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 <strong>Turistou</strong> — Trabalho de Formação Técnica SENAC. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===== LEAFLET JS ===== -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
-        // Game state
-        let gameState = {
-            isPlaying: false,
-            score: 0,
-            combo: 0,
-            maxCombo: 0,
-            health: 100,
-            accuracy: 100,
-            perfects: 0,
-            greats: 0,
-            goods: 0,
-            misses: 0,
-            totalNotes: 0,
-            startTime: 0,
-            bpm: 128
+        // ===== DADOS =====
+        const eventsData = [{
+            id: 1,
+            title: 'Casa Aberta SENAC 2026',
+            date: '28 de Agosto',
+            day: '28',
+            month: 'Ago',
+            local: 'SENAC Presidente Prudente',
+            desc: 'Atividades gratuitas de tecnologia, saúde, bem-estar, gastronomia, gestão, design e cultura. Experimente na prática!',
+            tag: 'Gratuito',
+            tags: ['gratuito', 'cultural']
+        }, {
+            id: 2,
+            title: 'PrudenFolia 2026',
+            date: '13 a 17 Fev',
+            day: '13',
+            month: 'Fev',
+            local: 'Parque do Povo',
+            desc: 'Carnaval de Presidente Prudente com desfile das escolas de samba, trios elétricos e programação para toda a família.',
+            tag: 'Cultural',
+            tags: ['cultural', 'gratuito']
+        }, {
+            id: 3,
+            title: 'Revelando SP',
+            date: '14 a 16 Ago',
+            day: '14',
+            month: 'Ago',
+            local: 'Centro de Eventos IBC',
+            desc: 'Festival de cultura paulista com gastronomia típica, artesanato, música e manifestações tradicionais. Entrada gratuita.',
+            tag: 'Festival',
+            tags: ['festival', 'gratuito', 'cultural']
+        }, {
+            id: 4,
+            title: 'Feira do Rock',
+            date: '12 Abr',
+            day: '12',
+            month: 'Abr',
+            local: 'Centro Cultural Matarazzo',
+            desc: 'Feira que reúne bandas locais e regionais do cenário rock, com expositores e comida de rua.',
+            tag: 'Musical',
+            tags: ['musical', 'cultural']
+        }, {
+            id: 5,
+            title: 'Feira da Lua',
+            date: '18 Abr',
+            day: '18',
+            month: 'Abr',
+            local: 'Centro Cultural Matarazzo',
+            desc: 'Feira noturna com artesanato, gastronomia e música ao vivo no Matarazzo.',
+            tag: 'Cultural',
+            tags: ['cultural', 'gratuito']
+        }, {
+            id: 6,
+            title: 'Orquestra de Viola Caipira',
+            date: 'Semanal',
+            day: 'Sem',
+            month: '',
+            local: 'Centro Cultural Matarazzo',
+            desc: 'Ensaio aberto da Orquestra de Viola Caipira. Gratuito para apreciadores da música de raiz.',
+            tag: 'Musical',
+            tags: ['musical', 'gratuito']
+        }];
+
+        const placesData = [{
+            name: 'Parque do Povo',
+            desc: '460 mil m² de área verde, pistas de caminhada, ciclovia, skate park, playground e muito lazer.',
+            address: 'Av. 14 de Setembro · Aberto 24h',
+            icon: 'fa-tree',
+            bgClass: 'place-bg-1',
+            coords: [-22.131, -51.395]
+        }, {
+            name: 'Centro Cultural Matarazzo',
+            desc: 'Teatro, cinema, galeria de exposições, biblioteca e programação cultural.',
+            address: 'R. Alberto Peters, 111',
+            icon: 'fa-theater-masks',
+            bgClass: 'place-bg-2',
+            coords: [-22.118, -51.377]
+        }, {
+            name: 'Sesc Thermas',
+            desc: 'Estrutura completa com piscinas, quadras poliesportivas e programação cultural.',
+            address: 'R. Alberto Peters, 111 · Jardim das Rosas',
+            icon: 'fa-swimmer',
+            bgClass: 'place-bg-3',
+            coords: [-22.119, -51.399]
+        }, {
+            name: 'Catedral São Sebastião',
+            desc: 'Igreja matriz imponente com belos vitrais, localizada na Praça da Sé.',
+            address: 'Praça da Sé · Centro',
+            icon: 'fa-church',
+            bgClass: 'place-bg-4',
+            coords: [-22.123, -51.389]
+        }, {
+            name: 'Balneário da Amizade',
+            desc: 'Área de lazer aquática com piscinas, quiosques e churrasqueiras.',
+            address: 'Rod. Assis Chateaubriand',
+            icon: 'fa-water',
+            bgClass: 'place-bg-5',
+            coords: [-22.145, -51.410]
+        }, {
+            name: 'SENAC Presidente Prudente',
+            desc: 'Unidade do SENAC com cursos técnicos, livres e Ensino Médio Técnico em Multimídia. Mais de 1.200 vagas gratuitas por ano.',
+            address: 'Av. Manoel Goulart, 2.881 · Centro Educacional',
+            icon: 'fa-graduation-cap',
+            bgClass: 'place-bg-6',
+            coords: [-22.119, -51.383]
+        }];
+
+        // ===== RENDER EVENTS =====
+        const eventsGrid = document.getElementById('eventsGrid');
+
+        function renderEvents(filter = 'all') {
+            const filtered = filter === 'all' ?
+                eventsData :
+                eventsData.filter(e => e.tags.includes(filter));
+
+            eventsGrid.innerHTML = filtered.map(e => `
+                        <div class="event-card">
+                            <div class="event-card-header">
+                                <div class="event-date-badge">
+                                    <div class="day">${e.day}</div>
+                                    <div class="month">${e.month}</div>
+                                </div>
+                                <div style="flex:1;">
+                                    <h4>${e.title}</h4>
+                                    <span class="event-tag">${e.tag}</span>
+                                </div>
+                            </div>
+                            <div class="event-card-body">
+                                <p><i class="fas fa-calendar-day"></i> ${e.date}</p>
+                                <p><i class="fas fa-map-marker-alt"></i> ${e.local}</p>
+                                <p style="margin-top:8px;">${e.desc}</p>
+                            </div>
+                        </div>
+                    `).join('');
+        }
+
+        renderEvents();
+
+        // ===== FILTER BUTTONS =====
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                renderEvents(this.dataset.filter);
+            });
+        });
+
+        // ===== RENDER PLACES =====
+        const placesGrid = document.getElementById('placesGrid');
+        placesGrid.innerHTML = placesData.map(p => `
+                    <div class="place-card">
+                        <div class="place-image ${p.bgClass}">
+                            <i class="fas ${p.icon}"></i>
+                            <div class="place-overlay">${p.name}</div>
+                        </div>
+                        <div class="place-info">
+                            <p><i class="fas fa-info-circle"></i> ${p.desc}</p>
+                            <p><i class="fas fa-map-pin"></i> ${p.address}</p>
+                        </div>
+                    </div>
+                `).join('');
+
+        // ===== MAP =====
+        const map = L.map('map', {
+            center: [-22.1256, -51.3889],
+            zoom: 14,
+            zoomControl: true,
+        });
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>',
+            maxZoom: 19,
+        }).addTo(map);
+
+        // markers
+        const markerColors = {
+            'place-bg-1': '#1a73e8',
+            'place-bg-2': '#ff9800',
+            'place-bg-3': '#66bb6a',
+            'place-bg-4': '#ab47bc',
+            'place-bg-5': '#ef5350',
+            'place-bg-6': '#26a69a'
         };
-        
-        // Note positions (matching PUMP layout)
-        const notePositions = {
-            'UL': { x: 200, y: 50, key: 'q', label: '↖' },
-            'UR': { x: 520, y: 50, key: 'w', label: '↗' },
-            'C': { x: 355, y: 260, key: 's', label: '●', isCenter: true },
-            'DL': { x: 200, y: 470, key: 'a', label: '↙' },
-            'DR': { x: 520, y: 470, key: 'd', label: '↘' }
-        };
-        
-        // Timing windows (osu! style - in milliseconds)
-        const timingWindows = {
-            perfect: 45,  // Marvellous
-            great: 90,    // Perfect  
-            good: 135,    // Great
-            miss: 180     // Miss
-        };
-        
-        let notes = [];
-        let noteIdCounter = 0;
-        let gameLoopId;
-        let spawnIntervalId;
-        let audioContext;
-        
-        // Initialize particles
-        function createParticles() {
-            const container = document.getElementById('particles');
-            for (let i = 0; i < 50; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.animationDelay = Math.random() * 10 + 's';
-                particle.style.animationDuration = (10 + Math.random() * 10) + 's';
-                container.appendChild(particle);
-            }
-        }
-        
-        // Audio synthesis (Web Audio API)
-        function initAudio() {
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        
-        function playHitSound(type) {
-            if (!audioContext) return;
-            
-            const osc = audioContext.createOscillator();
-            const gain = audioContext.createGain();
-            
-            osc.connect(gain);
-            gain.connect(audioContext.destination);
-            
-            const now = audioContext.currentTime;
-            
-            switch(type) {
-                case 'perfect':
-                    osc.frequency.setValueAtTime(880, now);
-                    osc.frequency.exponentialRampToValueAtTime(1760, now + 0.1);
-                    gain.gain.setValueAtTime(0.3, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-                    break;
-                case 'great':
-                    osc.frequency.setValueAtTime(660, now);
-                    gain.gain.setValueAtTime(0.2, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
-                    break;
-                case 'good':
-                    osc.frequency.setValueAtTime(440, now);
-                    gain.gain.setValueAtTime(0.15, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
-                    break;
-                case 'miss':
-                    osc.frequency.setValueAtTime(150, now);
-                    osc.frequency.exponentialRampToValueAtTime(100, now + 0.2);
-                    gain.gain.setValueAtTime(0.2, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-                    break;
-            }
-            
-            osc.start(now);
-            osc.stop(now + 0.3);
-        }
-        
-        // Spawn note with osu! approach circle
-        function spawnNote(lane) {
-            const container = document.getElementById('notesContainer');
-            const pos = notePositions[lane];
-            const id = noteIdCounter++;
-            
-            // Create approach circle (osu! style)
-            const approach = document.createElement('div');
-            approach.className = `approach-circle ${pos.isCenter ? 'center' : ''}`;
-            approach.style.cssText = `
-                width: ${pos.isCenter ? 90 : 80}px;
-                height: ${pos.isCenter ? 90 : 80}px;
-                left: ${pos.x}px;
-                top: ${pos.y}px;
-                border-color: ${getLaneColor(lane)};
-                transform: translate(-50%, -50%);
-            `;
-            container.appendChild(approach);
-            
-            // Create note
-            const noteEl = document.createElement('div');
-            noteEl.className = `note note-${lane} ${pos.isCenter ? 'center' : ''}`;
-            noteEl.id = `note-${id}`;
-            noteEl.style.cssText = `
-                left: ${pos.x}px;
-                top: ${pos.y}px;
-                transform: translate(-50%, -50%);
-            `;
-            noteEl.innerHTML = `<span style="${pos.isCenter ? '' : `display: inline-block; transform: rotate(${lane === 'UL' || lane === 'DR' ? '45' : '-45'}deg)`}">${pos.label}</span>`;
-            
-            container.appendChild(noteEl);
-            
-            const note = {
-                id: id,
-                lane: lane,
-                spawnTime: Date.now(),
-                hitTime: Date.now() + 1000, // 1 second approach time
-                element: noteEl,
-                approach: approach,
-                hit: false
-            };
-            
-            notes.push(note);
-            gameState.totalNotes++;
-        }
-        
-        function getLaneColor(lane) {
-            const colors = {
-                'UL': '#ff006e',
-                'UR': '#00d4ff',
-                'C': '#ffd700',
-                'DL': '#8b5cf6',
-                'DR': '#10b981'
-            };
-            return colors[lane];
-        }
-        
-        // Game loop
-        function gameLoop() {
-            if (!gameState.isPlaying) return;
-            
-            const now = Date.now();
-            
-            // Check for missed notes
-            notes.forEach((note, index) => {
-                if (note.hit) return;
-                
-                const timeDiff = now - note.hitTime;
-                
-                if (timeDiff > timingWindows.miss) {
-                    // Miss
-                    showJudgment('miss', note.lane);
-                    createHitEffect('miss', note.lane);
-                    playHitSound('miss');
-                    handleMiss();
-                    removeNote(index);
+
+        placesData.forEach(p => {
+            const color = markerColors[p.bgClass] || '#1a73e8';
+
+            const markerIcon = L.divIcon({
+                html: `<div style="background:${color};color:#fff;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 2px 8px rgba(0,0,0,0.3);border:2px solid #fff;"><i class="fas ${p.icon}"></i></div>`,
+                className: '',
+                iconSize: [34, 34],
+                iconAnchor: [17, 17],
+            });
+
+            const marker = L.marker(p.coords, { icon: markerIcon })
+                .addTo(map)
+                .bindPopup(`
+                            <strong>${p.name}</strong><br>
+                            ${p.desc.split('.')[0]}.
+                            <br><em>${p.address}</em>
+                        `);
+        });
+
+        // fit bounds
+        const group = L.featureGroup(placesData.map(p => L.marker(p.coords)));
+        map.fitBounds(group.getBounds().pad(0.15));
+
+        // ===== SCROLL REVEAL =====
+        const revealElements = document.querySelectorAll('.reveal');
+
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
                 }
             });
-            
-            // Update progress
-            const progress = Math.min(100, ((now - gameState.startTime) / 60000) * 100);
-            document.getElementById('progressFill').style.width = progress + '%';
-            
-            // Check game over
-            if (gameState.health <= 0) {
-                endGame();
-            }
-            
-            gameLoopId = requestAnimationFrame(gameLoop);
-        }
-        
-        // Handle input
-        function handleInput(lane) {
-            if (!gameState.isPlaying) return;
-            
-            const now = Date.now();
-            const receptor = document.getElementById(`receptor-${lane}`);
-            
-            // Visual feedback
-            receptor.classList.add('active');
-            setTimeout(() => receptor.classList.remove('active'), 100);
-            
-            // Find closest note in this lane
-            const laneNotes = notes.filter(n => n.lane === lane && !n.hit);
-            if (laneNotes.length === 0) return;
-            
-            const closestNote = laneNotes.reduce((closest, note) => {
-                const closestDiff = Math.abs(now - closest.hitTime);
-                const noteDiff = Math.abs(now - note.hitTime);
-                return noteDiff < closestDiff ? note : closest;
-            });
-            
-            const timeDiff = Math.abs(now - closestNote.hitTime);
-            
-            // Judge timing
-            let judgment = 'miss';
-            if (timeDiff <= timingWindows.perfect) judgment = 'perfect';
-            else if (timeDiff <= timingWindows.great) judgment = 'great';
-            else if (timeDiff <= timingWindows.good) judgment = 'good';
-            
-            if (judgment !== 'miss') {
-                closestNote.hit = true;
-                showJudgment(judgment, lane);
-                createHitEffect(judgment, lane);
-                playHitSound(judgment);
-                handleHit(judgment);
-                removeNote(notes.indexOf(closestNote));
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        // ===== DARK MODE =====
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = themeToggle.querySelector('i');
+
+        function setTheme(isDark) {
+            if (isDark) {
+                document.body.classList.add('dark');
+                themeIcon.className = 'fas fa-sun';
+                localStorage.setItem('turistou-theme', 'dark');
+            } else {
+                document.body.classList.remove('dark');
+                themeIcon.className = 'fas fa-moon';
+                localStorage.setItem('turistou-theme', 'light');
             }
         }
-        
-        function handleHit(judgment) {
-            const multipliers = { perfect: 1, great: 0.8, good: 0.5 };
-            const baseScore = 300;
-            
-            gameState.combo++;
-            if (gameState.combo > gameState.maxCombo) gameState.maxCombo = gameState.combo;
-            
-            const comboMultiplier = 1 + (Math.floor(gameState.combo / 10) * 0.1);
-            const points = Math.floor(baseScore * multipliers[judgment] * comboMultiplier);
-            
-            gameState.score += points;
-            
-            // Update counters
-            if (judgment === 'perfect') gameState.perfects++;
-            else if (judgment === 'great') gameState.greats++;
-            else if (judgment === 'good') gameState.goods++;
-            
-            // Health
-            gameState.health = Math.min(100, gameState.health + (judgment === 'perfect' ? 2 : 1));
-            
-            updateUI();
-        }
-        
-        function handleMiss() {
-            gameState.combo = 0;
-            gameState.misses++;
-            gameState.health = Math.max(0, gameState.health - 10);
-            updateUI();
-        }
-        
-        function updateUI() {
-            document.getElementById('scoreDisplay').textContent = gameState.score.toString().padStart(8, '0');
-            document.getElementById('comboDisplay').textContent = gameState.combo;
-            document.getElementById('healthFill').style.width = gameState.health + '%';
-            
-            // Calculate accuracy
-            const hitNotes = gameState.perfects + gameState.greats + gameState.goods;
-            const totalJudged = hitNotes + gameState.misses;
-            const accuracy = totalJudged > 0 ? (hitNotes / totalJudged) * 100 : 100;
-            gameState.accuracy = accuracy;
-            document.getElementById('accuracyFill').style.width = accuracy + '%';
-        }
-        
-        function showJudgment(type, lane) {
-            const container = document.getElementById('effectsContainer');
-            const pos = notePositions[lane];
-            
-            const judgment = document.createElement('div');
-            judgment.className = `judgment judgment-${type}`;
-            judgment.textContent = type.toUpperCase();
-            judgment.style.cssText = `
-                left: ${pos.x}px;
-                top: ${pos.y - 50}px;
-                transform: translateX(-50%);
-            `;
-            
-            container.appendChild(judgment);
-            setTimeout(() => judgment.remove(), 800);
-        }
-        
-        function createHitEffect(type, lane) {
-            const container = document.getElementById('effectsContainer');
-            const pos = notePositions[lane];
-            
-            const effect = document.createElement('div');
-            effect.className = `hit-effect hit-${type}`;
-            effect.style.cssText = `
-                left: ${pos.x}px;
-                top: ${pos.y}px;
-                transform: translate(-50%, -50%);
-            `;
-            
-            container.appendChild(effect);
-            setTimeout(() => effect.remove(), 500);
-        }
-        
-        function removeNote(index) {
-            if (index >= 0 && index < notes.length) {
-                const note = notes[index];
-                if (note.element) note.element.remove();
-                if (note.approach) note.approach.remove();
-                notes.splice(index, 1);
-            }
-        }
-        
-        // Note spawning patterns
-        function startSpawning() {
-            const lanes = ['UL', 'UR', 'C', 'DL', 'DR'];
-            let patternIndex = 0;
-            
-            // Predefined patterns (PUMP style)
-            const patterns = [
-                ['C'], ['UL', 'DR'], ['UR', 'DL'], ['C'],
-                ['UL', 'UR'], ['DL', 'DR'], ['C'],
-                ['UL', 'C', 'DR'], ['UR', 'C', 'DL'],
-                ['UL', 'UR', 'DL', 'DR'], ['C'],
-                ['UL', 'UR', 'C', 'DL', 'DR']
-            ];
-            
-            spawnIntervalId = setInterval(() => {
-                if (!gameState.isPlaying) return;
-                
-                const pattern = patterns[patternIndex % patterns.length];
-                pattern.forEach((lane, i) => {
-                    setTimeout(() => spawnNote(lane), i * 100);
-                });
-                
-                patternIndex++;
-            }, 500); // Spawn every 500ms (128 BPM feel)
-        }
-        
-        function startGame() {
-            initAudio();
-            document.getElementById('startScreen').style.display = 'none';
-            
-            // Reset state
-            gameState = {
-                isPlaying: true,
-                score: 0,
-                combo: 0,
-                maxCombo: 0,
-                health: 100,
-                accuracy: 100,
-                perfects: 0,
-                greats: 0,
-                goods: 0,
-                misses: 0,
-                totalNotes: 0,
-                startTime: Date.now(),
-                bpm: 128
-            };
-            
-            notes = [];
-            noteIdCounter = 0;
-            
-            // Clear containers
-            document.getElementById('notesContainer').innerHTML = '';
-            document.getElementById('effectsContainer').innerHTML = '';
-            
-            updateUI();
-            gameLoop();
-            startSpawning();
-            
-            // Auto-end after 60 seconds
-            setTimeout(endGame, 60000);
-        }
-        
-        function endGame() {
-            gameState.isPlaying = false;
-            clearInterval(spawnIntervalId);
-            cancelAnimationFrame(gameLoopId);
-            
-            // Calculate grade
-            const hitNotes = gameState.perfects + gameState.greats + gameState.goods;
-            const total = hitNotes + gameState.misses;
-            const accuracy = total > 0 ? (hitNotes / total) * 100 : 0;
-            
-            let grade = 'D';
-            if (accuracy >= 95 && gameState.misses === 0) grade = 'SS';
-            else if (accuracy >= 90) grade = 'S';
-            else if (accuracy >= 80) grade = 'A';
-            else if (accuracy >= 70) grade = 'B';
-            else if (accuracy >= 60) grade = 'C';
-            
-            // Show results
-            document.getElementById('gradeDisplay').textContent = grade;
-            document.getElementById('gradeDisplay').className = `grade-display grade-${grade}`;
-            document.getElementById('finalScore').textContent = gameState.score.toLocaleString();
-            document.getElementById('finalAccuracy').textContent = accuracy.toFixed(1) + '%';
-            document.getElementById('finalCombo').textContent = gameState.maxCombo;
-            document.getElementById('finalPerfect').textContent = gameState.perfects;
-            
-            document.getElementById('resultsScreen').style.display = 'flex';
-        }
-        
-        function restartGame() {
-            document.getElementById('resultsScreen').style.display = 'none';
-            startGame();
-        }
-        
-        // Keyboard input
-        document.addEventListener('keydown', (e) => {
-            if (e.repeat) return;
-            
-            const keyMap = {
-                'q': 'UL', 'Q': 'UL',
-                'w': 'UR', 'W': 'UR',
-                's': 'C', 'S': 'C',
-                'a': 'DL', 'A': 'DL',
-                'd': 'DR', 'D': 'DR',
-                '7': 'UL', '9': 'UR', '5': 'C', '1': 'DL', '3': 'DR' // Numpad style
-            };
-            
-            if (keyMap[e.key]) {
-                e.preventDefault();
-                handleInput(keyMap[e.key]);
-            }
+
+        const savedTheme = localStorage.getItem('turistou-theme');
+        if (savedTheme === 'dark') setTheme(true);
+
+        themeToggle.addEventListener('click', () => {
+            setTheme(!document.body.classList.contains('dark'));
         });
-        
-        // Mouse/touch input
-        Object.keys(notePositions).forEach(lane => {
-            const receptor = document.getElementById(`receptor-${lane}`);
-            receptor.addEventListener('mousedown', () => handleInput(lane));
-            receptor.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                handleInput(lane);
+
+        // ===== MOBILE MENU =====
+        const menuToggle = document.getElementById('menuToggle');
+        const navbar = document.getElementById('navbar');
+
+        menuToggle.addEventListener('click', () => {
+            navbar.classList.toggle('open');
+            const icon = menuToggle.querySelector('i');
+            icon.className = navbar.classList.contains('open') ? 'fas fa-times' : 'fas fa-bars';
+        });
+
+        navbar.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                navbar.classList.remove('open');
+                menuToggle.querySelector('i').className = 'fas fa-bars';
             });
         });
-        
-        // Initialize
-        createParticles();
+
+        // ===== ACTIVE NAV LINK ON SCROLL =====
+        const sections = document.querySelectorAll('section[id], .hero');
+        const navLinks = navbar.querySelectorAll('a[href^="#"]');
+
+        const navObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.id || 'home';
+                    navLinks.forEach(link => {
+                        link.classList.toggle('active', link.getAttribute('href') === `#${id}`);
+                    });
+                }
+            });
+        }, { threshold: 0.3, rootMargin: '-80px 0px 0px 0px' });
+
+        sections.forEach(s => {
+            if (s.id) navObserver.observe(s);
+        });
+        document.getElementById('home') && navObserver.observe(document.getElementById('home'));
+
+        console.log('🌍 Turistou - Presidente Prudente carregado!');
     </script>
 </body>
 </html>
