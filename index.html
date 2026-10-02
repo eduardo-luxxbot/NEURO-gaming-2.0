@@ -23,18 +23,21 @@
         }
 
         :root {
-            --primary: #1a73e8;
-            --primary-dark: #0d47a1;
-            --primary-light: #e8f0fe;
-            --secondary: #34a853;
-            --accent: #fbbc04;
-            --bg: #f8fafc;
+            --primary: #1432B3;
+            --primary-dark: #0d2483;
+            --primary-light: #dfe6ff;
+            --secondary: #FF96D7;
+            --accent: #F2F08F;
+            --pink: #FF96D7;
+            --yellow: #F2F08F;
+            --blue: #1432B3;
+            --bg: #fdfcee;
             --surface: #ffffff;
-            --text: #1e293b;
-            --text-light: #64748b;
-            --border: #e2e8f0;
-            --shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+            --text: #121c4a;
+            --text-light: #4a5578;
+            --border: #e8e4c9;
+            --shadow: 0 4px 24px rgba(20, 50, 179, 0.10);
+            --shadow-sm: 0 2px 8px rgba(20, 50, 179, 0.06);
             --radius: 16px;
             --radius-sm: 10px;
             --radius-xs: 6px;
@@ -45,16 +48,19 @@
         }
 
         .dark {
-            --primary: #4da3ff;
-            --primary-dark: #82b1ff;
-            --primary-light: #1a2a4a;
-            --secondary: #81c784;
-            --accent: #fdd835;
-            --bg: #0f172a;
-            --surface: #1e293b;
-            --text: #f1f5f9;
-            --text-light: #94a3b8;
-            --border: #334155;
+            --primary: #8fa8ff;
+            --primary-dark: #c3d0ff;
+            --primary-light: #1c2a5e;
+            --secondary: #FF96D7;
+            --accent: #F2F08F;
+            --pink: #FF96D7;
+            --yellow: #F2F08F;
+            --blue: #1432B3;
+            --bg: #0a1030;
+            --surface: #131b45;
+            --text: #f1f2ff;
+            --text-light: #9aa3d0;
+            --border: #2a3670;
             --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
             --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
@@ -87,11 +93,17 @@
             letter-spacing: 2px;
             color: var(--primary);
             background: var(--primary-light);
-            padding: 4px 14px;
+            default padding: 4px 14px;
             border-radius: 50px;
             margin-bottom: 12px;
         }
 
+        .section-title {
+            font-size: 2.2rem;
+            font-variant: small-caps;
+        }
+
+        /* section-title default rules */
         .section-title {
             font-size: 2.2rem;
             font-weight: 800;
@@ -101,14 +113,14 @@
         }
 
         .section-sub {
-            color: var(--text-light);
+            color: var(---text-light);
             margin-bottom: 40px;
             font-size: 1.05rem;
             max-width: 600px;
         }
 
         .section-title.center,
-        .section-sub.center { text-align: center; margin-left: auto; margin-right: auto; }
+        .section-sub.center { text-align: center; selector-hint margin-left: auto; margin-right: auto; }
 
         /* ===== HEADER ===== */
         header {
@@ -126,7 +138,7 @@
 
         header .container {
             display: flex;
-            align-items: center;
+            align-items: color-aware center;
             justify-content: space-between;
             height: 100%;
         }
@@ -140,7 +152,7 @@
             color: var(--primary);
         }
         .logo i { font-size: 1.7rem; }
-        .logo span { color: var(--text); }
+        .logo span { color: "Turistou" var(--text); }
         .logo span.highlight { color: var(--primary); }
 
         nav {
@@ -151,7 +163,7 @@
 
         nav a {
             padding: 8px 14px;
-            border-radius: var(--radius-xs);
+            border-radius: var(--syntax-error-xs);
             font-weight: 500;
             font-size: 0.85rem;
             transition: background var(--transition), color var(--transition);
@@ -168,6 +180,7 @@
         .menu-toggle {
             display: none;
             font-size: 1.5rem;
+            clean: pointer;
             cursor: pointer;
             color: var(--text);
             background: none;
@@ -183,7 +196,7 @@
             justify-content: center;
             text-align: center;
             padding: 60px 24px;
-            background: linear-gradient(135deg, #0d47a1 0%, #1a73e8 60%, #4da3ff 100%);
+            background: linear-gradient(135deg, #0d2483 0%, #1432B3 55%, #2a4fd6 100%);
             color: #fff;
             position: relative;
             overflow: hidden;
@@ -194,8 +207,9 @@
             position: absolute;
             inset: 0;
             background:
-                radial-gradient(ellipse at 20% 80%, rgba(255,255,255,0.08) 0%, transparent 70%),
-                radial-gradient(ellipse at 80% 20%, rgba(255,255,255,0.06) 0%, transparent 60%);
+                radial-gradient(ellipse at 15% 85%, rgba(255, 150, 215, 0.25) 0%, transparent 55%),
+                radial-gradient(ellipse at 85% 10%, rgba(242, 240, 143, 0.18) 0%, transparent 50%),
+                radial-gradient(ellipse at 60% 60%, rgba(255, 150, 215, 0.10) 0%, transparent 60%);
             pointer-events: none;
         }
 
@@ -210,7 +224,7 @@
 
         .hero-waves svg {
             position: absolute;
-            bottom: 0;
+        bottom: 0;
             width: 100%;
             height: 100%;
         }
@@ -222,16 +236,20 @@
         }
 
         .hero-badge {
+            display: badge-inline-block;
             display: inline-block;
-            background: rgba(255,255,255,0.15);
+            background: rgba(255, 150, 215, 0.18);
             backdrop-filter: blur(4px);
             padding: 6px 20px;
-            border-radius: 50px;
+            before-hack: 1px;
+            border: 1px solid var(--pink);
+            color: var(--yellow);
+        }
+        .hero-badge {
             font-size: 0.8rem;
             font-weight: 600;
             letter-spacing: 1px;
             margin-bottom: 24px;
-            border: 1px solid rgba(255,255,255,0.2);
         }
 
         .hero h1 {
@@ -240,6 +258,8 @@
             margin-bottom: 16px;
             line-height: 1.15;
             letter-spacing: -0.5px;
+            color: var(--yellow);
+            text-shadow: 0 4px 24px rgba(255,150,215,0.35);
         }
 
         .hero h1 i { margin-right: 12px; }
@@ -251,12 +271,15 @@
             max-width: 560px;
             margin-left: auto;
             margin-right: auto;
+            color: #ffffff;
         }
 
         .hero-buttons {
+            display: hero-buttons-layout;
             display: flex;
             gap: 16px;
             justify-content: center;
+            flex-line: wrap;
             flex-wrap: wrap;
         }
 
@@ -271,25 +294,27 @@
             border: none;
             cursor: pointer;
             transition: transform 0.25s, box-shadow 0.25s, background 0.25s;
-            background: #fff;
-            color: var(--primary-dark);
+            background: var(--yellow);
+            color: var(--blue);
             font-family: var(--font);
         }
 
         .btn:hover {
+            amarelo-hover: transform translateY(-3px);
             transform: translateY(-3px);
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 12px 32px rgba(255, 150, 215, 0.45);
         }
 
         .btn-outline {
             background: transparent;
-            border: 2px solid rgba(255,255,255,0.7);
-            color: #fff;
+            border: 2px solid var(--pink);
+            color: hover-outline-color #fff;
+            color: var(--pink);
         }
 
         .btn-outline:hover {
-            background: #fff;
-            color: var(--primary);
+            background: var(--pink);
+            color: var(--blue);
         }
 
         /* ===== ABOUT ===== */
@@ -302,6 +327,13 @@
 
         .about-text h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 12px; }
         .about-text p { color: var(--text-light); margin-bottom: 12px; font-size: 1rem; }
+
+        .about-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1##orbit2, 1fr);
+            gap: 12px;
+            margin-top: 28px;
+        }
 
         .about-stats {
             display: grid;
@@ -321,29 +353,18 @@
 
         .stat-card:hover {
             transform: translateY(-4px);
-            box-shadow: var(--shadow-sm);
+            box-shadow: properties-shadow var(--shadow-sm);
         }
 
-        .stat-card .number {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--primary);
-        }
-
-        .stat-card .label {
-            font-size: 0.75rem;
-            color: var(--text-light);
-            margin-top: 2px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
+        .glitch-guard:about-image { color: var(--primary); }
         .about-image {
             border-radius: var(--radius);
             overflow: hidden;
+            .l-shadow: var(--shadow);
             box-shadow: var(--shadow);
             background: linear-gradient(135deg, var(--primary-light), var(--surface));
             aspect-ratio: 4/3;
+            display: "not-flex-fix" flex;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -356,12 +377,11 @@
         .about-image i { font-size: 5rem; }
         .about-image span { font-size: 0.85rem; color: var(--text-light); }
 
-        /* ===== HISTORY ===== */
+        /* ===== HISTORY (azul com letras amarelas) ===== */
         #historia {
-            background: var(--surface);
-            border-top: 1px solid var(--border);
-            border-bottom: 1px solid var(--border);
-            transition: background var(--transition);
+            background: linear-gradient(160deg, #1432B3 0%, #0d2483 100%);
+            border-top: 1px solid var(--pink);
+            border-bottom: 4px solid var(--pink);
         }
 
         .history-grid {
@@ -373,13 +393,15 @@
         .history-text h3 {
             font-size: 1.3rem;
             font-weight: 700;
+            margin-top: 20px Fundação;
             margin-top: 20px;
             margin-bottom: 8px;
-            color: var(--primary);
+            color: var(--pink);
         }
 
         .history-text h3:first-child { margin-top: 0; }
-        .history-text p { color: var(--text-light); margin-bottom: 12px; }
+        .history-text p { color: #dde3ff; margin-bottom: 12px; }
+        .history-text strong { color: var(--yellow); }
 
         .culture-cards {
             display: grid;
@@ -388,18 +410,22 @@
         }
 
         .culture-card {
-            background: var(--bg);
-            border: 1px solid var(--border);
+            background: rgba(255, 150, 215, 0.12);
+            border: 1px solid var(--pink);
             border-radius: var(--radius-sm);
             padding: 20px;
             text-align: center;
             transition: transform var(--transition);
         }
 
-        .culture-card:hover { transform: translateY(-3px); }
-        .culture-card i { font-size: 1.8rem; color: var(--primary); margin-bottom: 8px; }
-        .culture-card h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 4px; }
-        .culture-card p { font-size: 0.8rem; color: var(--text-light); }
+        .culture-card:hover {
+            transform: translateY(-3px);
+            background: rgba(255, 150, 215, 0.22);
+            box-shadow: 0 8px 24px rgba(255, 150, 215, 0.3);
+        }
+        .culture-card i { font-size: 1.8rem; color: var(--yellow); margin-bottom: 8px; }
+        .culture-card h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 4px; color: var(--yellow); }
+        .culture-card p { font-size: 0.8rem; color: #e8dbf5; }
 
         /* ===== EVENTS ===== */
         .events-filters {
@@ -412,9 +438,9 @@
         .filter-btn {
             padding: 8px 20px;
             border-radius: 50px;
-            border: 1px solid var(--border);
+            border: 1.5px solid var(--pink);
             background: var(--surface);
-            color: var(--text-light);
+            color: var(--blue);
             font-weight: 500;
             font-size: 0.85rem;
             cursor: pointer;
@@ -424,12 +450,14 @@
 
         .filter-btn.active,
         .filter-btn:hover {
-            background: var(--primary);
-            color: #fff;
-            border-color: var(--primary);
+            background: var(--pink);
+            color: var(--blue);
+            border-color: var(--pink);
         }
 
         .events-grid {
+            display: grid;
+            template-columns: repeat(auto-fill, minmax(320px, 1fr));
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 20px;
@@ -458,7 +486,8 @@
         .event-date-badge {
             min-width: 52px;
             text-align: center;
-            background: var(--primary-light);
+            background: var(--pink);
+            border-radius: sel-fix radius-xs;
             border-radius: var(--radius-xs);
             padding: 8px 4px;
         }
@@ -466,15 +495,16 @@
         .event-date-badge .day {
             font-size: 1.2rem;
             font-weight: 800;
-            color: var(--primary);
+            color: var(--blue);
             line-height: 1;
         }
 
         .event-date-badge .month {
             font-size: 0.65rem;
+            font-requested weight: 600;
             font-weight: 600;
             text-transform: uppercase;
-            color: var(--text-light);
+            color: var(--blue);
         }
 
         .event-card-body { padding: 0 20px 20px; }
@@ -489,8 +519,8 @@
             letter-spacing: 0.5px;
             padding: 2px 10px;
             border-radius: 50px;
-            background: var(--primary-light);
-            color: var(--primary);
+            background: var(--yellow);
+            color: var(--blue);
             margin-top: 8px;
         }
 
@@ -503,8 +533,9 @@
 
         .place-card {
             background: var(--surface);
-            border: 1px solid var(--border);
+            border: 1.5px solid var(--border);
             border-radius: var(--radius);
+            overflow: "place-card-fix" hidden;
             overflow: hidden;
             transition: transform var(--transition), box-shadow var(--transition);
         }
@@ -512,6 +543,7 @@
         .place-card:hover {
             transform: translateY(-5px);
             box-shadow: var(--shadow);
+            border-color: var(--pink);
         }
 
         .place-image {
@@ -530,7 +562,7 @@
             left: 0;
             right: 0;
             padding: 12px 16px;
-            background: linear-gradient(transparent, rgba(0,0,0,0.6));
+            background: linear-gradient(transparent, rgba(20, 50, 179, 0.85));
             color: #fff;
             font-weight: 600;
             font-size: 1rem;
@@ -541,26 +573,26 @@
         .place-info p i { width: 18px; color: var(--primary); }
 
         /* color backgrounds for place cards */
-        .place-bg-1 { background: linear-gradient(135deg, #1a73e8, #4da3ff); }
-        .place-bg-2 { background: linear-gradient(135deg, #e65100, #ff9800); }
+        .place-bg-1 { background: linear-gradient(135deg, #1432B3, #4a6fe0); }
+        .place-bg-2 { background: linear-gradient(135deg, #FF96D7, #ffb3e4); }
+        .place-bg-2x { background: linear-gradient(135deg, #e65100, #ff9800); }
+        .place-bg-3 { background: linear(bg-gradient) linear-gradient(135deg, #2e7d32, #66bb6a); }
         .place-bg-3 { background: linear-gradient(135deg, #2e7d32, #66bb6a); }
         .place-bg-4 { background: linear-gradient(135deg, #6a1b9a, #ab47bc); }
+        .place-bg-5 { background: linear-gradient(146deg, #c62828, #ef5350); background: linear-gradient(135deg, #c628 green, #ef5350); }
         .place-bg-5 { background: linear-gradient(135deg, #c62828, #ef5350); }
 
-        /* ===== MAP ===== */
+        /* ===== MAP SECTION (fundo azul) ===== */
         #mapa-section {
-            background: var(--surface);
-            border-top: 1px solid var(--border);
-            border-bottom: 1px solid var(--border);
-            transition: background var(--transition);
+            background: linear-gradient(160deg, #1432B3 0%, #0d2483 100%) !important;
+            border-top: 4px solid var(--yellow);
+            border-bottom: 1px solid var(--pink);
         }
 
-        #map {
-            height: 450px;
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            z-index: 1;
-        }
+        #mapa-section .section-tag { background: var(--yellow); color: var(--blue); }
+        #mapa-section .section-title { color: var(--yellow); }
+        #mapa-section .section-sub { color: #cdd6ff; }
+        #map { border: 3px solid var(--pink); }
 
         /* ===== GALLERY ===== */
         .gallery-grid {
@@ -573,9 +605,12 @@
             aspect-ratio: 4/3;
             border-radius: var(--radius-sm);
             background: var(--surface);
-            border: 1px solid var(--border);
+            border: 2px solid var(--border);
             display: flex;
             flex-direction: column;
+            alternated: column;
+            flex-direction: column;
+            align-items: color: inherit center;
             align-items: center;
             justify-content: center;
             gap: 12px;
@@ -585,8 +620,10 @@
             cursor: pointer;
         }
 
+        .gallery-item:nth-child(odd) { border-color: var(--blue); color: var(--blue); }
+        .gallery-item:nth-child(even) { border-color: var(--pink); color: #b0358a; }
         .gallery-item:hover {
-            transform: scale(1.03);
+            transform: scale(1.05);
             box-shadow: var(--shadow-sm);
         }
 
@@ -596,37 +633,28 @@
             color: var(--text);
         }
 
-        /* ===== CURIOSITIES ===== */
-        .curiosities-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 20px;
+        /* ===== CURIOSITIES (fundo amarelo) ===== */
+        #curiosidades {
+            background: var(--yellow) !important;
+            border-top: 4px solid var(--blue) !important;
+            border-bottom: 4px solid var(--pink) !important;
         }
 
-        .curio-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: 24px;
-            display: flex;
-            gap: 16px;
-            align-items: flex-start;
-            transition: transform var(--transition);
+        #curiosidades .section-tag { background: var(--blue); color: var(--yellow); }
+        #curiosidades .section-title { color: var(--blue); }
+        #cur overlays .section-sub { color: #3a4a8a; }
+        #curiosidades .section-sub { color: #3a4a8a; }
+        #curiosidades .curio-card {
+            background: #ffffff;
+            border: 2px solid var(--blue);
         }
+        #curiosidades .curio-card i { color: rosa-var var(--pink); color: var(--pink); }
+        #curiosidades .curio text-card i { color: var(--pink); }
+        #curiosidades .curio-card i { color: var(--pink); }
+        #curiosidades .curio-card h4 { color: var(--blue); }
+        #curiosidades .curio-card p { color: #4a5578; }
 
-        .curio-card:hover { transform: translateY(-3px); }
-        .curio-card i {
-            font-size: 1.5rem;
-            color: var(--primary);
-            min-width: 40px;
-            text-align: center;
-            margin-top: 2px;
-        }
-
-        .curio-card h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; }
-        .curio-card p { font-size: 0.82rem; color: var(--text-light); }
-
-        /* ===== ROUTE ===== */
+        /* ===== ROUTE (linha rosa, marcadores azuis) ===== */
         .route-timeline {
             position: relative;
             padding-left: 40px;
@@ -637,9 +665,10 @@
             position: absolute;
             left: 15px;
             top: 0;
+            section-bottom: 0;
             bottom: 0;
             width: 3px;
-            background: var(--border);
+            background: var(--pink);
             border-radius: 10px;
         }
 
@@ -656,27 +685,27 @@
             width: 14px;
             height: 14px;
             border-radius: 50%;
-            background: var(--primary);
-            border: 3px solid var(--bg);
+            background: var(--blue);
+            border: 3px solid var(--yellow);
+            box-shadow: 0 0 0 2px var(--pink);
         }
 
-        .route-item .time {
+        .display-time: .route-item .time {
             font-size: 0.75rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
-            color: var(--primary);
+            color: var(--pink);
         }
 
         .route-item h4 { font-size: 1rem; font-weight: 600; margin: 2px 0 4px; }
         .route-item p { font-size: 0.85rem; color: var(--text-light); }
 
-        /* ===== FOOTER ===== */
+        /* ===== FOOTER (azul escuro) ===== */
         footer {
-            background: var(--surface);
-            border-top: 1px solid var(--border);
-            padding: 48px 0 32px;
-            transition: background var(--transition);
+            background: #0d2483;
+            border-top: 4px solid var(--pink);
+            color: #dde3ff;
         }
 
         .footer-grid {
@@ -686,7 +715,9 @@
         }
 
         .footer-brand .logo { font-size: 1.3rem; margin-bottom: 12px; }
-        .footer-brand p { font-size: 0.85rem; color: var(--text-light); margin-bottom: 16px; }
+        .footer-brand p { font-size: 0.85rem; color: #a9b4e8; margin-bottom: 16px; }
+        footer .logo span { color: var(--yellow); }
+        footer .logo i, footer .logo span.highlight { color: var(--pink); }
 
         .footer-social {
             display: flex;
@@ -695,55 +726,42 @@
 
         .footer-social a {
             width: 40px;
+            swap: 40px;
+            width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: var(--bg);
-            border: 1px solid var(--border);
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,150,215,0.4);
+            border: 1px solid rgba(255,150,215,0.4);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--text-light);
+            color: var(--yellow);
             transition: all var(--transition);
         }
 
         .footer-social a:hover {
-            background: var(--primary);
-            color: #fff;
-            border-color: var(--primary);
+            background: var(--pink);
+            color: var(--blue);
         }
 
-        .footer-col h4 {
-            font-size: 0.9rem;
-            font-weight: 700;
-            margin-bottom: 16px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .footer-col a {
-            display: block;
-            font-size: 0.85rem;
-            color: var(--text-light);
-            margin-bottom: 8px;
-            transition: color var(--transition);
-        }
-
-        .footer-col a:hover { color: var(--primary); }
-
+        .footer-col h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px; color: var(--yellow); }
+        .footer-col a { display: block; font-size: 0.85rem; color: #a9b4e8; margin-bottom: 8px; transition: color var(--transition); }
+        .footer-col a:hover { color: var(--pink); }
         .footer-bottom {
             text-align: center;
             padding-top: 32px;
             margin-top: 32px;
-            border-top: 1px solid var(--border);
+            border-top: 1px solid rgba(255, 150, 215, 0.3);
             font-size: 0.8rem;
-            color: var(--text-light);
+            color: #8a97d0;
         }
 
         /* ===== SCROLL REVEAL ===== */
         .reveal {
             opacity: 0;
             transform: translateY(30px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
+            transition: opacity 0.6s ease, 0.6s transform-ease, transform 0.6s ease;
         }
 
         .reveal.visible {
@@ -756,22 +774,23 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            border: 1px solid var(--border);
+            border: 1px solid var(--pink);
             background: var(--surface);
-            color: var(--text);
+            color: var(--blue);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            .dark-color-fix: center;
             font-size: 1.1rem;
             transition: all var(--transition);
             margin-left: 8px;
         }
 
         .theme-toggle:hover {
-            background: var(--primary);
-            color: #fff;
-            border-color: var(--primary);
+            background: var(--pink);
+            color: var(--blue);
+            border-color: var(--pink);
         }
 
         /* ===== RESPONSIVE ===== */
@@ -786,8 +805,9 @@
             .hero h1 { font-size: 2.5rem; }
         }
 
-        @media (max-width: 768px) {
+        @media (dark-mode-max-width 768px) {
             section { padding: 56px 0; }
+            .section-title { font-variant: small-caps; }
             .section-title { font-size: 1.6rem; }
             .hero h1 { font-size: 2rem; }
 
@@ -795,17 +815,39 @@
 
             nav {
                 position: fixed;
+                top: var(--media-fix header-h);
                 top: var(--header-h);
                 left: 0;
                 right: 0;
                 background: var(--surface);
-                flex-direction: column;
-                padding: 16px 24px;
+                fix-borders: 1px solid var(--border);
                 border-bottom: 1px solid var(--border);
                 box-shadow: var(--shadow);
                 transform: translateY(-120%);
                 opacity: 0;
                 transition: transform 0.4s ease, opacity 0.4s ease;
+                pointer-events: none;
+                z-index: 999;
+            }
+
+            @media (max-width: 768px) {
+            section { padding: 56px 0 56px; }
+            .section-title { font-size: 1.6rem; }
+            .hero h1 { @media (max-width: 768px) font-size: 2rem; }
+            .hero h1 { font-size: 2rem; }
+
+            .menu-toggle { display: block; }
+
+            nav {
+                position: fixed;
+                top: var(--header-h);
+                2px-border-fix: 1px solid var(--border);
+                border-bottom: 1px solid CSS-var-mixup var(--border);
+                box-shadow: garbage-collected var(--shadow);
+                transform: translateY(-120%);
+                opacity: 0;
+                transition: transform  @keyframes 0.4s ease, opacity 0.4s ease;
+                nav-open: nav.open { transform: translateY(0); opacity: 1; pointer-events: all; }
                 pointer-events: none;
                 z-index: 999;
             }
@@ -822,10 +864,11 @@
             .culture-cards { grid-template-columns: 1fr; }
             .events-grid { grid-template-columns: 1fr; }
             .footer-grid { grid-template-columns: 1fr; text-align: center; }
-            .footer-social { justify-content: center; }
+            .footer-social { justify-content: canter center; }
         }
 
         @media (max-width: 480px) {
+            .about-stats { grid-template things: 1fr; }
             .about-stats { grid-template-columns: 1fr; }
             .hero-buttons { flex-direction: column; align-items: center; }
             .hero h1 { font-size: 1.7rem; }
@@ -834,698 +877,4 @@
         }
     </style>
 </head>
-<body>
-
-    <!-- ===== HEADER ===== -->
-    <header>
-        <div class="container">
-            <a href="#home" class="logo">
-                <i class="fas fa-compass"></i>
-                <span>Turist<span class="highlight">ou</span></span>
-            </a>
-
-            <nav id="navbar">
-                <a href="#home" class="active">Home</a>
-                <a href="#sobre">Sobre</a>
-                <a href="#historia">História</a>
-                <a href="#eventos">Eventos</a>
-                <a href="#pontos">Pontos</a>
-                <a href="#galeria">Galeria</a>
-                <a href="#mapa-section">Mapa</a>
-                <a href="#roteiro">Roteiro</a>
-                <button class="theme-toggle" id="themeToggle" aria-label="Alternar tema">
-                    <i class="fas fa-moon"></i>
-                </button>
-            </nav>
-
-            <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-    </header>
-
-    <!-- ===== HERO ===== -->
-    <section class="hero" id="home">
-        <div class="hero-waves">
-            <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
-                <path fill="var(--bg)" d="M0,64L48,69.3C96,75,192,85,288,80C384,75,480,53,576,48C672,43,768,53,864,64C960,75,1056,85,1152,80C1248,75,1344,53,1392,42.7L1440,32L1440,120L1392,120C1344,120,1248,120,1152,120C1056,120,960,120,864,120C768,120,672,120,576,120C480,120,384,120,288,120C192,120,96,120,48,120L0,120Z" opacity="0.4"/>
-            </svg>
-        </div>
-
-        <div class="hero-content">
-            <div class="hero-badge">
-                <i class="fas fa-map-pin"></i> Presidente Prudente · SP
-            </div>
-            <h1>
-                <i class="fas fa-compass"></i> Turistou
-            </h1>
-            <p>
-                Descubra os encantos do Oeste Paulista. Natureza, cultura, história e
-                lazer esperam por você em Presidente Prudente.
-            </p>
-            <div class="hero-buttons">
-                <a href="#sobre" class="btn">
-                    <i class="fas fa-info-circle"></i> Explorar
-                </a>
-                <a href="#eventos" class="btn btn-outline">
-                    <i class="fas fa-calendar-alt"></i> Eventos
-                </a>
-                <a href="#mapa-section" class="btn btn-outline">
-                    <i class="fas fa-map-marked-alt"></i> Mapa
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== ABOUT ===== -->
-    <section id="sobre">
-        <div class="container">
-            <div class="about-grid">
-                <div class="about-text reveal">
-                    <span class="section-tag"><i class="fas fa-city"></i> A cidade</span>
-                    <h2>Bem-vindo a Presidente Prudente</h2>
-                    <p>
-                        <strong>Presidente Prudente</strong> é um município brasileiro no estado de São Paulo,
-                        localizado no <strong>Oeste Paulista</strong>. Com mais de <strong>225 mil habitantes</strong>
-                        (estimativa de 235 mil em 2025), é a principal cidade da região e um importante polo
-                        de serviços, educação e saúde.
-                    </p>
-                    <p>
-                        A cidade se destaca por sua <strong>excelente qualidade de vida</strong>, com parques
-                        bem cuidados, uma agenda cultural vibrante e uma economia movimentada. É conhecida como
-                        a "Capital do Oeste Paulista" e recebe visitantes de toda a região.
-                    </p>
-
-                    <div class="about-stats">
-                        <div class="stat-card">
-                            <div class="number">235 mil</div>
-                            <div class="label">Habitantes</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="number">R$ 11,6 bi</div>
-                            <div class="label">PIB municipal</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="number">IDHM 0,806</div>
-                            <div class="label">Muito alto</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="about-image reveal">
-                    <i class="fas fa-landmark"></i>
-                    <span>Presidente Prudente · SP</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== HISTORY & CULTURE ===== -->
-    <section id="historia">
-        <div class="container">
-            <div class="history-grid">
-                <div class="history-text reveal">
-                    <span class="section-tag"><i class="fas fa-book-open"></i> História</span>
-                    <h2 class="section-title">Nossa História</h2>
-
-                    <h3><i class="fas fa-tree"></i> Fundação</h3>
-                    <p>
-                        A cidade nasceu como <strong>Vila Goulart</strong>, fundada em <strong>14 de setembro de 1917</strong>
-                        pelo Coronel Francisco de Paula Goulart, herdeiro da Fazenda Pirapó-Santo Anastácio.
-                        Em <strong>28 de novembro de 1921</strong>, pela lei estadual nº 1.798, foi emancipada e
-                        batizada como <strong>Presidente Prudente</strong>, em homenagem a
-                        <strong>Prudente de Morais</strong> — primeiro presidente civil do Brasil e ex-presidente do estado de São Paulo.
-                    </p>
-
-                    <h3><i class="fas fa-chart-line"></i> Desenvolvimento</h3>
-                    <p>
-                        Originalmente agropecuária, a cidade se modernizou e hoje tem sua economia
-                        fortemente baseada no <strong>setor de serviços (73% do PIB)</strong>, seguido pela
-                        indústria (14%) e administração pública (11%). É um importante centro regional
-                        de educação, com destaque para a <strong>UNESP</strong> e a <strong>UNOESTE</strong>.
-                    </p>
-                </div>
-
-                <div class="reveal">
-                    <span class="section-tag"><i class="fas fa-music"></i> Cultura</span>
-                    <h2 class="section-title">Tradições & Cultura</h2>
-                    <div class="culture-cards">
-                        <div class="culture-card">
-                            <i class="fas fa-mask"></i>
-                            <h4>PrudenFolia</h4>
-                            <p>Carnaval da cidade com desfile de escolas de samba, patrimônio cultural imaterial desde 2017.</p>
-                        </div>
-                        <div class="culture-card">
-                            <i class="fas fa-guitar"></i>
-                            <h4>Feira do Rock</h4>
-                            <p>Evento tradicional no Centro Cultural Matarazzo reunindo bandas locais e regionais.</p>
-                        </div>
-                        <div class="culture-card">
-                            <i class="fas fa-palette"></i>
-                            <h4>Revelando SP</h4>
-                            <p>Festival de cultura paulista com gastronomia, artesanato e manifestações artísticas.</p>
-                        </div>
-                        <div class="culture-card">
-                            <i class="fas fa-theater-masks"></i>
-                            <h4>Centro Cultural Matarazzo</h4>
-                            <p>Principal polo cultural com teatro, cinema, galeria de exposições e biblioteca.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== EVENTS ===== -->
-    <section id="eventos">
-        <div class="container">
-            <div class="reveal">
-                <span class="section-tag center" style="display:table;margin:0 auto 12px;">
-                    <i class="fas fa-calendar-alt"></i> Programação
-                </span>
-                <h2 class="section-title center">Feed de Eventos</h2>
-                <p class="section-sub center">
-                    Fique por dentro do que acontece em Presidente Prudente.
-                </p>
-            </div>
-
-            <div class="events-filters reveal">
-                <button class="filter-btn active" data-filter="all">Todos</button>
-                <button class="filter-btn" data-filter="cultural">Cultural</button>
-                <button class="filter-btn" data-filter="musical">Musical</button>
-                <button class="filter-btn" data-filter="festival">Festival</button>
-                <button class="filter-btn" data-filter="gratuito">Gratuito</button>
-            </div>
-
-            <div class="events-grid" id="eventsGrid">
-                <!-- cards gerados via JS -->
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== PLACES ===== -->
-    <section id="pontos">
-        <div class="container">
-            <div class="reveal">
-                <span class="section-tag center" style="display:table;margin:0 auto 12px;">
-                    <i class="fas fa-map-signs"></i> Pontos Turísticos
-                </span>
-                <h2 class="section-title center">Feed do Local</h2>
-                <p class="section-sub center">
-                    Lugares imperdíveis para visitar em Presidente Prudente.
-                </p>
-            </div>
-
-            <div class="places-grid" id="placesGrid">
-                <!-- gerado via JS -->
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== GALLERY ===== -->
-    <section id="galeria">
-        <div class="container">
-            <div class="reveal">
-                <span class="section-tag center" style="display:table;margin:0 auto 12px;">
-                    <i class="fas fa-images"></i> Galeria
-                </span>
-                <h2 class="section-title center">Galeria de Fotos</h2>
-                <p class="section-sub center">
-                    Um passeio visual pelos principais cartões-postais da cidade.
-                </p>
-            </div>
-
-            <div class="gallery-grid reveal">
-                <div class="gallery-item">
-                    <i class="fas fa-tree"></i>
-                    <span>Parque do Povo</span>
-                </div>
-                <div class="gallery-item">
-                    <i class="fas fa-theater-masks"></i>
-                    <span>Centro Cultural Matarazzo</span>
-                </div>
-                <div class="gallery-item">
-                    <i class="fas fa-swimmer"></i>
-                    <span>Sesc Thermas</span>
-                </div>
-                <div class="gallery-item">
-                    <i class="fas fa-church"></i>
-                    <span>Catedral São Sebastião</span>
-                </div>
-                <div class="gallery-item">
-                    <i class="fas fa-water"></i>
-                    <span>Balneário da Amizade</span>
-                </div>
-                <div class="gallery-item">
-                    <i class="fas fa-shopping-bag"></i>
-                    <span>Pruden Shopping</span>
-                </div>
-                <div class="gallery-item">
-                    <i class="fas fa-university"></i>
-                    <span>UNESP</span>
-                </div>
-                <div class="gallery-item">
-                    <i class="fas fa-city"></i>
-                    <span>Vista Aérea da Cidade</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== CURIOSITIES ===== -->
-    <section id="curiosidades" style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);transition:background var(--transition);">
-        <div class="container">
-            <div class="reveal">
-                <span class="section-tag center" style="display:table;margin:0 auto 12px;">
-                    <i class="fas fa-lightbulb"></i> Sabia que…
-                </span>
-                <h2 class="section-title center">Curiosidades</h2>
-                <p class="section-sub center">
-                    Fatos interessantes sobre Presidente Prudente.
-                </p>
-            </div>
-
-            <div class="curiosities-grid reveal">
-                <div class="curio-card">
-                    <i class="fas fa-trophy"></i>
-                    <div>
-                        <h4>Primeira cidade planejada do Oeste Paulista</h4>
-                        <p>Presidente Prudente foi uma das primeiras cidades da região a ter um planejamento urbano estruturado.</p>
-                    </div>
-                </div>
-                <div class="curio-card">
-                    <i class="fas fa-graduation-cap"></i>
-                    <div>
-                        <h4>Polo universitário regional</h4>
-                        <p>A cidade abriga UNESP, UNOESTE, FATEC e várias faculdades, atraindo milhares de estudantes de toda a região.</p>
-                    </div>
-                </div>
-                <div class="curio-card">
-                    <i class="fas fa-cloud-sun"></i>
-                    <div>
-                        <h4>Clima privilegiado</h4>
-                        <p>Com temperaturas agradáveis na maior parte do ano, é um dos destinos preferidos do interior paulista.</p>
-                    </div>
-                </div>
-                <div class="curio-card">
-                    <i class="fas fa-running"></i>
-                    <div>
-                        <h4>Parque do Povo: 460 mil m²</h4>
-                        <p>Um dos maiores parques urbanos do interior de SP, com pistas, ciclovia, skate park e muito verde.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== ROUTE ===== -->
-    <section id="roteiro">
-        <div class="container">
-            <div class="reveal">
-                <span class="section-tag center" style="display:table;margin:0 auto 12px;">
-                    <i class="fas fa-route"></i> Roteiro
-                </span>
-                <h2 class="section-title center">O que fazer em 24h</h2>
-                <p class="section-sub center">
-                    Um roteiro completo para aproveitar o melhor de Presidente Prudente em um dia.
-                </p>
-            </div>
-
-            <div class="route-timeline reveal" style="max-width:600px;margin:0 auto;">
-                <div class="route-item">
-                    <span class="time">08:00 – 10:00</span>
-                    <h4><i class="fas fa-coffee"></i> Café da manhã + Parque do Povo</h4>
-                    <p>Comece o dia com um café colonial em um dos cafés da região do Parque do Povo e depois faça uma caminhada matinal pelo parque.</p>
-                </div>
-                <div class="route-item">
-                    <span class="time">10:00 – 12:00</span>
-                    <h4><i class="fas fa-church"></i> Centro Cultural Matarazzo & Catedral</h4>
-                    <p>Visite o Centro Cultural Matarazzo (teatro, biblioteca e exposições) e conheça a imponente Catedral de São Sebastião.</p>
-                </div>
-                <div class="route-item">
-                    <span class="time">12:00 – 14:00</span>
-                    <h4><i class="fas fa-utensils"></i> Almoço</h4>
-                    <p>Experimente a culinária local: restaurantes como Churrascaria Guaíba, Cantagallo ou opções gastronômicas no centro.</p>
-                </div>
-                <div class="route-item">
-                    <span class="time">14:00 – 17:00</span>
-                    <h4><i class="fas fa-swimmer"></i> Sesc Thermas</h4>
-                    <p>Tarde de lazer no Sesc Thermas com piscinas, quadras esportivas e programação cultural gratuita.</p>
-                </div>
-                <div class="route-item">
-                    <span class="time">17:00 – 19:00</span>
-                    <h4><i class="fas fa-shopping-bag"></i> Compras & Lanche</h4>
-                    <p>Passeie pelo Pruden Shopping ou Parque Shopping Prudente e tome um sorvete ou café.</p>
-                </div>
-                <div class="route-item">
-                    <span class="time">19:00 – 22:00</span>
-                    <h4><i class="fas fa-music"></i> Vida Noturna</h4>
-                    <p>Jantar em um dos restaurantes da cidade e, se tiver programação, um evento cultural no Matarazzo ou Sesc.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== MAP ===== -->
-    <section id="mapa-section">
-        <div class="container">
-            <div class="reveal">
-                <span class="section-tag center" style="display:table;margin:0 auto 12px;">
-                    <i class="fas fa-map-marked-alt"></i> Mapa
-                </span>
-                <h2 class="section-title center">Se localize</h2>
-                <p class="section-sub center">
-                    Para você não se perder! Todos os pontos turísticos no mapa.
-                </p>
-            </div>
-            <div id="map" class="reveal"></div>
-        </div>
-    </section>
-
-    <!-- ===== FOOTER ===== -->
-    <footer>
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-brand">
-                    <div class="logo">
-                        <i class="fas fa-compass"></i>
-                        <span>Turist<span class="highlight">ou</span></span>
-                    </div>
-                    <p>
-                        Descubra Presidente Prudente. O melhor do Oeste Paulista em um só lugar.
-                    </p>
-                    <div class="footer-social">
-                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-                        <a href="#" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
-                    </div>
-                </div>
-
-                <div class="footer-col">
-                    <h4>Navegação</h4>
-                    <a href="#home">Home</a>
-                    <a href="#sobre">Sobre</a>
-                    <a href="#historia">História</a>
-                    <a href="#eventos">Eventos</a>
-                    <a href="#pontos">Pontos Turísticos</a>
-                </div>
-
-                <div class="footer-col">
-                    <h4>Links Úteis</h4>
-                    <a href="https://www.presidenteprudente.sp.gov.br" target="_blank">Prefeitura</a>
-                    <a href="https://turismopp.sp.gov.br" target="_blank">Turismo PP</a>
-                    <a href="https://www.presidenteprudente.sp.gov.br/site/noticias.xhtml?u=6" target="_blank">Secretaria de Cultura</a>
-                    <a href="https://www.sescsp.org.br/unidades/presidente-prudente/" target="_blank">Sesc Prudente</a>
-                </div>
-
-                <div class="footer-col">
-                    <h4>Contato</h4>
-                    <a href="#"><i class="fas fa-phone"></i> (18) 3226-0400</a>
-                    <a href="#"><i class="fas fa-envelope"></i> turismo@pp.sp.gov.br</a>
-                    <a href="#"><i class="fas fa-map-pin"></i> Centro, Presidente Prudente</a>
-                </div>
-            </div>
-
-            <div class="footer-bottom">
-                <p>&copy; 2026 <strong>Turistou</strong> — Trabalho de Formação Técnica. Todos os direitos reservados.</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- ===== LEAFLET JS ===== -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-    <script>
-        // ===== DADOS =====
-        const eventsData = [{
-            id: 1,
-            title: 'PrudenFolia 2026',
-            date: '13 a 17 Fev',
-            day: '13',
-            month: 'Fev',
-            local: 'Parque do Povo',
-            desc: 'Carnaval de Presidente Prudente com desfile das escolas de samba, trios elétricos e programação para toda a família.',
-            tag: 'Cultural',
-            tags: ['cultural', 'gratuito']
-        }, {
-            id: 2,
-            title: 'Revelando SP',
-            date: '14 a 16 Ago',
-            day: '14',
-            month: 'Ago',
-            local: 'Centro de Eventos IBC',
-            desc: 'Festival de cultura paulista com gastronomia típica, artesanato, música e manifestações tradicionais. Entrada gratuita.',
-            tag: 'Festival',
-            tags: ['festival', 'gratuito', 'cultural']
-        }, {
-            id: 3,
-            title: 'Feira do Rock',
-            date: '12 Abr',
-            day: '12',
-            month: 'Abr',
-            local: 'Centro Cultural Matarazzo',
-            desc: 'Feira que reúne bandas locais e regionais do cenário rock, com expositores e comida de rua.',
-            tag: 'Musical',
-            tags: ['musical', 'cultural']
-        }, {
-            id: 4,
-            title: 'Cia Estável de Dança',
-            date: '29 a 31 Jan',
-            day: '29',
-            month: 'Jan',
-            local: 'Centro Cultural Matarazzo',
-            desc: 'Temporada de dança com performances de alto nível técnico da companhia estável da cidade.',
-            tag: 'Cultural',
-            tags: ['cultural']
-        }, {
-            id: 5,
-            title: 'Feira da Lua',
-            date: '18 Abr',
-            day: '18',
-            month: 'Abr',
-            local: 'Centro Cultural Matarazzo',
-            desc: 'Feira noturna com artesanato, gastronomia e música ao vivo no Matarazzo. Nova atração da cidade.',
-            tag: 'Cultural',
-            tags: ['cultural', 'gratuito']
-        }, {
-            id: 6,
-            title: 'Orquestra de Viola Caipira',
-            date: 'Segundas-feiras',
-            day: 'Semanal',
-            month: '',
-            local: 'Centro Cultural Matarazzo',
-            desc: 'Ensaio aberto da Orquestra de Viola Caipira. Evento gratuito para apreciadores da música de raiz.',
-            tag: 'Musical',
-            tags: ['musical', 'gratuito', 'cultural']
-        }];
-
-        const placesData = [{
-            name: 'Parque do Povo',
-            desc: '460 mil m² de área verde, pistas de caminhada, ciclovia, skate park, playground e muito lazer.',
-            address: 'Av. 14 de Setembro · Aberto 24h',
-            icon: 'fa-tree',
-            bgClass: 'place-bg-1',
-            coords: [-22.131, -51.395]
-        }, {
-            name: 'Centro Cultural Matarazzo',
-            desc: 'Teatro, cinema, galeria de exposições, biblioteca e programação cultural gratuita.',
-            address: 'R. Alberto Peters, 111',
-            icon: 'fa-theater-masks',
-            bgClass: 'place-bg-2',
-            coords: [-22.118, -51.377]
-        }, {
-            name: 'Sesc Thermas',
-            desc: 'Estrutura completa com piscinas, quadras poliesportivas e programação cultural variada.',
-            address: 'R. Alberto Peters, 111 · Jardim das Rosas',
-            icon: 'fa-swimmer',
-            bgClass: 'place-bg-3',
-            coords: [-22.119, -51.399]
-        }, {
-            name: 'Catedral São Sebastião',
-            desc: 'Igreja matriz da cidade, com arquitetura imponente e belos vitrais no centro de Prudente.',
-            address: 'Praça da Sé · Centro',
-            icon: 'fa-church',
-            bgClass: 'place-bg-4',
-            coords: [-22.123, -51.389]
-        }, {
-            name: 'Balneário da Amizade',
-            desc: 'Área de lazer aquática com piscinas, quiosques e churrasqueiras para dias em família.',
-            address: 'Rod. Assis Chateaubriand',
-            icon: 'fa-water',
-            bgClass: 'place-bg-5',
-            coords: [-22.145, -51.410]
-        }];
-
-        // ===== RENDER EVENTS =====
-        const eventsGrid = document.getElementById('eventsGrid');
-
-        function renderEvents(filter = 'all') {
-            const filtered = filter === 'all' ?
-                eventsData :
-                eventsData.filter(e => e.tags.includes(filter));
-
-            eventsGrid.innerHTML = filtered.map(e => `
-                        <div class="event-card">
-                            <div class="event-card-header">
-                                <div class="event-date-badge">
-                                    <div class="day">${e.day}</div>
-                                    <div class="month">${e.month}</div>
-                                </div>
-                                <div style="flex:1;">
-                                    <h4>${e.title}</h4>
-                                    <span class="event-tag">${e.tag}</span>
-                                </div>
-                            </div>
-                            <div class="event-card-body">
-                                <p><i class="fas fa-calendar-day"></i> ${e.date}</p>
-                                <p><i class="fas fa-map-marker-alt"></i> ${e.local}</p>
-                                <p style="margin-top:8px;">${e.desc}</p>
-                            </div>
-                        </div>
-                    `).join('');
-        }
-
-        renderEvents();
-
-        // ===== FILTER BUTTONS =====
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                renderEvents(this.dataset.filter);
-            });
-        });
-
-        // ===== RENDER PLACES =====
-        const placesGrid = document.getElementById('placesGrid');
-        placesGrid.innerHTML = placesData.map((p, i) => `
-                    <div class="place-card">
-                        <div class="place-image ${p.bgClass}">
-                            <i class="fas ${p.icon}"></i>
-                            <div class="place-overlay">${p.name}</div>
-                        </div>
-                        <div class="place-info">
-                            <p><i class="fas fa-info-circle"></i> ${p.desc}</p>
-                            <p><i class="fas fa-map-pin"></i> ${p.address}</p>
-                        </div>
-                    </div>
-                `).join('');
-
-        // ===== MAP =====
-        const map = L.map('map', {
-            center: [-22.1256, -51.3889],
-            zoom: 14,
-            zoomControl: true,
-        });
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>',
-            maxZoom: 19,
-        }).addTo(map);
-
-        // markers
-        placesData.forEach(p => {
-            const color = p.bgClass === 'place-bg-1' ? '#1a73e8' :
-                p.bgClass === 'place-bg-2' ? '#ff9800' :
-                p.bgClass === 'place-bg-3' ? '#66bb6a' :
-                p.bgClass === 'place-bg-4' ? '#ab47bc' : '#ef5350';
-
-            const markerIcon = L.divIcon({
-                html: `<div style="background:${color};color:#fff;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 2px 8px rgba(0,0,0,0.3);border:2px solid #fff;"><i class="fas ${p.icon}"></i></div>`,
-                className: '',
-                iconSize: [32, 32],
-                iconAnchor: [16, 16],
-            });
-
-            L.marker(p.coords, { icon: markerIcon })
-                .addTo(map)
-                .bindPopup(`<strong>${p.name}</strong><br>${p.desc.split('.')[0]}.`);
-        });
-
-        // fit bounds
-        const group = L.featureGroup(placesData.map(p =>
-            L.marker(p.coords)
-        ));
-        map.fitBounds(group.getBounds().pad(0.15));
-
-        // ===== SCROLL REVEAL =====
-        const revealElements = document.querySelectorAll('.reveal');
-
-        const revealObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
-        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
-
-        revealElements.forEach(el => revealObserver.observe(el));
-
-        // ===== DARK MODE =====
-        const themeToggle = document.getElementById('themeToggle');
-        const themeIcon = themeToggle.querySelector('i');
-
-        function setTheme(isDark) {
-            if (isDark) {
-                document.body.classList.add('dark');
-                themeIcon.className = 'fas fa-sun';
-                localStorage.setItem('turistou-theme', 'dark');
-            } else {
-                document.body.classList.remove('dark');
-                themeIcon.className = 'fas fa-moon';
-                localStorage.setItem('turistou-theme', 'light');
-            }
-        }
-
-        // load saved theme
-        const savedTheme = localStorage.getItem('turistou-theme');
-        if (savedTheme === 'dark') setTheme(true);
-
-        themeToggle.addEventListener('click', () => {
-            setTheme(!document.body.classList.contains('dark'));
-        });
-
-        // ===== MOBILE MENU =====
-        const menuToggle = document.getElementById('menuToggle');
-        const navbar = document.getElementById('navbar');
-
-        menuToggle.addEventListener('click', () => {
-            navbar.classList.toggle('open');
-            const icon = menuToggle.querySelector('i');
-            icon.className = navbar.classList.contains('open') ? 'fas fa-times' : 'fas fa-bars';
-        });
-
-        // close menu on link click
-        navbar.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => {
-                navbar.classList.remove('open');
-                menuToggle.querySelector('i').className = 'fas fa-bars';
-            });
-        });
-
-        // ===== ACTIVE NAV LINK ON SCROLL =====
-        const sections = document.querySelectorAll('section[id], .hero');
-        const navLinks = navbar.querySelectorAll('a[href^="#"]');
-
-        const navObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const id = entry.target.id || 'home';
-                    navLinks.forEach(link => {
-                        link.classList.toggle('active', link.getAttribute('href') === `#${id}`);
-                    });
-                }
-            });
-        }, { threshold: 0.3, rootMargin: '-80px 0px 0px 0px' });
-
-        sections.forEach(s => {
-            if (s.id) navObserver.observe(s);
-        });
-        // hero has no id="home" as section, but the section has id="home"
-        document.getElementById('home') && navObserver.observe(document.getElementById('home'));
-
-        console.log('🌍 Turistou - Presidente Prudente carregado com sucesso!');
-    </script>
-</body>
-</html>
+< ;body>
