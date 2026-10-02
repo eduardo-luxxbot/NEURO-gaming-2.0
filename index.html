@@ -1,1600 +1,1267 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Turistou · Presidente Prudente</title>
 
-    <!-- Leaflet CSS (mapa) -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
-
-    <style>
-        /* ===== RESET & VARIABLES ===== */
-        *,
-        *::before,
-        *::after {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --primary: #1a73e8;
-            --primary-dark: #0d47a1;
-            --primary-light: #e8f0fe;
-            --secondary: #34a853;
-            --accent: #fbbc04;
-            --bg: #f8fafc;
-            --surface: #ffffff;
-            --text: #1e293b;
-            --text-light: #64748b;
-            --border: #e2e8f0;
-            --shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
-            --radius: 16px;
-            --radius-sm: 10px;
-            --radius-xs: 6px;
-            --transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-            --font: 'Poppins', sans-serif;
-            --header-h: 70px;
-            --max-w: 1200px;
-        }
-
-        .dark {
-            --primary: #4da3ff;
-            --primary-dark: #82b1ff;
-            --primary-light: #1a2a4a;
-            --secondary: #81c784;
-            --accent: #fdd835;
-            --bg: #0f172a;
-            --surface: #1e293b;
-            --text: #f1f5f9;
-            --text-light: #94a3b8;
-            --border: #334155;
-            --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
-            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        html { scroll-behavior: smooth; }
-
-        body {
-            font-family: var(--font);
-            background: var(--bg);
-            color: var(--text);
-            transition: background var(--transition), color var(--transition);
-            line-height: 1.7;
-            padding-top: var(--header-h);
-            overflow-x: hidden;
-        }
-
-        .container {
-            max-width: var(--max-w);
-            margin: 0 auto;
-            padding: 0 24px;
-        }
-
-        section { padding: 80px 0; }
-
-        .section-tag {
-            display: inline-block;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--primary);
-            background: var(--primary-light);
-            padding: 4px 14px;
-            border-radius: 50px;
-            margin-bottom: 12px;
-        }
-
-        .section-title {
-            font-size: 2.2rem;
-            font-weight: 800;
-            margin-bottom: 8px;
-            color: var(--text);
-            line-height: 1.25;
-        }
-
-        .section-sub {
-            color: var(--text-light);
-            margin-bottom: 40px;
-            font-size: 1.05rem;
-            max-width: 600px;
-        }
-
-        .section-title.center,
-        .section-sub.center { text-align: center; margin-left: auto; margin-right: auto; }
-
-        /* ===== HEADER ===== */
-        header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: var(--header-h);
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            box-shadow: 0 1px 12px rgba(0,0,0,0.04);
-            z-index: 1000;
-            transition: background var(--transition), border-color var(--transition);
-        }
-
-        header .container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            height: 100%;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--primary);
-        }
-        .logo i { font-size: 1.7rem; }
-        .logo span { color: var(--text); }
-        .logo span.highlight { color: var(--primary); }
-
-        nav {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        nav a {
-            padding: 8px 14px;
-            border-radius: var(--radius-xs);
-            font-weight: 500;
-            font-size: 0.85rem;
-            transition: background var(--transition), color var(--transition);
-            color: var(--text-light);
-            white-space: nowrap;
-        }
-
-        nav a:hover,
-        nav a.active {
-            background: var(--primary);
-            color: #fff;
-        }
-
-        .menu-toggle {
-            display: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--text);
-            background: none;
-            border: none;
-            padding: 4px;
-        }
-
-        /* ===== HERO ===== */
-        .hero {
-            min-height: calc(100vh - var(--header-h));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 60px 24px;
-            background: linear-gradient(135deg, #0d47a1 0%, #1a73e8 60%, #4da3ff 100%);
-            color: #fff;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background:
-                radial-gradient(ellipse at 20% 80%, rgba(255,255,255,0.08) 0%, transparent 70%),
-                radial-gradient(ellipse at 80% 20%, rgba(255,255,255,0.06) 0%, transparent 60%);
-            pointer-events: none;
-        }
-
-        .hero-waves {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 120px;
-            overflow: hidden;
-        }
-
-        .hero-waves svg {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            height: 100%;
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 2;
-            max-width: 800px;
-        }
-
-        .hero-badge {
-            display: inline-block;
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(4px);
-            padding: 6px 20px;
-            border-radius: 50px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            letter-spacing: 1px;
-            margin-bottom: 24px;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-
-        .hero h1 {
-            font-size: 3.5rem;
-            font-weight: 900;
-            margin-bottom: 16px;
-            line-height: 1.15;
-            letter-spacing: -0.5px;
-        }
-
-        .hero h1 i { margin-right: 12px; }
-
-        .hero p {
-            font-size: 1.15rem;
-            opacity: 0.92;
-            margin-bottom: 36px;
-            max-width: 560px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .hero-buttons {
-            display: flex;
-            gap: 16px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 14px 34px;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 0.95rem;
-            border: none;
-            cursor: pointer;
-            transition: transform 0.25s, box-shadow 0.25s, background 0.25s;
-            background: #fff;
-            color: var(--primary-dark);
-            font-family: var(--font);
-        }
-
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 2px solid rgba(255,255,255,0.7);
-            color: #fff;
-        }
-
-        .btn-outline:hover {
-            background: #fff;
-            color: var(--primary);
-        }
-
-        /* ===== ABOUT ===== */
-        .about-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 48px;
-            align-items: center;
-        }
-
-        .about-text h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 12px; }
-        .about-text p { color: var(--text-light); margin-bottom: 12px; font-size: 1rem; }
-
-        .about-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-top: 28px;
-        }
-
-        .stat-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: 20px 12px;
-            text-align: center;
-            transition: transform var(--transition), box-shadow var(--transition);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .stat-card .number {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--primary);
-        }
-
-        .stat-card .label {
-            font-size: 0.75rem;
-            color: var(--text-light);
-            margin-top: 2px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .about-image {
-            border-radius: var(--radius);
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            background: linear-gradient(135deg, var(--primary-light), var(--surface));
-            aspect-ratio: 4/3;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            color: var(--primary);
-            border: 1px solid var(--border);
-        }
-
-        .about-image i { font-size: 5rem; }
-        .about-image span { font-size: 0.85rem; color: var(--text-light); }
-
-        /* ===== HISTORY ===== */
-        #historia {
-            background: var(--surface);
-            border-top: 1px solid var(--border);
-            border-bottom: 1px solid var(--border);
-            transition: background var(--transition);
-        }
-
-        .history-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-        }
-
-        .history-text h3 {
-            font-size: 1.3rem;
-            font-weight: 700;
-            margin-top: 20px;
-            margin-bottom: 8px;
-            color: var(--primary);
-        }
-
-        .history-text h3:first-child { margin-top: 0; }
-        .history-text p { color: var(--text-light); margin-bottom: 12px; }
-
-        .culture-cards {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .culture-card {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: 20px;
-            text-align: center;
-            transition: transform var(--transition);
-        }
-
-        .culture-card:hover { transform: translateY(-3px); }
-        .culture-card i { font-size: 1.8rem; color: var(--primary); margin-bottom: 8px; }
-        .culture-card h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 4px; }
-        .culture-card p { font-size: 0.8rem; color: var(--text-light); }
-
-        /* ===== EVENTS ===== */
-        .events-filters {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 32px;
-            flex-wrap: wrap;
-        }
-
-        .filter-btn {
-            padding: 8px 20px;
-            border-radius: 50px;
-            border: 1px solid var(--border);
-            background: var(--surface);
-            color: var(--text-light);
-            font-weight: 500;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all var(--transition);
-            font-family: var(--font);
-        }
-
-        .filter-btn.active,
-        .filter-btn:hover {
-            background: var(--primary);
-            color: #fff;
-            border-color: var(--primary);
-        }
-
-        .events-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 20px;
-        }
-
-        .event-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            overflow: hidden;
-            transition: transform var(--transition), box-shadow var(--transition);
-        }
-
-        .event-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow);
-        }
-
-        .event-card-header {
-            padding: 20px 20px 12px;
-            display: flex;
-            align-items: flex-start;
-            gap: 16px;
-        }
-
-        .event-date-badge {
-            min-width: 52px;
-            text-align: center;
-            background: var(--primary-light);
-            border-radius: var(--radius-xs);
-            padding: 8px 4px;
-        }
-
-        .event-date-badge .day {
-            font-size: 1.2rem;
-            font-weight: 800;
-            color: var(--primary);
-            line-height: 1;
-        }
-
-        .event-date-badge .month {
-            font-size: 0.65rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            color: var(--text-light);
-        }
-
-        .event-card-body { padding: 0 20px 20px; }
-        .event-card-body h4 { font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
-        .event-card-body p { font-size: 0.85rem; color: var(--text-light); margin-bottom: 4px; }
-        .event-card-body p i { width: 18px; color: var(--primary); }
-        .event-tag {
-            display: inline-block;
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding: 2px 10px;
-            border-radius: 50px;
-            background: var(--primary-light);
-            color: var(--primary);
-            margin-top: 8px;
-        }
-
-        /* ===== PLACES / FEED DO LOCAL ===== */
-        .places-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 24px;
-        }
-
-        .place-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            overflow: hidden;
-            transition: transform var(--transition), box-shadow var(--transition);
-        }
-
-        .place-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow);
-        }
-
-        .place-image {
-            height: 180px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3.5rem;
-            color: #fff;
-            position: relative;
-        }
-
-        .place-image .place-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 12px 16px;
-            background: linear-gradient(transparent, rgba(0,0,0,0.6));
-            color: #fff;
-            font-weight: 600;
-            font-size: 1rem;
-        }
-
-        .place-info { padding: 16px; }
-        .place-info p { font-size: 0.85rem; color: var(--text-light); margin-bottom: 6px; }
-        .place-info p i { width: 18px; color: var(--primary); }
-
-        .place-bg-1 { background: linear-gradient(135deg, #1a73e8, #4da3ff); }
-        .place-bg-2 { background: linear-gradient(135deg, #e65100, #ff9800); }
-        .place-bg-3 { background: linear-gradient(135deg, #2e7d32, #66bb6a); }
-        .place-bg-4 { background: linear-gradient(135deg, #6a1b9a, #ab47bc); }
-        .place-bg-5 { background: linear-gradient(135deg, #c62828, #ef5350); }
-        .place-bg-6 { background: linear-gradient(135deg, #00695c, #26a69a); }
-
-        /* ===== MAP ===== */
-        #mapa-section {
-            background: var(--surface);
-            border-top: 1px solid var(--border);
-            border-bottom: 1px solid var(--border);
-            transition: background var(--transition);
-        }
-
-        #map {
-            height: 450px;
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            z-index: 1;
-        }
-
-        /* ===== GALLERY ===== */
-        .gallery-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 16px;
-        }
-
-        .gallery-item {
-            aspect-ratio: 4/3;
-            border-radius: var(--radius-sm);
-            background: var(--surface);
-            border: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            font-size: 2.5rem;
-            color: var(--text-light);
-            transition: transform var(--transition), box-shadow var(--transition);
-            cursor: pointer;
-        }
-
-        .gallery-item:hover {
-            transform: scale(1.03);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .gallery-item span {
-            font-size: 0.8rem;
-            font-weight: 500;
-            color: var(--text);
-        }
-
-        /* ===== CURIOSITIES ===== */
-        .curiosities-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 20px;
-        }
-
-        .curio-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: 24px;
-            display: flex;
-            gap: 16px;
-            align-items: flex-start;
-            transition: transform var(--transition);
-        }
-
-        .curio-card:hover { transform: translateY(-3px); }
-        .curio-card i {
-            font-size: 1.5rem;
-            color: var(--primary);
-            min-width: 40px;
-            text-align: center;
-            margin-top: 2px;
-        }
-
-        .curio-card h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; }
-        .curio-card p { font-size: 0.82rem; color: var(--text-light); }
-
-        /* ===== ROUTE ===== */
-        .route-timeline {
-            position: relative;
-            padding-left: 40px;
-        }
-
-        .route-timeline::before {
-            content: '';
-            position: absolute;
-            left: 15px;
-            top: 0;
-            bottom: 0;
-            width: 3px;
-            background: var(--border);
-            border-radius: 10px;
-        }
-
-        .route-item {
-            position: relative;
-            margin-bottom: 28px;
-        }
-
-        .route-item::before {
-            content: '';
-            position: absolute;
-            left: -29px;
-            top: 4px;
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            background: var(--primary);
-            border: 3px solid var(--bg);
-        }
-
-        .route-item .time {
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--primary);
-        }
-
-        .route-item h4 { font-size: 1rem; font-weight: 600; margin: 2px 0 4px; }
-        .route-item p { font-size: 0.85rem; color: var(--text-light); }
-
-        /* ===== FOOTER ===== */
-        footer {
-            background: var(--surface);
-            border-top: 1px solid var(--border);
-            padding: 48px 0 32px;
-            transition: background var(--transition);
-        }
-
-        .footer-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr;
-            gap: 32px;
-        }
-
-        .footer-brand .logo { font-size: 1.3rem; margin-bottom: 12px; }
-        .footer-brand p { font-size: 0.85rem; color: var(--text-light); margin-bottom: 16px; }
-
-        .footer-social {
-            display: flex;
-            gap: 12px;
-        }
-
-        .footer-social a {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-light);
-            transition: all var(--transition);
-        }
-
-        .footer-social a:hover {
-            background: var(--primary);
-            color: #fff;
-            border-color: var(--primary);
-        }
-
-        .footer-col h4 {
-            font-size: 0.9rem;
-            font-weight: 700;
-            margin-bottom: 16px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .footer-col a {
-            display: block;
-            font-size: 0.85rem;
-            color: var(--text-light);
-            margin-bottom: 8px;
-            transition: color var(--transition);
-        }
-
-        .footer-col a:hover { color: var(--primary); }
-
-        .footer-bottom {
-            text-align: center;
-            padding-top: 32px;
-            margin-top: 32px;
-            border-top: 1px solid var(--border);
-            font-size: 0.8rem;
-            color: var(--text-light);
-        }
-
-        /* ===== SCROLL REVEAL ===== */
-        .reveal {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
-        }
-
-        .reveal.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* ===== DARK TOGGLE ===== */
-        .theme-toggle {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 1px solid var(--border);
-            background: var(--surface);
-            color: var(--text);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            transition: all var(--transition);
-            margin-left: 8px;
-        }
-
-        .theme-toggle:hover {
-            background: var(--primary);
-            color: #fff;
-            border-color: var(--primary);
-        }
-
-        /* ===== HIGHLIGHT BANNER ===== */
-        .highlight-banner {
-            background: linear-gradient(135deg, #00695c, #26a69a);
-            color: #fff;
-            border-radius: var(--radius);
-            padding: 32px;
-            display: flex;
-            align-items: center;
-            gap: 24px;
-            flex-wrap: wrap;
-            margin-bottom: 32px;
-        }
-
-        .highlight-banner-icon {
-            font-size: 3rem;
-            min-width: 60px;
-            text-align: center;
-        }
-
-        .highlight-banner-content { flex: 1; min-width: 200px; }
-        .highlight-banner-content h3 { font-size: 1.3rem; font-weight: 700; margin-bottom: 4px; }
-        .highlight-banner-content p { font-size: 0.9rem; opacity: 0.9; }
-
-        .highlight-banner .btn-small {
-            background: #fff;
-            color: #00695c;
-            padding: 10px 24px;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            border: none;
-            cursor: pointer;
-            transition: transform 0.2s;
-            white-space: nowrap;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .highlight-banner .btn-small:hover { transform: scale(1.05); }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 900px) {
-            .about-grid,
-            .history-grid { grid-template-columns: 1fr; }
-            .footer-grid { grid-template-columns: 1fr 1fr; }
-            .hero h1 { font-size: 2.5rem; }
-        }
-
-        @media (max-width: 768px) {
-            section { padding: 56px 0; }
-            .section-title { font-size: 1.6rem; }
-            .hero h1 { font-size: 2rem; }
-            .menu-toggle { display: block; }
-
-            nav {
-                position: fixed;
-                top: var(--header-h);
-                left: 0;
-                right: 0;
-                background: var(--surface);
-                flex-direction: column;
-                padding: 16px 24px;
-                border-bottom: 1px solid var(--border);
-                box-shadow: var(--shadow);
-                transform: translateY(-120%);
-                opacity: 0;
-                transition: transform 0.4s ease, opacity 0.4s ease;
-                pointer-events: none;
-                z-index: 999;
-            }
-
-            nav.open {
-                transform: translateY(0);
-                opacity: 1;
-                pointer-events: all;
-            }
-
-            nav a { padding: 12px 16px; width: 100%; }
-
-            .about-stats { grid-template-columns: 1fr 1fr; }
-            .culture-cards { grid-template-columns: 1fr; }
-            .events-grid { grid-template-columns: 1fr; }
-            .footer-grid { grid-template-columns: 1fr; text-align: center; }
-            .footer-social { justify-content: center; }
-            .highlight-banner { flex-direction: column; text-align: center; }
-        }
-
-        @media (max-width: 480px) {
-            .about-stats { grid-template-columns: 1fr; }
-            .hero-buttons { flex-direction: column; align-items: center; }
-            .hero h1 { font-size: 1.7rem; }
-            .container { padding: 0 16px; }
-            .stat-card .number { font-size: 1.2rem; }
-        }
-    </style>
+    <!-- ===== CSS externos ===== -->
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <!-- ===== HEADER ===== -->
-    <header>
-        <div class="container">
-            <a href="#home" class="logo">
-                <i class="fas fa-compass"></i>
-                <span>Turist<span class="highlight">ou</span></span>
+    <!-- ══════════════════ HEADER ══════════════════ -->
+    <header id="topHeader">
+        <div class="container header-inner">
+            <a href="#inicio" class="logo" aria-label="Turistou — Home">
+                <span class="logo-pin"><i class="fas fa-map-pin"></i></span>
+                <span class="logo-txt">Turi<b>stou</b></span>
             </a>
 
-            <nav id="navbar">
-                <a href="#home" class="active">Home</a>
-                <a href="#sobre">Sobre</a>
-                <a href="#historia">História</a>
-                <a href="#eventos">Eventos</a>
-                <a href="#pontos">Pontos</a>
-                <a href="#galeria">Galeria</a>
-                <a href="#mapa-section">Mapa</a>
-                <a href="#roteiro">Roteiro</a>
-                <button class="theme-toggle" id="themeToggle" aria-label="Alternar tema">
-                    <i class="fas fa-moon"></i>
-                </button>
+            <!-- Barra de busca (desktop) -->
+            <div class="search-wrap">
+                <i class="fas fa-search search-ic"></i>
+                <input type="text" id="searchInput" placeholder="Buscar lugar em PP..." autocomplete="off">
+                <div class="search-results" id="searchResults"></div>
+            </div>
+
+            <nav id="mainNav" aria-label="Navegação principal">
+                <a href="#inicio" class="active"><i class="fas fa-home"></i><span>Início</span></a>
+                <a href="#feed"><i class="fas fa-newspaper"></i><span>Feed</span></a>
+                <a href="#mapa"><i class="fas fa-map-marked-alt"></i><span>Mapa</span></a>
+                <button class="btn btn-primary btn-sm" id="navAddBtn"><i class="fas fa-plus"></i><span>Adicionar</span></button>
+                <button class="icon-btn" id="themeToggle" title="Alternar tema" aria-label="Alternar tema"><i class="fas fa-moon"></i></button>
+                <button class="icon-btn menu-burger" id="burgerBtn" aria-label="Abrir menu"><i class="fas fa-bars"></i></button>
             </nav>
 
-            <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">
-                <i class="fas fa-bars"></i>
-            </button>
+            <!-- Conta (usuário) -->
+            <div class="account-area" id="accountArea"></div>
         </div>
     </header>
 
-    <!-- ===== HERO ===== -->
-    <section class="hero" id="home">
-        <div class="hero-waves">
-            <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
-                <path fill="var(--bg)" d="M0,64L48,69.3C96,75,192,85,288,80C384,75,480,53,576,48C672,43,768,53,864,64C960,75,1056,85,1152,80C1248,75,1344,53,1392,42.7L1440,32L1440,120L1392,120C1344,120,1248,120,1152,120C1056,120,960,120,864,120C768,120,672,120,576,120C480,120,384,120,288,120C192,120,96,120,48,120L0,120Z" opacity="0.4"/>
-            </svg>
-        </div>
-
-        <div class="hero-content">
-            <div class="hero-badge">
-                <i class="fas fa-map-pin"></i> Presidente Prudente · SP
+    <!-- ══════════════════ HERO ══════════════════ -->
+    <section class="hero" id="inicio">
+        <div class="hero-blobs"></div>
+        <div class="container hero-content">
+            <span class="hero-badge"><i class="fas fa-map-pin"></i> Presidente Prudente · São Paulo</span>
+            <h1>Descubra o melhor de <b>Presidente Prudente</b></h1>
+            <p>Locais reais, confirmados e avaliados pela própria comunidade. Entre e ajude a registrar cada canto da nossa cidade.</p>
+            <div class="hero-cta">
+                <a href="#feed" class="btn btn-light btn-lg"><i class="fas fa-compass"></i> Explorar o feed</a>
+                <a href="#mapa" class="btn btn-ghost-light btn-lg"><i class="fas fa-map-marked-alt"></i> Ver no mapa</a>
             </div>
-            <h1>
-                <i class="fas fa-compass"></i> Turistou
-            </h1>
-            <p>
-                Descubra os encantos do Oeste Paulista. Natureza, cultura, história
-                e lazer esperam por você em Presidente Prudente.
-            </p>
-            <div class="hero-buttons">
-                <a href="#sobre" class="btn">
-                    <i class="fas fa-info-circle"></i> Explorar
-                </a>
-                <a href="#eventos" class="btn btn-outline">
-                    <i class="fas fa-calendar-alt"></i> Eventos
-                </a>
-                <a href="#mapa-section" class="btn btn-outline">
-                    <i class="fas fa-map-marked-alt"></i> Mapa
-                </a>
-            </div>
+            <div class="hero-stats" id="heroStats"></div>
         </div>
+        <div class="hero-wave"><svg viewBox="0 0 1440 90" preserveAspectRatio="none"><path d="M0,50 C360,120 1080,-30 1440,40 L1440,90 L0,90 Z" fill="var(--bg)"/></svg></div>
     </section>
 
-    <!-- ===== ABOUT ===== -->
-    <section id="sobre">
-        <div class="container">
-            <div class="about-grid">
-                <div class="about-text reveal">
-                    <span class="section-tag"><i class="fas fa-city"></i> A cidade</span>
-                    <h2>Bem-vindo a Presidente Prudente</h2>
-                    <p>
-                        <strong>Presidente Prudente</strong> é um município brasileiro no estado de São Paulo,
-                        localizado no <strong>Oeste Paulista</strong>. Com mais de <strong>225 mil habitantes</strong>
-                        (estimativa de 235 mil em 2025), é a principal cidade da região e um importante polo
-                        de serviços, educação e saúde.
-                    </p>
-                    <p>
-                        A cidade se destaca por sua <strong>excelente qualidade de vida</strong>, com parques
-                        bem cuidados, uma agenda cultural vibrante e uma economia movimentada. É conhecida como
-                        a "Capital do Oeste Paulista" e recebe visitantes de toda a região.
-                    </p>
+    <!-- ══════════════════ FEED ══════════════════ -->
+    <main>
+        <section class="block" id="feed">
+            <div class="container">
+                <header class="section-head">
+                    <span class="sec-tag"><i class="fas fa-stream"></i> Comunidade</span>
+                    <h2>Feed dos locais</h2>
+                    <p>Locais publicados por você e verificados pela comunidade.</p>
+                </header>
 
-                    <div class="about-stats">
-                        <div class="stat-card">
-                            <div class="number">235 mil</div>
-                            <div class="label">Habitantes</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="number">R$ 11,6 bi</div>
-                            <div class="label">PIB municipal</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="number">IDHM 0,806</div>
-                            <div class="label">Muito alto</div>
-                        </div>
-                    </div>
+                <!-- Filtros rápidos -->
+                <div class="cat-chips" id="catChips"></div>
+
+                <!-- Abas: ordenação -->
+                <div class="tabs" id="feedTabs" role="tablist">
+                    <button class="tab active" data-sort="recent" role="tab"><i class="fas fa-clock"></i> Recentes</button>
+                    <button class="tab" data-sort="relevant" role="tab"><i class="fas fa-fire"></i> Relevantes</button>
+                    <button class="tab" data-sort="verified" role="tab"><i class="fas fa-check-circle"></i> Verificados</button>
                 </div>
 
-                <div class="about-image reveal">
-                    <i class="fas fa-landmark"></i>
-                    <span>Presidente Prudente · SP</span>
+                <!-- Feed -->
+                <div class="feed-list" id="feedList"></div>
+                <div class="empty-state" id="feedEmpty" hidden>
+                    <i class="fas fa-map-marked-alt"></i>
+                    <h3>Nenhum local por aqui ainda</h3>
+                    <p>Seja a primeira pessoa a adicionar um ponto turístico de Presidente Prudente.</p>
+                    <button class="btn btn-primary" onclick="UI.openAdd()"><i class="fas fa-plus"></i> Adicionar local</button>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- ===== HISTORY & CULTURE ===== -->
-    <section id="historia">
-        <div class="container">
-            <div class="history-grid">
-                <div class="history-text reveal">
-                    <span class="section-tag"><i class="fas fa-book-open"></i> História</span>
-                    <h2 class="section-title">Nossa História</h2>
-
-                    <h3><i class="fas fa-tree"></i> Fundação</h3>
-                    <p>
-                        A cidade nasceu como <strong>Vila Goulart</strong>, fundada em
-                        <strong>14 de setembro de 1917</strong> pelo Coronel Francisco de Paula Goulart,
-                        herdeiro da Fazenda Pirapó-Santo Anastácio. Em <strong>28 de novembro de 1921</strong>,
-                        pela lei estadual nº 1.798, foi emancipada e batizada como
-                        <strong>Presidente Prudente</strong>, em homenagem a
-                        <strong>Prudente de Morais</strong> — primeiro presidente civil do Brasil
-                        e ex-presidente do estado de São Paulo.
-                    </p>
-
-                    <h3><i class="fas fa-chart-line"></i> Desenvolvimento</h3>
-                    <p>
-                        Originalmente agropecuária, a cidade se modernizou e hoje tem sua economia
-                        baseada no <strong>setor de serviços (73% do PIB)</strong>, seguido pela
-                        indústria (14%) e administração pública (11%). É um importante centro regional
-                        de educação, com destaque para <strong>UNESP</strong>, <strong>UNOESTE</strong>
-                        e o <strong>SENAC</strong>.
-                    </p>
-                </div>
-
-                <div class="reveal">
-                    <span class="section-tag"><i class="fas fa-music"></i> Cultura</span>
-                    <h2 class="section-title">Tradições & Cultura</h2>
-                    <div class="culture-cards">
-                        <div class="culture-card">
-                            <i class="fas fa-mask"></i>
-                            <h4>PrudenFolia</h4>
-                            <p>Carnaval da cidade com desfile de escolas de samba, patrimônio cultural imaterial desde 2017.</p>
-                        </div>
-                        <div class="culture-card">
-                            <i class="fas fa-guitar"></i>
-                            <h4>Feira do Rock</h4>
-                            <p>Evento tradicional no Centro Cultural Matarazzo reunindo bandas locais e regionais.</p>
-                        </div>
-                        <div class="culture-card">
-                            <i class="fas fa-palette"></i>
-                            <h4>Revelando SP</h4>
-                            <p>Festival de cultura paulista com gastronomia, artesanato e manifestações artísticas.</p>
-                        </div>
-                        <div class="culture-card">
-                            <i class="fas fa-theater-masks"></i>
-                            <h4>Centro Cultural Matarazzo</h4>
-                            <p>Principal polo cultural com teatro, cinema, galeria de exposições e biblioteca.</p>
-                        </div>
-                    </div>
-                </div>
+        <!-- ══════════════════ MAPA ══════════════════ -->
+        <section class="block" id="mapa">
+            <div class="container">
+                <header class="section-head">
+                    <span class="sec-tag"><i class="fas fa-map-marked-alt"></i> Localização</span>
+                    <h2>Se localize</h2>
+                    <p>Sem se perder! Todos os lugares dos usuários aparecem aqui em tempo real.</p>
+                </header>
+                <div id="map"></div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- ===== EVENTS ===== -->
-    <section id="eventos">
-        <div class="container">
-            <div class="reveal">
-                <span class="section-tag center" style="display:table;margin:0 auto 12px;">
-                    <i class="fas fa-calendar-alt"></i> Programação
-                </span>
-                <h2 class="section-title center">Feed de Eventos</h2>
-                <p class="section-sub center">
-                    Fique por dentro do que acontece em Presidente Prudente.
-                </p>
-            </div>
-
-            <!-- DESTAQUE: CASA ABERTA SENAC -->
-            <div class="reveal">
-                <div class="highlight-banner">
-                    <div class="highlight-banner-icon">
-                        <i class="fas fa-graduation-cap"></i>
-                    </div>
-                    <div class="highlight-banner-content">
-                        <h3><i class="fas fa-star"></i> Casa Aberta SENAC 2026 — HOJE!</h3>
-                        <p>28 de agosto · Das 9h às 21h · Atividades gratuitas de tecnologia, saúde, gastronomia, design e bem-estar. Venha conhecer!</p>
-                    </div>
-                    <a href="https://www.sp.senac.br/senac-presidente-prudente" target="_blank" class="btn-small">
-                        <i class="fas fa-external-link-alt"></i> Saiba mais
-                    </a>
-                </div>
-            </div>
-
-            <div class="events-filters reveal">
-                <button class="filter-btn active" data-filter="all">Todos</button>
-                <button class="filter-btn" data-filter="cultural">Cultural</button>
-                <button class="filter-btn" data-filter="musical">Musical</button>
-                <button class="filter-btn" data-filter="festival">Festival</button>
-                <button class="filter-btn" data-filter="gratuito">Gratuito</button>
-            </div>
-
-            <div class="events-grid" id="eventsGrid">
-                <!-- gerado via JS -->
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== PLACES ===== -->
-    <section id="pontos">
-        <div class="container">
-            <div class="reveal">
-                <span class="section-tag center" style="display:table;margin:0 auto 12px;">
-                    <i class="fas fa-map-signs"></i> Pontos Turísticos
-                </span>
-                <h2 class="section-title center">Feed do Local</h2>
-                <p class="section-sub center">
-                    Lugares imperdíveis para visitar em Presidente Prudente.
-                </p>
-            </div>
-
-            <div class="places-grid" id="placesGrid">
-                <!-- gerado via JS -->
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== GALLERY ===== -->
-    <section id="galeria">
-        <div class="container">
-            <div class="reveal">
-                <span class="section-tag center" style="display:table;margin:0 auto 12px;">
-                    <i class="fas fa-images"></i> Galeria
-                </span>
-                <h2 class="section-title center">Galeria de Fotos</h2>
-                <p class="section-sub center">
-                    Um passeio visual pelos principais cartões-postais da cidade.
-                </p>
-            </div>
-
-            <div class="gallery-grid reveal">
-                <div class="gallery-item">
-                    <i class="fas fa-tree"></i>
-                    <span>Parque do Povo</span>
-                </div>
-                <div class="gallery-item">
-                    <i class="fas fa-theater-masks"></i>
-                    <span>Centro Cultural Matarazzo</span>
-                </div>
-                <div class="gallery-item">
-                    <i class="fas fa-swimmer"></i>
-                    <span>Sesc Thermas</span>
-                </div>
-                <div class="gallery-item">
-                    <i class="fas fa-church"></i>
-                    <span>Catedral São Sebastião</span>
-                </div>
-                <div class="gallery-item">
-                    <i class="fas fa-water"></i>
-                    <span>Balneário da Amizade</span>
-                </div>
-                <div class="gallery-item">
-                    <i class="fas fa-graduation-cap"></i>
-                    <span>SENAC Prudente</span>
-                </div>
-                <div class="gallery-item">
-                    <i class="fas fa-university"></i>
-                    <span>UNESP</span>
-                </div>
-                <div class="gallery-item">
-                    <i class="fas fa-city"></i>
-                    <span>Vista Aérea da Cidade</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== CURIOSITIES ===== -->
-    <section id="curiosidades" style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);transition:background var(--transition);">
-        <div class="container">
-            <div class="reveal">
-                <span class="section-tag center" style="display:table;margin:0 auto 12px;">
-                    <i class="fas fa-lightbulb"></i> Sabia que…
-                </span>
-                <h2 class="section-title center">Curiosidades</h2>
-                <p class="section-sub center">
-                    Fatos interessantes sobre Presidente Prudente.
-                </p>
-            </div>
-
-            <div class="curiosities-grid reveal">
-                <div class="curio-card">
-                    <i class="fas fa-trophy"></i>
+        <!-- ══════════════════ SOBRE ══════════════════ -->
+        <section class="block alt-bg" id="sobre">
+            <div class="container">
+                <div class="two-col">
                     <div>
-                        <h4>Primeira cidade planejada do Oeste Paulista</h4>
-                        <p>Presidente Prudente foi uma das primeiras cidades da região a ter um planejamento urbano estruturado.</p>
+                        <span class="sec-tag"><i class="fas fa-city"></i> A cidade</span>
+                        <h2>Sobre Presidente Prudente</h2>
+                        <p>Com mais de <strong>225 mil habitantes</strong>, Presidente Prudente é o principal município do Oeste Paulista, um polo de serviços, educação e cultura.</p>
+                        <p>O <strong>Turistou</strong> nasceu para mapear, de forma colaborativa e confiável, os pontos que fazem da nossa cidade um lugar único — direto do olhar de quem vive aqui.</p>
+                        <ul class="check-list">
+                            <li><i class="fas fa-badge-check"></i> Locais confirmados pela comunidade</li>
+                            <li><i class="fas fa-people-group"></i> Dados reais de quem frequenta</li>
+                            <li><i class="fas fa-up-right-from-square"></i> Sempre em atualização</li>
+                        </ul>
                     </div>
-                </div>
-                <div class="curio-card">
-                    <i class="fas fa-graduation-cap"></i>
-                    <div>
-                        <h4>Polo universitário regional</h4>
-                        <p>A cidade abriga UNESP, UNOESTE, FATEC e SENAC, atraindo milhares de estudantes de toda a região.</p>
-                    </div>
-                </div>
-                <div class="curio-card">
-                    <i class="fas fa-cloud-sun"></i>
-                    <div>
-                        <h4>Clima privilegiado</h4>
-                        <p>Com temperaturas agradáveis na maior parte do ano, é um dos destinos preferidos do interior paulista.</p>
-                    </div>
-                </div>
-                <div class="curio-card">
-                    <i class="fas fa-running"></i>
-                    <div>
-                        <h4>Parque do Povo: 460 mil m²</h4>
-                        <p>Um dos maiores parques urbanos do interior de SP, com pistas, ciclovia, skate park e muito verde.</p>
+                    <div class="mosaic">
+                        <div class="mosaic-card"><i class="fas fa-tree"></i><b>Parques</b></div>
+                        <div class="mosaic-card"><i class="fas fa-utensils"></i><b>Gastronomia</b></div>
+                        <div class="mosaic-card"><i class="fas fa-landmark"></i><b>Cultura</b></div>
+                        <div class="mosaic-card"><i class="fas fa-water"></i><b>Lazer</b></div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+    </main>
 
-    <!-- ===== ROUTE ===== -->
-    <section id="roteiro">
-        <div class="container">
-            <div class="reveal">
-                <span class="section-tag center" style="display:table;margin:0 auto 12px;">
-                    <i class="fas fa-route"></i> Roteiro
-                </span>
-                <h2 class="section-title center">O que fazer em 24h</h2>
-                <p class="section-sub center">
-                    Um roteiro completo para aproveitar o melhor de Presidente Prudente em um dia.
-                </p>
-            </div>
-
-            <div class="route-timeline reveal" style="max-width:600px;margin:0 auto;">
-                <div class="route-item">
-                    <span class="time">08:00 – 10:00</span>
-                    <h4><i class="fas fa-coffee"></i> Café da manhã + Parque do Povo</h4>
-                    <p>Comece o dia com um café colonial e depois faça uma caminhada matinal pelo parque.</p>
-                </div>
-                <div class="route-item">
-                    <span class="time">10:00 – 12:00</span>
-                    <h4><i class="fas fa-church"></i> Matarazzo & Catedral</h4>
-                    <p>Visite o Centro Cultural Matarazzo e conheça a Catedral de São Sebastião.</p>
-                </div>
-                <div class="route-item">
-                    <span class="time">12:00 – 14:00</span>
-                    <h4><i class="fas fa-utensils"></i> Almoço</h4>
-                    <p>Experimente a culinária local nos restaurantes da cidade.</p>
-                </div>
-                <div class="route-item">
-                    <span class="time">14:00 – 17:00</span>
-                    <h4><i class="fas fa-swimmer"></i> Sesc Thermas</h4>
-                    <p>Tarde de lazer no Sesc com piscinas, quadras e programação cultural.</p>
-                </div>
-                <div class="route-item">
-                    <span class="time">17:00 – 19:00</span>
-                    <h4><i class="fas fa-graduation-cap"></i> SENAC Prudente</h4>
-                    <p>Conheça a unidade do SENAC na Av. Manoel Goulart — referência em educação profissional.</p>
-                </div>
-                <div class="route-item">
-                    <span class="time">19:00 – 22:00</span>
-                    <h4><i class="fas fa-music"></i> Vida Noturna</h4>
-                    <p>Jantar e evento cultural no Matarazzo, Sesc ou programação da cidade.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== MAP ===== -->
-    <section id="mapa-section">
-        <div class="container">
-            <div class="reveal">
-                <span class="section-tag center" style="display:table;margin:0 auto 12px;">
-                    <i class="fas fa-map-marked-alt"></i> Mapa
-                </span>
-                <h2 class="section-title center">Se localize</h2>
-                <p class="section-sub center">
-                    Para você não se perder! Todos os pontos turísticos no mapa.
-                </p>
-            </div>
-            <div id="map" class="reveal"></div>
-        </div>
-    </section>
-
-    <!-- ===== FOOTER ===== -->
+    <!-- ══════════════════ FOOTER ══════════════════ -->
     <footer>
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-brand">
-                    <div class="logo">
-                        <i class="fas fa-compass"></i>
-                        <span>Turist<span class="highlight">ou</span></span>
-                    </div>
-                    <p>
-                        Descubra Presidente Prudente. O melhor do Oeste Paulista em um só lugar.
-                    </p>
-                    <div class="footer-social">
+        <div class="container footer-inner">
+            <div class="footer-brand">
+                <span class="logo-pin"><i class="fas fa-map-pin"></i></span>
+                <div>
+                    <b>Turi<b style="color:var(--accent)">stou</b></b>
+                    <p>Mapa colaborativo de Presidente Prudente. Um projeto da comunidade, feito por quem ama a cidade.</p>
+                </div>
+            </div>
+            <div class="footer-cols">
+                <div class="f-col">
+                    <h4>Navegação</h4>
+                    <a href="#inicio">Início</a>
+                    <a href="#feed">Feed</a>
+                    <a href="#mapa">Mapa</a>
+                    <a href="#sobre">Sobre</a>
+                </div>
+                <div class="f-col">
+                    <h4>Institucional</h4>
+                    <a href="#">Termos</a>
+                    <a href="#">Privacidade</a>
+                    <a href="#">Como funciona a verificação</a>
+                    <a href="#">Ajuda</a>
+                </div>
+                <div class="f-col">
+                    <h4>Contato</h4>
+                    <a href="mailto:contato@turistou.com.br">contato@turistou.com.br</a>
+                    <div class="social-row">
                         <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="#" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+                        <a href="#" aria-label="X"><i class="fab fa-x-twitter"></i></a>
                         <a href="#" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
                     </div>
                 </div>
-
-                <div class="footer-col">
-                    <h4>Navegação</h4>
-                    <a href="#home">Home</a>
-                    <a href="#sobre">Sobre</a>
-                    <a href="#historia">História</a>
-                    <a href="#eventos">Eventos</a>
-                    <a href="#pontos">Pontos Turísticos</a>
-                </div>
-
-                <div class="footer-col">
-                    <h4>Links Úteis</h4>
-                    <a href="https://www.presidenteprudente.sp.gov.br" target="_blank">Prefeitura</a>
-                    <a href="https://turismopp.sp.gov.br" target="_blank">Turismo PP</a>
-                    <a href="https://www.sp.senac.br/senac-presidente-prudente" target="_blank">SENAC Prudente</a>
-                    <a href="https://www.sescsp.org.br/unidades/presidente-prudente/" target="_blank">Sesc Prudente</a>
-                </div>
-
-                <div class="footer-col">
-                    <h4>Contato</h4>
-                    <a href="#"><i class="fas fa-phone"></i> (18) 3226-0400</a>
-                    <a href="#"><i class="fas fa-envelope"></i> turismo@pp.sp.gov.br</a>
-                    <a href="#"><i class="fas fa-map-pin"></i> Centro, Presidente Prudente</a>
-                </div>
             </div>
-
-            <div class="footer-bottom">
-                <p>&copy; 2026 <strong>Turistou</strong> — Trabalho de Formação Técnica SENAC. Todos os direitos reservados.</p>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <p>© <span id="year"></span> Turistou · Presidente Prudente — feito com 💚 pela comunidade.</p>
             </div>
         </div>
     </footer>
 
-    <!-- ===== LEAFLET JS ===== -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- ══════════════════ CHAT BOT ══════════════════ -->
+    <button class="chat-fab" id="chatFab" aria-label="Abrir assistente"><i class="fas fa-robot"></i><span class="fab-dot" id="fabDot"></span></button>
+    <div class="chat-box" id="chatBox" role="dialog" aria-label="Assistente Turistou">
+        <div class="chat-head" id="chatHeadClose">
+            <span class="robot-ava"><i class="fas fa-robot"></i></span>
+            <div class="chat-title">
+                <b>Assistente Turistou</b>
+                <small>Confirmo se um lugar ainda funciona</small>
+            </div>
+            <i class="fas fa-times" id="chatX"></i>
+        </div>
+        <div class="chat-msgs" id="chatMsgs"></div>
+        <div class="chat-input-row">
+            <select id="chatLocSelect" aria-label="Escolher lugar"></select>
+            <button id="chatSendBtn" aria-label="Perguntar"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
 
-    <script>
-        // ===== DADOS =====
-        const eventsData = [{
-            id: 1,
-            title: 'Casa Aberta SENAC 2026',
-            date: '28 de Agosto',
-            day: '28',
-            month: 'Ago',
-            local: 'SENAC Presidente Prudente',
-            desc: 'Atividades gratuitas de tecnologia, saúde, bem-estar, gastronomia, gestão, design e cultura. Experimente na prática!',
-            tag: 'Gratuito',
-            tags: ['gratuito', 'cultural']
-        }, {
-            id: 2,
-            title: 'PrudenFolia 2026',
-            date: '13 a 17 Fev',
-            day: '13',
-            month: 'Fev',
-            local: 'Parque do Povo',
-            desc: 'Carnaval de Presidente Prudente com desfile das escolas de samba, trios elétricos e programação para toda a família.',
-            tag: 'Cultural',
-            tags: ['cultural', 'gratuito']
-        }, {
-            id: 3,
-            title: 'Revelando SP',
-            date: '14 a 16 Ago',
-            day: '14',
-            month: 'Ago',
-            local: 'Centro de Eventos IBC',
-            desc: 'Festival de cultura paulista com gastronomia típica, artesanato, música e manifestações tradicionais. Entrada gratuita.',
-            tag: 'Festival',
-            tags: ['festival', 'gratuito', 'cultural']
-        }, {
-            id: 4,
-            title: 'Feira do Rock',
-            date: '12 Abr',
-            day: '12',
-            month: 'Abr',
-            local: 'Centro Cultural Matarazzo',
-            desc: 'Feira que reúne bandas locais e regionais do cenário rock, com expositores e comida de rua.',
-            tag: 'Musical',
-            tags: ['musical', 'cultural']
-        }, {
-            id: 5,
-            title: 'Feira da Lua',
-            date: '18 Abr',
-            day: '18',
-            month: 'Abr',
-            local: 'Centro Cultural Matarazzo',
-            desc: 'Feira noturna com artesanato, gastronomia e música ao vivo no Matarazzo.',
-            tag: 'Cultural',
-            tags: ['cultural', 'gratuito']
-        }, {
-            id: 6,
-            title: 'Orquestra de Viola Caipira',
-            date: 'Semanal',
-            day: 'Sem',
-            month: '',
-            local: 'Centro Cultural Matarazzo',
-            desc: 'Ensaio aberto da Orquestra de Viola Caipira. Gratuito para apreciadores da música de raiz.',
-            tag: 'Musical',
-            tags: ['musical', 'gratuito']
-        }];
+    <!-- ══════════════════ MODAIS ══════════════════ -->
 
-        const placesData = [{
-            name: 'Parque do Povo',
-            desc: '460 mil m² de área verde, pistas de caminhada, ciclovia, skate park, playground e muito lazer.',
-            address: 'Av. 14 de Setembro · Aberto 24h',
-            icon: 'fa-tree',
-            bgClass: 'place-bg-1',
-            coords: [-22.131, -51.395]
-        }, {
-            name: 'Centro Cultural Matarazzo',
-            desc: 'Teatro, cinema, galeria de exposições, biblioteca e programação cultural.',
-            address: 'R. Alberto Peters, 111',
-            icon: 'fa-theater-masks',
-            bgClass: 'place-bg-2',
-            coords: [-22.118, -51.377]
-        }, {
-            name: 'Sesc Thermas',
-            desc: 'Estrutura completa com piscinas, quadras poliesportivas e programação cultural.',
-            address: 'R. Alberto Peters, 111 · Jardim das Rosas',
-            icon: 'fa-swimmer',
-            bgClass: 'place-bg-3',
-            coords: [-22.119, -51.399]
-        }, {
-            name: 'Catedral São Sebastião',
-            desc: 'Igreja matriz imponente com belos vitrais, localizada na Praça da Sé.',
-            address: 'Praça da Sé · Centro',
-            icon: 'fa-church',
-            bgClass: 'place-bg-4',
-            coords: [-22.123, -51.389]
-        }, {
-            name: 'Balneário da Amizade',
-            desc: 'Área de lazer aquática com piscinas, quiosques e churrasqueiras.',
-            address: 'Rod. Assis Chateaubriand',
-            icon: 'fa-water',
-            bgClass: 'place-bg-5',
-            coords: [-22.145, -51.410]
-        }, {
-            name: 'SENAC Presidente Prudente',
-            desc: 'Unidade do SENAC com cursos técnicos, livres e Ensino Médio Técnico em Multimídia. Mais de 1.200 vagas gratuitas por ano.',
-            address: 'Av. Manoel Goulart, 2.881 · Centro Educacional',
-            icon: 'fa-graduation-cap',
-            bgClass: 'place-bg-6',
-            coords: [-22.119, -51.383]
-        }];
+    <!-- MODAL AUTH -->
+    <div class="modal" id="modalAuth" aria-hidden="true">
+        <div class="modal-card" role="dialog" aria-modal="true">
+            <button class="modal-x" data-close><i class="fas fa-times"></i></button>
+            <div class="modal-icon"><i class="fas fa-user-lock"></i></div>
+            <h2 id="authTitle">Entrar no Turistou</h2>
+            <p class="modal-sub" id="authSub">Acesse para verificar locais e adicionar novos.</p>
+            <form id="authForm" novalidate>
+                <div class="field" id="authNameField" hidden>
+                    <label for="authName">Nome</label>
+                    <input id="authName" type="text" placeholder="Como você quer aparecer" autocomplete="name">
+                </div>
+                <div class="field">
+                    <label for="authEmail">E-mail</label>
+                    <div class="inp-ic"><i class="fas fa-envelope"></i><input id="authEmail" type="email" placeholder="voce@email.com" autocomplete="email"></div>
+                </div>
+                <div class="field">
+                    <label for="authPass">Senha</label>
+                    <div class="inp-ic"><i class="fas fa-lock"></i><input id="authPass" type="password" placeholder="••••••••" autocomplete="current-password"></div>
+                </div>
+                <p class="auth-error" id="authError"></p>
+                <button type="submit" class="btn btn-primary btn-block" id="authSubmitBtn">Entrar</button>
+            </form>
+            <button class="link-btn" id="authToggleBtn"></button>
+        </div>
+    </div>
 
-        // ===== RENDER EVENTS =====
-        const eventsGrid = document.getElementById('eventsGrid');
-
-        function renderEvents(filter = 'all') {
-            const filtered = filter === 'all' ?
-                eventsData :
-                eventsData.filter(e => e.tags.includes(filter));
-
-            eventsGrid.innerHTML = filtered.map(e => `
-                        <div class="event-card">
-                            <div class="event-card-header">
-                                <div class="event-date-badge">
-                                    <div class="day">${e.day}</div>
-                                    <div class="month">${e.month}</div>
-                                </div>
-                                <div style="flex:1;">
-                                    <h4>${e.title}</h4>
-                                    <span class="event-tag">${e.tag}</span>
-                                </div>
-                            </div>
-                            <div class="event-card-body">
-                                <p><i class="fas fa-calendar-day"></i> ${e.date}</p>
-                                <p><i class="fas fa-map-marker-alt"></i> ${e.local}</p>
-                                <p style="margin-top:8px;">${e.desc}</p>
-                            </div>
-                        </div>
-                    `).join('');
-        }
-
-        renderEvents();
-
-        // ===== FILTER BUTTONS =====
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                renderEvents(this.dataset.filter);
-            });
-        });
-
-        // ===== RENDER PLACES =====
-        const placesGrid = document.getElementById('placesGrid');
-        placesGrid.innerHTML = placesData.map(p => `
-                    <div class="place-card">
-                        <div class="place-image ${p.bgClass}">
-                            <i class="fas ${p.icon}"></i>
-                            <div class="place-overlay">${p.name}</div>
-                        </div>
-                        <div class="place-info">
-                            <p><i class="fas fa-info-circle"></i> ${p.desc}</p>
-                            <p><i class="fas fa-map-pin"></i> ${p.address}</p>
+    <!-- MODAL ADICIONAR LOCAL -->
+    <div class="modal" id="modalAdd" aria-hidden="true">
+        <div class="modal-card modal-wide" role="dialog" aria-modal="true">
+            <button class="modal-x" data-close><i class="fas fa-times"></i></button>
+            <div class="modal-icon"><i class="fas fa-map-pin"></i></div>
+            <h2>Adicionar um novo local</h2>
+            <p class="modal-sub">Qual ponto você quer registrar? Preencha, marque no mapa e publique.</p>
+            <form id="addForm" novalidate>
+                <div class="form-2col">
+                    <div class="field">
+                        <label for="npName">Nome do local <em>*</em></label>
+                        <input id="npName" type="text" placeholder="Ex.: Parque do Povo" required>
+                    </div>
+                    <div class="field">
+                        <label for="npCat">Categoria</label>
+                        <select id="npCat"></select>
+                    </div>
+                    <div class="field col-span">
+                        <label for="npAddress">Endereço <em>*</em></label>
+                        <input id="npAddress" type="text" placeholder="Rua, número, bairro" required>
+                    </div>
+                    <div class="field col-span">
+                        <label>Posição no mapa <em>*</em></label>
+                        <div class="picker-row">
+                            <button type="button" class="btn btn-outline btn-sm" id="pickOnMapBtn"><i class="fas fa-location-crosshairs"></i> Marcar no mapa</button>
+                            <span class="picked-coord" id="pickedCoord">Nenhum ponto marcado</span>
                         </div>
                     </div>
-                `).join('');
+                    <div class="field col-span">
+                        <label for="npDesc">Descrição</label>
+                        <textarea id="npDesc" rows="2" placeholder="O que as pessoas precisam saber sobre esse lugar?"></textarea>
+                    </div>
+                    <div class="field col-span">
+                        <label for="npImgUrl">Foto (cole um link)</label>
+                        <div class="inp-ic"><i class="fas fa-image"></i><input id="npImgUrl" type="url" placeholder="https://.../foto.jpg"></div>
+                    </div>
+                </div>
+                <p class="auth-error" id="addError"></p>
+                <div class="modal-actions">
+                    <p class="hint"><i class="fas fa-circle-info"></i> Campos com <em>*</em> são obrigatórios.</p>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Publicar no feed</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-        // ===== MAP =====
-        const map = L.map('map', {
-            center: [-22.1256, -51.3889],
-            zoom: 14,
-            zoomControl: true,
-        });
+    <!-- MODAL VERIFICAÇÃO -->
+    <div class="modal" id="modalVerify" aria-hidden="true">
+        <div class="modal-card" role="dialog" aria-modal="true">
+            <button class="modal-x" data-close><i class="fas fa-times"></i></button>
+            <div class="modal-icon"><i class="fas fa-badge-check"></i></div>
+            <h2>Confirmar local</h2>
+            <p class="modal-sub">Você confirma que <b id="verifyPlaceName"></b> existe e funciona?</p>
+            <div class="verify-note">
+                <i class="fas fa-hand-point-right"></i>
+                <span>Ao confirmar, seu voto conta para o selo da comunidade. Precisa estar logado.</span>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-ghost" data-close>Cancelar</button>
+                <button class="btn btn-success" id="confirmVerifyBtn"><i class="fas fa-check-circle"></i> Sim, confirmar</button>
+            </div>
+        </div>
+    </div>
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>',
-            maxZoom: 19,
-        }).addTo(map);
+    <!-- INCLUI app.js -->
+    <script src="app.js"></script>
+    /* ═══════════════════════════════════════════
+   TURISTOU — styles.css
+   ═══════════════════════════════════════════ */
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --primary:#0f766e;--primary-2:#14b8a6;--accent:#0ea5e9;
+  --success:#16a34a;--danger:#ef4444;--gold:#eab308;
+  --bg:#f4fbfa;--surface:#ffffff;--text:#0f172a;--text-2:#64748b;
+  --border:#dceeea;--shadow:0 4px 24px rgba(0,0,0,.07);
+  --radius:16px;--header-h:70px;
+}
+body.dark{
+  --bg:#0b1220;--surface:#121c2e;--text:#e2e8f0;--text-2:#8ea0b8;
+  --border:#20304a;--shadow:0 4px 24px rgba(0,0,0,.45);
+}
+html{scroll-behavior:smooth}
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);
+  line-height:1.65;padding-top:calc(var(--header-h) + 8px);overflow-x:hidden;
+  transition:background .3s,color .3s}
+.container{max-width:1200px;margin:0 auto;padding:0 22px}
+section{scroll-margin-top:90px}
+img{max-width:100%;display:block}
+a{text-decoration:none;color:inherit}
 
-        // markers
-        const markerColors = {
-            'place-bg-1': '#1a73e8',
-            'place-bg-2': '#ff9800',
-            'place-bg-3': '#66bb6a',
-            'place-bg-4': '#ab47bc',
-            'place-bg-5': '#ef5350',
-            'place-bg-6': '#26a69a'
-        };
+/* ═══ HEADER ═══ */
+header{position:fixed;top:0;left:0;right:0;height:var(--header-h);
+  background:var(--surface);border-bottom:1px solid var(--border);
+  box-shadow:0 1px 12px rgba(0,0,0,.05);z-index:1000;transition:.3s}
+.header-inner{display:flex;align-items:center;gap:16px;height:100%}
+.logo{display:flex;align-items:center;gap:10px;font-size:1.35rem;font-weight:800;flex-shrink:0}
+.logo b{color:var(--primary-2)}
+.logo-pin{width:36px;height:36px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);
+  background:linear-gradient(135deg,var(--primary),var(--accent));
+  display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(15,118,110,.35)}
+.logo-pin i{transform:rotate(45deg);color:#fff;font-size:.9rem}
 
-        placesData.forEach(p => {
-            const color = markerColors[p.bgClass] || '#1a73e8';
+/* busca */
+.search-wrap{position:relative;flex:1;max-width:320px;display:none}
+@media(min-width:1024px){.search-wrap{display:block}}
+.search-ic{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-2);font-size:.85rem}
+#searchInput{width:100%;padding:9px 14px 9px 36px;border:1px solid var(--border);
+  border-radius:12px;background:var(--bg);color:var(--text);font-family:inherit;font-size:.85rem;outline:none;transition:.2s}
+#searchInput:focus{border-color:var(--primary-2)}
+.search-results{position:absolute;top:110%;left:0;right:0;background:var(--surface);
+  border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);
+  max-height:300px;overflow-y:auto;display:none;z-index:50}
+.search-results.open{display:block}
+.search-item{display:flex;gap:10px;align-items:center;padding:10px 14px;cursor:pointer;font-size:.85rem}
+.search-item:hover{background:var(--bg)}
+.search-item i{color:var(--primary-2)}
+.search-item small{color:var(--text-2);display:block}
 
-            const markerIcon = L.divIcon({
-                html: `<div style="background:${color};color:#fff;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 2px 8px rgba(0,0,0,0.3);border:2px solid #fff;"><i class="fas ${p.icon}"></i></div>`,
-                className: '',
-                iconSize: [34, 34],
-                iconAnchor: [17, 17],
-            });
+/* nav */
+nav{display:flex;align-items:center;gap:2px;margin-left:auto}
+nav a{padding:8px 13px;border-radius:10px;font-weight:500;font-size:.84rem;
+  color:var(--text-2);transition:.2s;display:flex;align-items:center;gap:6px;white-space:nowrap}
+nav a:hover,nav a.active{background:var(--primary);color:#fff}
+nav a i{font-size:.8rem}
+.icon-btn{width:38px;height:38px;border:1px solid var(--border);background:var(--surface);
+  color:var(--text);border-radius:10px;cursor:pointer;font-size:.95rem;
+  display:flex;align-items:center;justify-content:center;transition:.2s}
+.icon-btn:hover{background:var(--primary);color:#fff;border-color:var(--primary)}
+.menu-burger{display:none}
 
-            const marker = L.marker(p.coords, { icon: markerIcon })
-                .addTo(map)
-                .bindPopup(`
-                            <strong>${p.name}</strong><br>
-                            ${p.desc.split('.')[0]}.
-                            <br><em>${p.address}</em>
-                        `);
-        });
+/* conta */
+.account-area{display:flex;align-items:center;gap:8px}
+.user-chip{display:inline-flex;align-items:center;gap:8px;background:var(--bg);
+  border:1px solid var(--border);border-radius:50px;padding:4px 14px 4px 4px;
+  font-size:.82rem;font-weight:600;cursor:pointer;transition:.2s}
+.user-chip:hover{border-color:var(--primary-2)}
+.user-chip .ava{width:28px;height:28px;border-radius:50%;color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700}
+.badge-v{width:16px;height:16px;border-radius:50%;background:var(--primary-2);color:#fff;
+  display:inline-flex;align-items:center;justify-content:center;font-size:.55rem}
 
-        // fit bounds
-        const group = L.featureGroup(placesData.map(p => L.marker(p.coords)));
-        map.fitBounds(group.getBounds().pad(0.15));
+/* botões */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border-radius:12px;
+  font-weight:600;font-size:.87rem;border:none;cursor:pointer;font-family:inherit;
+  transition:.2s;white-space:nowrap}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(15,118,110,.35)}
+.btn-success{background:var(--success);color:#fff}
+.btn-success:hover{transform:translateY(-2px)}
+.btn-light{background:#fff;color:var(--primary);box-shadow:0 6px 20px rgba(0,0,0,.15)}
+.btn-light:hover{transform:translateY(-3px)}
+.btn-ghost{background:transparent;border:1.5px solid var(--border);color:var(--text-2)}
+.btn-ghost:hover{border-color:var(--primary);color:var(--primary)}
+.btn-ghost-light{background:transparent;border:2px solid rgba(255,255,255,.6);color:#fff}
+.btn-ghost-light:hover{background:rgba(255,255,255,.12)}
+.btn-outline{background:transparent;border:1.5px solid var(--primary);color:var(--primary)}
+.btn-outline:hover{background:var(--primary);color:#fff}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-sm{padding:7px 14px;font-size:.8rem;border-radius:10px}
+.btn-lg{padding:15px 34px;font-size:1rem;border-radius:50px;font-weight:700}
+.btn-block{width:100%;justify-content:center}
+.link-btn{background:none;border:none;color:var(--primary);font-family:inherit;
+  font-size:.85rem;font-weight:500;cursor:pointer;margin-top:14px}
+.link-btn:hover{text-decoration:underline}
 
-        // ===== SCROLL REVEAL =====
-        const revealElements = document.querySelectorAll('.reveal');
+/* ═══ HERO ═══ */
+.hero{position:relative;overflow:hidden;padding:90px 0 130px;text-align:center;
+  background:linear-gradient(135deg,#0f766e 0%,#0d9488 50%,#0ea5e9 100%)}
+.hero-blobs{position:absolute;inset:0;
+  background:radial-gradient(ellipse at 20% 80%,rgba(255,255,255,.14),transparent 55%),
+             radial-gradient(ellipse at 85% 15%,rgba(255,255,255,.1),transparent 50%)}
+.hero-content{position:relative;z-index:2;max-width:760px;margin:0 auto}
+.hero-badge{display:inline-block;background:rgba(255,255,255,.16);backdrop-filter:blur(6px);
+  color:#fff;padding:6px 20px;border-radius:50px;font-size:.8rem;font-weight:600;
+  margin-bottom:20px;border:1px solid rgba(255,255,255,.25)}
+.hero h1{font-size:2.9rem;color:#fff;font-weight:900;line-height:1.2;margin-bottom:14px}
+.hero h1 b{color:#7ff0e4}
+.hero p{color:rgba(255,255,255,.9);font-size:1.1rem;max-width:560px;margin:0 auto 30px}
+.hero-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.hero-wave{position:absolute;bottom:-1px;left:0;right:0;line-height:0}
+.hero-wave svg{width:100%;height:70px}
+.hero-stats{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:44px}
+.hstat{background:rgba(255,255,255,.14);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.25);
+  border-radius:14px;padding:14px 26px;color:#fff}
+.hstat b{font-size:1.5rem;display:block;font-weight:800}
+.hstat span{font-size:.75rem;opacity:.85}
 
-        const revealObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
-        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+/* ═══ SECTIONS ═══ */
+.block{padding:70px 0}
+.alt-bg{background:var(--surface);border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);transition:.3s}
+.section-head{text-align:center;margin-bottom:34px}
+.sec-tag{display:inline-block;font-size:.72rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:2px;color:var(--primary-2);background:rgba(20,184,166,.12);
+  padding:4px 16px;border-radius:50px;margin-bottom:10px}
+.section-head h2{font-size:2rem;font-weight:800;margin-bottom:6px}
+.section-head p{color:var(--text-2);max-width:600px;margin:0 auto}
 
-        revealElements.forEach(el => revealObserver.observe(el));
+/* ═══ CHIPS / TABS ═══ */
+.cat-chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:16px}
+.chip{padding:7px 16px;border-radius:50px;border:1px solid var(--border);background:var(--surface);
+  color:var(--text-2);font-size:.82rem;font-weight:500;cursor:pointer;font-family:inherit;transition:.2s}
+.chip:hover,.chip.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.tabs{display:flex;gap:6px;justify-content:center;margin-bottom:28px}
+.tab{padding:8px 18px;border-radius:10px;border:none;background:transparent;
+  color:var(--text-2);font-family:inherit;font-size:.84rem;font-weight:600;cursor:pointer;
+  display:flex;gap:6px;align-items:center;transition:.2s}
+.tab:hover{color:var(--primary)}
+.tab.active{background:var(--surface);color:var(--primary);box-shadow:var(--shadow);border:1px solid var(--border)}
 
-        // ===== DARK MODE =====
-        const themeToggle = document.getElementById('themeToggle');
-        const themeIcon = themeToggle.querySelector('i');
+/* ═══ FEED ═══ */
+.feed-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:22px}
+.feed-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  overflow:hidden;box-shadow:var(--shadow);transition:transform .25s,box-shadow .25s;
+  display:flex;flex-direction:column}
+.feed-card:hover{transform:translateY(-5px);box-shadow:0 10px 34px rgba(0,0,0,.12)}
+.fc-head{display:flex;align-items:center;gap:10px;padding:14px 16px 0}
+.fc-ava{width:40px;height:40px;border-radius:50%;color:#fff;display:flex;align-items:center;
+  justify-content:center;font-weight:700;flex-shrink:0;position:relative}
+.fc-ava .mini-v{position:absolute;bottom:-3px;right:-3px;width:16px;height:16px;border-radius:50%;
+  background:var(--primary-2);border:2px solid var(--surface);color:#fff;font-size:.5rem;
+  display:none;align-items:center;justify-content:center}
+.feed-card.verified .fc-ava .mini-v{display:flex}
+.fc-meta{flex:1;min-width:0}
+.fc-meta b{font-size:.87rem;display:block}
+.fc-meta small{color:var(--text-2);font-size:.75rem}
+.fc-img{aspect-ratio:16/9;margin:12px 16px;border-radius:12px;overflow:hidden;
+  background:linear-gradient(135deg,#0f766e,#0ea5e9);position:relative;
+  display:flex;align-items:center;justify-content:center}
+.fc-img img{width:100%;height:100%;object-fit:cover}
+.fc-img .ph{color:rgba(255,255,255,.85);text-align:center;font-size:.85rem}
+.fc-img .ph i{font-size:2.2rem;display:block;margin-bottom:6px;opacity:.7}
+.fc-body{padding:0 16px 14px;flex:1}
+.fc-title{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.fc-title h3{font-size:1.05rem;font-weight:700}
+.v-badge{width:17px;height:17px;border-radius:50%;background:var(--primary-2);color:#fff;
+  display:inline-flex;align-items:center;justify-content:center;font-size:.6rem;flex-shrink:0}
+.fc-cat{display:inline-block;font-size:.68rem;font-weight:600;padding:2px 10px;
+  border-radius:50px;background:rgba(20,184,166,.12);color:var(--primary-2);
+  text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+.fc-addr{font-size:.83rem;color:var(--text-2);margin-top:6px;display:flex;gap:6px;align-items:flex-start}
+.fc-addr i{color:var(--primary-2);margin-top:3px;flex-shrink:0}
+.fc-desc{font-size:.88rem;margin-top:8px}
+.fc-note{margin-top:10px;background:#fef3c7;border:1px solid #fde68a;color:#92400e;
+  border-radius:10px;padding:9px 13px;font-size:.78rem;display:flex;gap:8px}
+.fc-actions{display:flex;gap:6px;padding:0 16px 16px;flex-wrap:wrap}
+.act{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:9px;
+  font-size:.8rem;font-weight:500;cursor:pointer;border:1px solid var(--border);
+  background:var(--bg);color:var(--text-2);font-family:inherit;transition:.2s}
+.act:hover{border-color:var(--primary-2);color:var(--primary-2)}
+.act.liked{background:#fef2f2;border-color:#fecaca;color:var(--danger)}
+.act.done{background:rgba(22,163,74,.1);border-color:#bbf7d0;color:var(--success)}
+.act b{font-weight:700}
+.official-tag{position:absolute;top:12px;right:12px;background:var(--gold);color:#fff;
+  font-size:.65rem;font-weight:700;padding:3px 12px;border-radius:50px;
+  box-shadow:0 3px 8px rgba(0,0,0,.25);letter-spacing:.5px;z-index:2}
 
-        function setTheme(isDark) {
-            if (isDark) {
-                document.body.classList.add('dark');
-                themeIcon.className = 'fas fa-sun';
-                localStorage.setItem('turistou-theme', 'dark');
-            } else {
-                document.body.classList.remove('dark');
-                themeIcon.className = 'fas fa-moon';
-                localStorage.setItem('turistou-theme', 'light');
-            }
+/* notas da comunidade */
+.notes-zone{border-top:1px solid var(--border);padding:12px 16px;background:var(--bg)}
+.notes-zone h4{font-size:.78rem;font-weight:700;display:flex;gap:6px;align-items:center;margin-bottom:8px}
+.notes-zone h4 i{color:var(--primary-2)}
+.note-item{font-size:.79rem;color:var(--text-2);display:flex;gap:7px;margin-bottom:6px}
+.note-item i{color:var(--success);margin-top:2px;font-size:.75rem}
+.note-item b{color:var(--text)}
+.note-form{display:flex;gap:7px;margin-top:8px}
+.note-form input{flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:9px;
+  background:var(--surface);color:var(--text);font-family:inherit;font-size:.8rem;outline:none}
+.note-form input:focus{border-color:var(--primary-2)}
+.note-form button{padding:8px 13px}
+
+/* ═══ MAPA ═══ */
+#map{height:480px;border-radius:var(--radius);border:1px solid var(--border);z-index:1}
+.leaflet-popup-content{font-family:'Poppins',sans-serif;font-size:.85rem}
+
+/* ═══ SOBRE ═══ */
+.two-col{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
+.two-col h2{font-size:1.9rem;font-weight:800;margin-bottom:14px}
+.two-col p{color:var(--text-2);margin-bottom:12px}
+.check-list{list-style:none;margin-top:16px}
+.check-list li{display:flex;gap:10px;align-items:center;font-size:.9rem;margin-bottom:10px}
+.check-list i{color:var(--success)}
+.mosaic{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.mosaic-card{background:var(--bg);border:1px solid var(--border);border-radius:14px;
+  padding:28px 14px;text-align:center;transition:.25s;cursor:default}
+.mosaic-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+.mosaic-card i{font-size:1.9rem;color:var(--primary-2);margin-bottom:8px;display:block}
+.mosaic-card b{font-size:.88rem}
+
+/* ═══ FOOTER ═══ */
+footer{background:var(--surface);border-top:1px solid var(--border);transition:.3s}
+.footer-inner{display:grid;grid-template-columns:1.4fr 2fr;gap:40px;padding:44px 22px 34px}
+.footer-brand{display:flex;gap:12px;align-items:flex-start}
+.footer-brand b{font-size:1.2rem}
+.footer-brand p{font-size:.83rem;color:var(--text-2);margin-top:4px;max-width:320px}
+.footer-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.f-col h4{font-size:.8rem;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px}
+.f-col a{display:block;font-size:.84rem;color:var(--text-2);margin-bottom:8px;transition:.2s}
+.f-col a:hover{color:var(--primary-2)}
+.social-row{display:flex;gap:10px;margin-top:8px}
+.social-row a{width:36px;height:36px;border-radius:50%;background:var(--bg);
+  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;transition:.2s}
+.social-row a:hover{background:var(--primary);color:#fff;border-color:var(--primary)}
+.footer-bottom{border-top:1px solid var(--border);padding:16px 0;text-align:center;
+  font-size:.78rem;color:var(--text-2)}
+
+/* ═══ CHAT BOT ═══ */
+.chat-fab{position:fixed;bottom:24px;right:24px;z-index:1500;width:58px;height:58px;
+  border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));
+  color:#fff;border:none;cursor:pointer;font-size:1.35rem;
+  box-shadow:0 8px 24px rgba(15,118,110,.45);transition:.25s}
+.chat-fab:hover{transform:scale(1.1)}
+.fab-dot{position:absolute;top:4px;right:4px;width:12px;height:12px;border-radius:50%;
+  background:var(--danger);border:2px solid #fff;display:none}
+.fab-dot.show{display:block}
+.chat-box{position:fixed;bottom:94px;right:24px;width:370px;max-width:calc(100vw - 32px);
+  height:520px;max-height:calc(100vh - 130px);border-radius:20px;overflow:hidden;
+  background:var(--surface);border:1px solid var(--border);
+  box-shadow:0 16px 50px rgba(0,0,0,.3);z-index:1500;display:none;flex-direction:column}
+.chat-box.open{display:flex;animation:slideUp .3s}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.chat-head{background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;
+  padding:14px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;flex-shrink:0}
+.robot-ava{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.22);
+  display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.chat-title{flex:1}
+.chat-title b{font-size:.92rem;display:block}
+.chat-title small{font-size:.7rem;opacity:.85}
+.chat-msgs{flex:1;padding:14px;overflow-y:auto;display:flex;flex-direction:column;gap:9px}
+.msg{max-width:88%;padding:10px 14px;border-radius:14px;font-size:.83rem;line-height:1.5;animation:fade .25s}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.msg.bot{align-self:flex-start;background:var(--bg);border:1px solid var(--border);border-bottom-left-radius:4px}
+.msg.user{align-self:flex-end;background:var(--primary);color:#fff;border-bottom-right-radius:4px}
+.msg b.loc{font-weight:700}
+.chat-answers{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.chat-answers .act{font-size:.75rem;padding:6px 12px}
+.chat-input-row{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border);flex-shrink:0}
+.chat-input-row select{flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:10px;
+  background:var(--bg);color:var(--text);font-family:inherit;font-size:.82rem;outline:none}
+.chat-input-row button{width:42px;border:none;border-radius:10px;background:var(--primary);
+  color:#fff;cursor:pointer;font-size:.95rem;transition:.2s}
+.chat-input-row button:hover{background:var(--primary-2)}
+
+/* ═══ MODAIS ═══ */
+.modal{position:fixed;inset:0;background:rgba(10,20,30,.55);backdrop-filter:blur(5px);
+  z-index:2000;display:none;align-items:center;justify-content:center;padding:20px}
+.modal.open{display:flex;animation:fade .2s}
+.modal-card{background:var(--surface);border-radius:20px;max-width:430px;width:100%;
+  padding:32px;max-height:90vh;overflow-y:auto;position:relative;color:var(--text)}
+.modal-wide{max-width:600px}
+.modal-x{position:absolute;top:14px;right:14px;background:var(--bg);border:1px solid var(--border);
+  width:34px;height:34px;border-radius:50%;color:var(--text-2);cursor:pointer;font-size:.95rem;transition:.2s}
+.modal-x:hover{background:var(--danger);color:#fff;border-color:var(--danger)}
+.modal-icon{width:52px;height:52px;border-radius:14px;background:rgba(20,184,166,.12);
+  color:var(--primary-2);display:flex;align-items:center;justify-content:center;
+  font-size:1.3rem;margin-bottom:14px}
+.modal-card h2{font-size:1.35rem;margin-bottom:4px}
+.modal-sub{font-size:.86rem;color:var(--text-2);margin-bottom:20px}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.field label{font-size:.8rem;font-weight:600}
+.field label em{color:var(--danger);font-style:normal}
+.field input,.field select,.field textarea{padding:11px 14px;border:1px solid var(--border);
+  border-radius:11px;background:var(--bg);color:var(--text);font-family:inherit;
+  font-size:.88rem;outline:none;transition:.2s;width:100%}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--primary-2)}
+.inp-ic{position:relative}
+.inp-ic i{position:absolute;left:13px;top:50%;transform:translateY(-50%);
+  color:var(--text-2);font-size:.85rem}
+.inp-ic input{padding-left:38px}
+.form-2col{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+.col-span{grid-column:1/-1}
+.auth-error{color:var(--danger);font-size:.8rem;min-height:18px;margin:2px 0 8px}
+.modal-actions{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:6px}
+.hint{font-size:.75rem;color:var(--text-2)}
+.picker-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.picked-coord{font-size:.78rem;color:var(--text-2)}
+.picked-coord.set{color:var(--success);font-weight:600}
+.verify-note{background:var(--bg);border:1px solid var(--border);border-radius:12px;
+  padding:12px 14px;font-size:.8rem;display:flex;gap:9px;margin-bottom:16px}
+.verify-note i{color:var(--gold);margin-top:2px}
+#pickMapHolder{display:none;height:240px;border-radius:12px;overflow:hidden;
+  border:1px solid var(--border);margin-top:8px}
+#pickMapHolder.show{display:block}
+
+/* ═══ TOAST ═══ */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(90px);
+  background:var(--text);color:var(--bg);padding:12px 26px;border-radius:50px;
+  font-size:.85rem;font-weight:500;z-index:3000;opacity:0;transition:.35s;
+  box-shadow:0 8px 24px rgba(0,0,0,.25);max-width:90vw}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ═══ ESTADO VAZIO ═══ */
+.empty-state{text-align:center;padding:60px 20px;color:var(--text-2)}
+.empty-state i{font-size:3rem;opacity:.35;margin-bottom:12px;display:block}
+.empty-state h3{color:var(--text);margin-bottom:6px}
+.empty-state .btn{margin-top:16px}
+
+@keyframes shake{0%,100%{transform:none}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.shake{animation:shake .35s}
+
+/* ═══ RESPONSIVO ═══ */
+@media(max-width:1023px){
+  .footer-inner{grid-template-columns:1fr;gap:26px}
+  .two-col{grid-template-columns:1fr;gap:30px}
+}
+@media(max-width:860px){
+  .menu-burger{display:flex}
+  nav{position:fixed;top:var(--header-h);left:0;right:0;background:var(--surface);
+    flex-direction:column;align-items:stretch;padding:14px;border-bottom:1px solid var(--border);
+    transform:translateY(-130%);opacity:0;transition:.35s;pointer-events:none;z-index:990;
+    box-shadow:var(--shadow);gap:6px}
+  nav.open{transform:none;opacity:1;pointer-events:auto}
+  nav a{padding:12px 16px}
+  .account-area{margin-left:auto}
+  .feed-list{grid-template-columns:1fr}
+  .hero h1{font-size:2.2rem}
+  .form-2col{grid-template-columns:1fr}
+  .footer-cols{grid-template-columns:1fr}
+  .chat-box{bottom:88px}
+}
+@media(max-width:480px){
+  .container{padding:0 16px}
+  .block{padding:50px 0}
+  .hero{padding:60px 0 110px}
+  .hero h1{font-size:1.8rem}
+  .hero p{font-size:.95rem}
+  .hero-stats{gap:8px}
+  .hstat{padding:10px 16px}
+  .section-head h2{font-size:1.5rem}
+  .tabs{flex-wrap:wrap}
+  .logo-txt{font-size:1.1rem}
+}
+    /* ═══════════════════════════════════════════════════
+   TURISTOU — app.js
+   Feed colaborativo + verificação estilo Twitter
+   Presidente Prudente / SP
+   ═══════════════════════════════════════════════════ */
+
+'use strict';
+
+/* ═══ 0. UTILITÁRIOS ═══ */
+const $  = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const esc = s => String(s ?? '').replace(/[&<>"']/g,
+  c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const initials = n => (n || '?').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+
+function timeAgo(t){
+  const s = Math.floor((Date.now() - t) / 1000);
+  if (s < 60) return 'agora';
+  if (s < 3600) return Math.floor(s/60) + ' min';
+  if (s < 86400) return Math.floor(s/3600) + ' h';
+  const d = Math.floor(s/86400);
+  return d === 1 ? 'ontem' : d + ' d';
+}
+function toast(msg){
+  const t = $('#toast') || Object.assign(document.body.appendChild(document.createElement('div')), {className:'toast', id:'toast'});
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._tm); t._tm = setTimeout(()=>t.classList.remove('show'), 2600);
+}
+
+/* ═══ 1. CAMADA DE DADOS (API) — isolada ═══
+   Trocando as implementações destas funções por
+   chamadas a um backend (Supabase/Firebase), o resto
+   do app continua funcionando sem alterações.       */
+const API = {
+  KEY: 'turistou_db_v1',
+  _db: null,
+  load(){
+    try { this._db = JSON.parse(localStorage.getItem(this.KEY)) || null; } catch(e){ this._db = null; }
+    if (!this._db) { this._db = { users:[], places:[], notes:[], session:null, theme:'light' }; this.seed(); this.save(); }
+    return this._db;
+  },
+  save(){ localStorage.setItem(this.KEY, JSON.stringify(this._db)); },
+  seed(){ /* Sementes — locais reais de Presidente Prudente */
+    const D = Date.now(), H = 3600e3;
+    this._db.places = [
+      { id:'p1', name:'Parque do Povo', cat:'Parques', address:'Av. Coronel Marcondes / Av. 14 de Setembro — centro',
+        desc:'460 mil m² de área verde com pistas de caminhada, ciclovia, skate park, piscinas e quadras. Aberto 24h — o cartão-postal da cidade.',
+        lat:-22.1316, lon:-51.3941, img:'', author:'Equipe Turistou', authorId:'sys',
+        official:true, verifiedBy:['sys'], likes:47, time:D-72*H },
+      { id:'p2', name:'Centro Cultural Matarazzo', cat:'Cultura', address:'R. Quintino Bocaiúva, 749 — Vila Marcondes',
+        desc:'Teatro, cinema, galeria Takeo Sawada e biblioteca. Sede da Feira do Rock, Feira da Lua e da Temporada de Dança.',
+        lat:-22.1180, lon:-51.3772, img:'', author:'Equipe Turistou', authorId:'sys',
+        official:true, verifiedBy:['sys'], likes:38, time:D-48*H },
+      { id:'p3', name:'Catedral de São Sebastião', cat:'Cultura', address:'Praça Monsenhor Sarrion — centro',
+        desc:'Igreja matriz da cidade, em frente ao marco zero de PP. Arquitetura imponente e vitrais lindos.',
+        lat:-22.1211, lon:-51.3890, img:'', author:'Equipe Turistou', authorId:'sys',
+        official:false, verifiedBy:['sys'], likes:26, time:D-96*H },
+      { id:'p4', name:'Sesc Thermas', cat:'Lazer', address:'R. Alberto Peters, 111 — Jardim das Rosas',
+        desc:'Parque aquático com piscinas, tobogãs, quadras e programação cultural gratuita o ano todo.',
+        lat:-22.1188, lon:-51.3995, img:'', author:'Equipe Turistou', authorId:'sys',
+        official:true, verifiedBy:['sys'], likes:31, time:D-120*H },
+      { id:'p5', name:'Cidade da Criança', cat:'Lazer', address:'Rod. Raposo Tavares, km 561',
+        desc:'Parque ecológico com 172 hectares de matas, lagos e bosques. Parque aquático funciona qui-dom, 9h30 às 16h30.',
+        lat:-22.1420, lon:-51.4210, img:'', author:'Equipe Turistou', authorId:'sys',
+        official:false, verifiedBy:[], likes:19, time:D-144*H },
+      { id:'p6', name:'SENAC Presidente Prudente', cat:'Educação', address:'Av. Manoel Goulart, 2881 — Centro Educacional',
+        desc:'Unidade do Senac com cursos livres, técnicos e Ensino Médio Técnico em Multimídia. Mais de 1.200 vagas gratuitas por ano.',
+        lat:-22.1190, lon:-51.3830, img:'', author:'Equipe Turistou', authorId:'sys',
+        official:false, verifiedBy:[], likes:22, time:D-24*H },
+      { id:'p7', name:'Balneário da Amizade', cat:'Lazer', address:'Av. Brasil — zona sul',
+        desc:'Área de lazer com piscinas, quadras e espaços para churrasco. Clássico dos fins de semana prudentinos.',
+        lat:-22.1450, lon:-51.4010, img:'', author:'Equipe Turistou', authorId:'sys',
+        official:false, verifiedBy:[], likes:14, time:D-168*H },
+    ];
+  },
+  /* ---- usuários ---- */
+  users(){ return this._db.users; },
+  findUser(email){ return this._db.users.find(u => u.email === email); },
+  createUser(name, email, pass){
+    const u = { id:uid(), name, email, pass, verified:false, createdAt:Date.now() };
+    this._db.users.push(u); this.save(); return u;
+  },
+  login(email, pass){
+    const u = this.findUser(email);
+    return (u && u.pass === pass) ? u : null;
+  },
+  currentUser(){ return this._db.session ? this._db.users.find(u=>u.id===this._db.session) : null; },
+  setSession(id){ this._db.session = id; this.save(); },
+  logout(){ this._db.session = null; this.save(); },
+
+  /* ---- lugares ---- */
+  places(){ return this._db.places; },
+  place(id){ return this._db.places.find(p=>p.id===id); },
+  addPlace(data){
+    const p = { id:uid(), likes:0, verifiedBy:[], official:false,
+                author: this.currentUser()?.name || 'Anônimo',
+                authorId: this.currentUser()?.id || null,
+                time: Date.now(), ...data };
+    this._db.places.unshift(p); this.save(); return p;
+  },
+  removePlace(id){
+    this._db.places = this._db.places.filter(p=>p.id!==id);
+    this._db.notes  = this._db.notes.filter(n=>n.placeId!==id);
+    this.save();
+  },
+  likePlace(id){
+    const p = this.place(id); if(!p) return;
+    p.likes = (p.likes||0) + 1; this.save();
+  },
+
+  /* ---- verificação (estilo Twitter: notas da comunidade) ----
+     Regra: local "oficial" (equipe) OU confirmado por 2+ usuários
+     distintos ganha o selo verde de verificado.               */
+  verifyCount(p){ return new Set(p.verifiedBy || []).size; },
+  isVerified(p){ return p.official || this.verifyCount(p) >= 2; },
+  toggleVerify(id){
+    const u = this.currentUser(); if(!u) return null;
+    const p = this.place(id); if(!p) return null;
+    if (p.official) return { ok:false, msg:'Locais oficiais não podem ser alterados.' };
+    p.verifiedBy = p.verifiedBy || [];
+    const i = p.verifiedBy.indexOf(u.id);
+    if (i >= 0) { p.verifiedBy.splice(i,1); this.save(); return { ok:true, verified:false }; }
+    p.verifiedBy.push(u.id); this.save();
+    return { ok:true, verified:this.isVerified(p) };
+  },
+
+  /* ---- notas da comunidade ---- */
+  notes(placeId){ return this._db.notes.filter(n=>n.placeId===placeId); },
+  addNote(placeId, text){
+    const u = this.currentUser(); if(!u) return null;
+    const n = { id:uid(), placeId, text, userId:u.id, userName:u.name, time:Date.now() };
+    this._db.notes.push(n); this.save(); return n;
+  },
+
+  /* ---- tema ---- */
+  theme(){ return this._db.theme; },
+  setTheme(v){ this._db.theme = v; this.save(); },
+};
+const DB = API.load();
+
+/* ═══ 2. TEMA ═══ */
+function applyTheme(){
+  document.body.classList.toggle('dark', DB.theme === 'dark');
+  const ic = $('#themeToggle i');
+  if (ic) ic.className = DB.theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+}
+$('#themeToggle').addEventListener('click', () => {
+  DB.theme = DB.theme === 'dark' ? 'light' : 'dark';
+  API.setTheme(DB.theme); applyTheme();
+});
+
+/* ═══ 3. AUTENTICAÇÃO ═══ */
+let authMode = 'login';
+const CATEGORIES = ['Parques','Cultura','Gastronomia','Lazer','Educação','Natureza','Outro'];
+const CAT_ICONS = {
+  'Parques':'fa-tree','Cultura':'fa-landmark','Gastronomia':'fa-utensils',
+  'Lazer':'fa-water','Educação':'fa-graduation-cap','Natureza':'fa-leaf','Outro':'fa-map-pin'
+};
+
+function renderAccount(){
+  const u = API.currentUser();
+  const area = $('#accountArea');
+  if (u){
+    area.innerHTML = `
+      <span class="user-chip" id="chipUser" title="Sair">
+        <span class="ava" style="background:linear-gradient(135deg,var(--primary),var(--accent))">${esc(initials(u.name))}</span>
+        ${esc(u.name.split(' ')[0])}
+        ${u.verified ? '<span class="badge-v"><i class="fas fa-check"></i></span>' : ''}
+      </span>`;
+    $('#chipUser').onclick = () => {
+      API.logout(); renderAccount(); renderFeed(); renderHeroStats();
+      toast('Você saiu da conta. Até logo! 👋');
+    };
+  } else {
+    area.innerHTML = `<button class="btn btn-primary btn-sm" id="btnOpenAuth"><i class="fas fa-user"></i> Entrar</button>`;
+    $('#btnOpenAuth').onclick = () => openAuth('login');
+  }
+}
+function openAuth(mode){
+  authMode = mode;
+  $('#authTitle').textContent = mode === 'login' ? 'Entrar no Turistou' : 'Criar sua conta';
+  $('#authSub').textContent = mode === 'login'
+    ? 'Acesse para verificar locais, curtir e comentar.'
+    : 'Cadastre-se e ajude a mapear Presidente Prudente.';
+  $('#authNameField').hidden = mode !== 'register';
+  $('#authSubmitBtn').textContent = mode === 'login' ? 'Entrar' : 'Criar conta';
+  $('#authToggleBtn').textContent = mode === 'login' ? 'Não tem conta? Cadastre-se grátis' : 'Já tem conta? Fazer login';
+  $('#authError').textContent = '';
+  $('#authForm').reset();
+  $('#modalAuth').classList.add('open');
+}
+$('#authToggleBtn').addEventListener('click', () => openAuth(authMode === 'login' ? 'register' : 'login'));
+$('#authForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const name = $('#authName').value.trim();
+  const email = $('#authEmail').value.trim().toLowerCase();
+  const pass = $('#authPass').value;
+  const err = m => {
+    $('#authError').textContent = m;
+    e.target.classList.add('shake');
+    setTimeout(()=>e.target.classList.remove('shake'), 400);
+  };
+  if (authMode === 'register'){
+    if (name.length < 2) return err('Digite seu nome.');
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return err('E-mail inválido.');
+    if (pass.length < 4) return err('A senha precisa de ao menos 4 caracteres.');
+    if (API.findUser(email)) return err('Este e-mail já está cadastrado.');
+    const u = API.createUser(name, email, pass);
+    API.setSession(u.id);
+    $('#modalAuth').classList.remove('open');
+    renderAccount(); toast(`Bem-vindo(a), ${u.name.split(' ')[0]}! 🎉`);
+  } else {
+    const u = API.login(email, pass);
+    if (!u) return err('E-mail ou senha incorretos.');
+    API.setSession(u.id);
+    $('#modalAuth').classList.remove('open');
+    renderAccount(); toast(`Que bom te ver, ${u.name.split(' ')[0]}!`);
+  }
+  renderFeed();
+});
+
+/* ═══ 4. MAPA PRINCIPAL ═══ */
+let map;
+function initMap(){
+  map = L.map('map').setView([-22.1255, -51.3885], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution:'&copy; OpenStreetMap contributors', maxZoom:19
+  }).addTo(map);
+}
+function pinIcon(place){
+  const verified = API.isVerified(place);
+  const color = place.official ? '#eab308' : verified ? '#14b8a6' : '#ef4444';
+  const icon  = place.official ? 'fa-star' : verified ? 'fa-check' : 'fa-map-pin';
+  return L.divIcon({
+    className:'',
+    html:`<div style="background:${color};width:34px;height:34px;border-radius:50%;
+          display:flex;align-items:center;justify-content:center;color:#fff;
+          border:2.5px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.35)">
+          <i class="fas ${icon}" style="font-size:13px"></i></div>`,
+    iconSize:[34,34], iconAnchor:[17,17]
+  });
+}
+function renderMap(){
+  if (!map) return;
+  map.eachLayer(l => { if (l instanceof L.Marker) map.removeLayer(l); });
+  const pts = [];
+  API.places().forEach(p => {
+    pts.push([p.lat, p.lon]);
+    L.marker([p.lat, p.lon], { icon: pinIcon(p) }).addTo(map)
+      .bindPopup(`<b>${esc(p.name)}</b> ${API.isVerified(p) ? '✅' : ''}<br>
+        <small>${esc(p.cat)} · ${esc(p.address)}</small><br>
+        <a href="#feed" onclick="UI.focusCard('${p.id}')" style="color:#0f766e;font-weight:600">Ver no feed →</a>`);
+  });
+  if (pts.length) map.fitBounds(L.latLngBounds(pts).pad(0.25));
+}
+
+/* ═══ 5. FEED ═══ */
+let feedState = { sort:'recent', cat:'Todas', query:'' };
+
+function renderChips(){
+  const cats = ['Todas', ...new Set(API.places().map(p=>p.cat))];
+  $('#catChips').innerHTML = cats.map(c =>
+    `<button class="chip ${feedState.cat===c?'active':''}" data-cat="${esc(c)}">${esc(c)}</button>`).join('');
+  $$('#catChips .chip').forEach(ch => ch.onclick = () => {
+    feedState.cat = ch.dataset.cat; renderChips(); renderFeed();
+  });
+}
+function sortedPlaces(){
+  let list = [...API.places()];
+  if (feedState.cat !== 'Todas') list = list.filter(p => p.cat === feedState.cat);
+  if (feedState.query){
+    const q = feedState.query.toLowerCase();
+    list = list.filter(p => (p.name+' '+p.address+' '+p.desc+' '+p.cat).toLowerCase().includes(q));
+  }
+  if (feedState.sort === 'relevant')  list.sort((a,b)=>(b.likes||0)-(a.likes||0));
+  if (feedState.sort === 'verified')  list.sort((a,b)=>(API.isVerified(b)?1:0)-(API.isVerified(a)?1:0) || b.time-a.time);
+  if (feedState.sort === 'recent')    list.sort((a,b)=>b.time-a.time);
+  return list;
+}
+function renderFeed(){
+  renderChips();
+  const list = sortedPlaces();
+  const box = $('#feedList');
+  $('#feedEmpty').hidden = list.length > 0;
+  box.innerHTML = '';
+  const me = API.currentUser();
+
+  list.forEach(p => {
+    const verified = API.isVerified(p);
+    const vCount = API.verifyCount(p);
+    const notes = API.notes(p.id);
+    const card = document.createElement('article');
+    card.className = 'feed-card' + (verified ? ' verified' : '');
+    card.id = 'card-' + p.id;
+
+    const imgHTML = p.img
+      ? `<img src="${esc(p.img)}" alt="${esc(p.name)}" loading="lazy"
+             onerror="this.parentElement.innerHTML='<div class=\\'ph\\'><i class=\\'fas fa-image\\'></i>Imagem não disponível</div>'">`
+      : `<div class="ph"><i class="fas ${CAT_ICONS[p.cat]||'fa-map-pin'}"></i>Sem foto ainda<br><small>adicione uma!</small></div>`;
+
+    card.innerHTML = `
+      ${p.official ? '<span class="official-tag">★ OFICIAL</span>' : ''}
+      <div class="fc-head">
+        <span class="fc-ava" style="background:linear-gradient(135deg,${p.official?'#eab308,#f59e0b':'var(--primary),var(--accent)'})">${esc(initials(p.author))}</span>
+        <div class="fc-meta">
+          <b>${esc(p.author)} ${p.official?'<span class="badge-v"><i class="fas fa-check"></i></span>':''}</b>
+          <small>${timeAgo(p.time)} atrás</small>
+        </div>
+      </div>
+      <div class="fc-img">${imgHTML}</div>
+      <div class="fc-body">
+        <div class="fc-title">
+          <h3>${esc(p.name)}</h3>
+          ${verified ? '<span class="v-badge" title="Verificado pela comunidade"><i class="fas fa-check"></i></span>' : ''}
+        </div>
+        <span class="fc-cat"><i class="fas ${CAT_ICONS[p.cat]||'fa-map-pin'}"></i> ${esc(p.cat)}</span>
+        <div class="fc-addr"><i class="fas fa-location-dot"></i><span>${esc(p.address)}</span></div>
+        ${p.desc ? `<p class="fc-desc">${esc(p.desc)}</p>` : ''}
+        ${verified ? `<div class="fc-note"><i class="fas fa-circle-check"></i>
+          <span><b>Verificado pela comunidade</b> — ${p.official ? 'selo oficial Turistou' : vCount + ' pessoas confirmaram que este local existe e está funcionando'}.</span></div>` : ''}
+      </div>
+      <div class="fc-actions">
+        <button class="act b-like" data-id="${p.id}"><i class="fas fa-heart"></i> <b>${p.likes||0}</b></button>
+        <button class="act b-verify ${verified?'done':''}" data-id="${p.id}"
+          title="${p.official?'Selo oficial':'Confirmar que existe e funciona'}">
+          <i class="fas ${verified?'fa-check-circle':'fa-circle-question'}"></i>
+          ${verified ? 'Verificado' : 'Verificar'} <b>${vCount}</b>
+        </button>
+        ${me && p.authorId === me.id && !p.official
+          ? `<button class="act b-del" data-id="${p.id}" title="Remover"><i class="fas fa-trash"></i></button>` : ''}
+        <button class="act b-map" data-id="${p.id}"><i class="fas fa-map-location-dot"></i> No mapa</button>
+      </div>
+      <div class="notes-zone">
+        <h4><i class="fas fa-comments"></i> Notas da comunidade (${notes.length})</h4>
+        <div class="notes-list">
+          ${notes.length ? notes.map(n =>
+            `<div class="note-item"><i class="fas fa-circle-check"></i>
+              <span><b>${esc(n.userName)}</b> · ${timeAgo(n.time)} — ${esc(n.text)}</span></div>`).join('')
+          : '<div class="note-item"><i class="fas fa-info-circle"></i>Seja o primeiro a dar uma nota sobre este lugar.</div>'}
+        </div>
+        <div class="note-form">
+          <input type="text" placeholder="${me ? 'Deixe sua nota (ex.: abre até 22h…)' : 'Entre na conta para comentar…'}" ${me?'':'disabled'}>
+          <button class="btn btn-primary btn-sm b-note" data-id="${p.id}" ${me?'':'disabled'}>
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>`;
+
+    // eventos dos botões
+    card.querySelector('.b-like').onclick = () => {
+      if (!me) return openAuth('login');
+      API.likePlace(p.id); renderFeed();
+    };
+    card.querySelector('.b-verify').onclick = () => {
+      if (!me) return openAuth('login');
+      if (p.official) return toast('Locais oficiais já possuem selo da equipe.');
+      $('#verifyPlaceName').textContent = p.name;
+      $('#modalVerify').dataset.placeId = p.id;
+      $('#modalVerify').classList.add('open');
+    };
+    const del = card.querySelector('.b-del');
+    if (del) del.onclick = () => {
+      if (confirm(`Remover "${p.name}" do feed?`)){
+        API.removePlace(p.id); renderFeed(); renderMap(); renderHeroStats();
+        toast('Local removido.');
+      }
+    };
+    card.querySelector('.b-map').onclick = () => {
+      document.getElementById('mapa').scrollIntoView({behavior:'smooth'});
+      setTimeout(()=> map.flyTo([p.lat, p.lon], 16, {duration:1}), 500);
+    };
+    card.querySelector('.b-note').onclick = () => {
+      const inp = card.querySelector('.note-form input');
+      const txt = inp.value.trim();
+      if (!txt) return toast('Escreva uma nota antes de enviar.');
+      API.addNote(p.id, txt); renderFeed();
+      toast('Nota adicionada. Obrigado por ajudar! 💚');
+    };
+    box.appendChild(card);
+  });
+}
+
+/* confirmar verificação */
+$('#confirmVerifyBtn').addEventListener('click', () => {
+  const id = $('#modalVerify').dataset.placeId;
+  const r = API.toggleVerify(id);
+  $('#modalVerify').classList.remove('open');
+  if (!r) return;
+  if (!r.ok) return toast(r.msg);
+  renderFeed();
+  toast(r.verified ? '✅ Verificado! O selo verde foi aplicado.' : 'Confirmação registrada. Faltam mais votos para o selo.');
+});
+
+/* ═══ 6. ABAS / BUSCA ═══ */
+$$('#feedTabs .tab').forEach(t => t.onclick = () => {
+  $$('#feedTabs .tab').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  feedState.sort = t.dataset.sort;
+  renderFeed();
+});
+$('#searchInput').addEventListener('input', e => {
+  feedState.query = e.target.value.trim();
+  renderFeed();
+  const box = $('#searchResults');
+  if (!feedState.query){ box.classList.remove('open'); return; }
+  const res = sortedPlaces().slice(0, 6);
+  box.innerHTML = res.length ? res.map(p =>
+    `<div class="search-item" data-id="${p.id}">
+      <i class="fas ${CAT_ICONS[p.cat]||'fa-map-pin'}"></i>
+      <div><b>${esc(p.name)}</b><small>${esc(p.cat)} · ${esc(p.address)}</small></div></div>`).join('')
+    : '<div class="search-item"><i class="fas fa-magnifying-glass"></i>Nada encontrado</div>';
+  box.classList.add('open');
+  $$('.search-item[data-id]').forEach(el => el.onclick = () => {
+    box.classList.remove('open');
+    document.getElementById('feed').scrollIntoView({behavior:'smooth'});
+    setTimeout(()=>UI.focusCard(el.dataset.id), 400);
+  });
+});
+document.addEventListener('click', e => {
+  if (!e.target.closest('.search-wrap')) $('#searchResults')?.classList.remove('open');
+});
+
+/* ═══ 7. ADICIONAR LOCAL ═══ */
+let picked = null, pickMarker = null, pickMap = null;
+
+function openAdd(){
+  if (!API.currentUser()) return openAuth('register');
+  $('#addForm').reset();
+  picked = null;
+  $('#pickedCoord').textContent = 'Nenhum ponto marcado';
+  $('#pickedCoord').classList.remove('set');
+  $('#addError').textContent = '';
+  $('#modalAdd').classList.add('open');
+}
+$('#navAddBtn').addEventListener('click', openAdd);
+
+$('#npCat').innerHTML = CATEGORIES.map(c=>`<option value="${c}">${c}</option>`).join('');
+
+$('#pickOnMapBtn').addEventListener('click', () => {
+  const holder = $('#pickMapHolder');
+  holder.classList.add('show');
+  if (!pickMap){
+    pickMap = L.map('pickMapHolder').setView([-22.1255,-51.3885], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(pickMap);
+    pickMap.on('click', e => setPicked(e.latlng));
+  }
+  setTimeout(()=>pickMap.invalidateSize(), 60);
+});
+function setPicked(latlng){
+  picked = { lat:+latlng.lat.toFixed(6), lon:+latlng.lng.toFixed(6) };
+  if (!pickMarker) pickMarker = L.marker(latlng, {draggable:true}).addTo(pickMap);
+  else pickMarker.setLatLng(latlng);
+  pickMarker.on('dragend', e => setPicked(e.target.getLatLng()));
+  $('#pickedCoord').textContent = `✓ ${picked.lat}, ${picked.lon}`;
+  $('#pickedCoord').classList.add('set');
+}
+$('#addForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const name = $('#npName').value.trim();
+  const addr = $('#npAddress').value.trim();
+  if (!name)  return errAdd('Dê um nome ao local.');
+  if (!addr)  return errAdd('Informe o endereço.');
+  if (!picked) return errAdd('Marque o local no mapa — clique em "Marcar no mapa".');
+  const p = API.addPlace({
+    name, cat: $('#npCat').value, address: addr,
+    desc: $('#npDesc').value.trim(),
+    img: $('#npImgUrl').value.trim(),
+    lat: picked.lat, lon: picked.lon,
+  });
+  $('#modalAdd').classList.remove('open');
+  renderFeed(); renderMap(); renderHeroStats();
+  toast(`📍 "${p.name}" publicado no feed!`);
+});
+function errAdd(m){
+  $('#addError').textContent = m;
+  $('#addForm').classList.add('shake');
+  setTimeout(()=>$('#addForm').classList.remove('shake'), 400);
+}
+
+/* ═══ 8. CHAT BOT ═══ */
+const chatBox = $('#chatBox');
+$('#chatFab').addEventListener('click', () => {
+  chatBox.classList.toggle('open');
+  $('#fabDot').classList.remove('show');
+  if (chatBox.classList.contains('open') && !$('#chatMsgs').children.length){
+    botSay('👋 Oi! Eu sou o <b>assistente de verificação</b> do Turistou.');
+    setTimeout(()=>botSay('Escolha um local abaixo e eu confirmo com você se ele <b>ainda está funcionando</b>. Sua resposta vira uma <b>nota da comunidade</b> 📝'), 700);
+  }
+});
+$('#chatHeadClose').addEventListener('click', () => chatBox.classList.remove('open'));
+$('#chatX').addEventListener('click', e => { e.stopPropagation(); chatBox.classList.remove('open'); });
+
+function botSay(html){
+  const d = document.createElement('div');
+  d.className = 'msg bot'; d.innerHTML = html;
+  $('#chatMsgs').appendChild(d);
+  $('#chatMsgs').scrollTop = 1e6;
+}
+function userSay(t){
+  const d = document.createElement('div');
+  d.className = 'msg user'; d.textContent = t;
+  $('#chatMsgs').appendChild(d);
+  $('#chatMsgs').scrollTop = 1e6;
+}
+function refreshChatSelect(){
+  $('#chatLocSelect').innerHTML =
+    '<option value="">— escolha um local —</option>' +
+    API.places().map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
+}
+$('#chatSendBtn').addEventListener('click', () => {
+  const id = $('#chatLocSelect').value;
+  if (!id) return botSay('Escolha um local na lista acima primeiro 😉');
+  const p = API.place(id);
+  userSay(`📍 ${p.name}`);
+  botSay(`Perfeito! Sobre <b class="loc">${esc(p.name)}</b><br>
+    <small>📍 ${esc(p.address)}</small><br><br>
+    Esse local <b>ainda existe e está funcionando</b> pra você?
+    <div class="chat-answers">
+      <button class="act" onclick="Chat.answer('${p.id}', true)"><i class="fas fa-check"></i> Sim, funciona</button>
+      <button class="act" onclick="Chat.answer('${p.id}', false)"><i class="fas fa-xmark"></i> Não / fechou</button>
+    </div>`);
+});
+window.Chat = {
+  answer(id, ok){
+    const p = API.place(id);
+    const me = API.currentUser();
+    if (ok){
+      userSay('✅ Sim, está funcionando!');
+      if (me){
+        API.addNote(id, 'Confirmado via assistente: o local está funcionando.');
+        if (!p.official){
+          p.verifiedBy = p.verifiedBy || [];
+          if (!p.verifiedBy.includes(me.id)) p.verifiedBy.push(me.id);
+          API.save();
         }
+        botSay(API.isVerified(p)
+          ? '🎉 <b>Confirmado!</b> Com sua verificação, este local agora tem o <b>selo verde da comunidade</b>.'
+          : '✅ <b>Ótimo!</b> Sua confirmação foi registrada como nota da comunidade. Com mais confirmações, ele ganha o selo verde.');
+      } else {
+        botSay('Anotei sua resposta como observação local! 💚 <br><small>Dica: entre na conta para que sua confirmação conte para o selo de verificado.</small>');
+      }
+      renderFeed(); renderMap();
+    } else {
+      userSay('🚫 Não está mais funcionando.');
+      if (me) API.addNote(id, '⚠️ Sinalizado via assistente: local possivelmente fechado/mudou.');
+      botSay('⚠️ <b>Anotado!</b> Registrei a sinalização como nota da comunidade. Outros usuários poderão confirmar. Obrigado por avisar!');
+      renderFeed();
+    }
+  }
+};
 
-        const savedTheme = localStorage.getItem('turistou-theme');
-        if (savedTheme === 'dark') setTheme(true);
+/* ═══ 9. NAVEGAÇÃO / UI ═══ */
+window.UI = {
+  openAdd,
+  focusCard(id){
+    const el = document.getElementById('card-' + id);
+    if (!el) return;
+    el.scrollIntoView({behavior:'smooth', block:'center'});
+    el.style.boxShadow = '0 0 0 3px var(--primary-2)';
+    setTimeout(()=>el.style.boxShadow = '', 1600);
+  }
+};
+$('#burgerBtn').addEventListener('click', () => $('#mainNav').classList.toggle('open'));
+$$('#mainNav a').forEach(a => a.addEventListener('click', () => $('#mainNav').classList.remove('open')));
 
-        themeToggle.addEventListener('click', () => {
-            setTheme(!document.body.classList.contains('dark'));
-        });
+/* link ativo conforme scroll */
+const navObs = new IntersectionObserver(entries => {
+  entries.forEach(en => {
+    if (en.isIntersecting){
+      $$('#mainNav a[href^="#"]').forEach(a =>
+        a.classList.toggle('active', a.getAttribute('href') === '#' + en.target.id));
+    }
+  });
+}, { threshold:.25 });
+['inicio','feed','mapa','sobre'].forEach(id => {
+  const el = document.getElementById(id); if (el) navObs.observe(el);
+});
 
-        // ===== MOBILE MENU =====
-        const menuToggle = document.getElementById('menuToggle');
-        const navbar = document.getElementById('navbar');
+/* fechar modais: X e clique fora */
+$$('[data-close]').forEach(b => b.onclick = () => b.closest('.modal').classList.remove('open'));
+$$('.modal').forEach(m => m.addEventListener('click', e => {
+  if (e.target === m) m.classList.remove('open');
+}));
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') $$('.modal.open').forEach(m => m.classList.remove('open'));
+});
 
-        menuToggle.addEventListener('click', () => {
-            navbar.classList.toggle('open');
-            const icon = menuToggle.querySelector('i');
-            icon.className = navbar.classList.contains('open') ? 'fas fa-times' : 'fas fa-bars';
-        });
+/* ═══ 10. HERO STATS ═══ */
+function renderHeroStats(){
+  const ps = API.places();
+  const v = ps.filter(p=>API.isVerified(p)).length;
+  const likes = ps.reduce((s,p)=>s+(p.likes||0),0);
+  $('#heroStats').innerHTML = `
+    <div class="hstat"><b>${ps.length}</b><span>locais no mapa</span></div>
+    <div class="hstat"><b>${v}</b><span>verificados ✓</span></div>
+    <div class="hstat"><b>${likes}</b><span>curtidas</span></div>
+    <div class="hstat"><b>${API.users().length}</b><span>colaboradores</span></div>`;
+}
 
-        navbar.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => {
-                navbar.classList.remove('open');
-                menuToggle.querySelector('i').className = 'fas fa-bars';
-            });
-        });
-
-        // ===== ACTIVE NAV LINK ON SCROLL =====
-        const sections = document.querySelectorAll('section[id], .hero');
-        const navLinks = navbar.querySelectorAll('a[href^="#"]');
-
-        const navObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const id = entry.target.id || 'home';
-                    navLinks.forEach(link => {
-                        link.classList.toggle('active', link.getAttribute('href') === `#${id}`);
-                    });
-                }
-            });
-        }, { threshold: 0.3, rootMargin: '-80px 0px 0px 0px' });
-
-        sections.forEach(s => {
-            if (s.id) navObserver.observe(s);
-        });
-        document.getElementById('home') && navObserver.observe(document.getElementById('home'));
-
-        console.log('🌍 Turistou - Presidente Prudente carregado!');
-    </script>
+/* ═══ 11. INIT ═══ */
+applyTheme();
+renderAccount();
+initMap();
+renderFeed();
+renderMap();
+renderHeroStats();
+refreshChatSelect();
+document.addEventListener('DOMContentLoaded', () => {
+  const y = $('#year'); if (y) y.textContent = new Date().getFullYear();
+});
+$('#year').textContent = new Date().getFullYear();
+console.log('%c🗺️ Turistou carregado — Presidente Prudente, SP', 'color:#0f766e;font-weight:bold');
 </body>
 </html>
