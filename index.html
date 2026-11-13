@@ -19,109 +19,259 @@
   --radius:16px; --radius-sm:10px;
   --transition:.3s ease; --font:'Poppins',sans-serif; --header-h:70px; --max-w:1200px;
 }
-.dark{--blue:#8fa8ff; --blue-dark:#c3d0ff; --blue-light:#1c2a5e; --bg:#0a1030; --surface:#131b45; --text:#f1f2ff; --text-light:#9aa3d0; --border:#2a3670; --shadow:0 4px 24px rgba(0,0,0,.4)}
+.dark{
+  --blue:#8fa8ff; --blue-dark:#c3d0ff; --blue-light:#1c2a5e;
+  --bg:#0a1030; --surface:#131b45; --text:#f1f2ff; --text-light:#9aa3d0; --border:#2a3670;
+  --shadow:0 4px 24px rgba(0,0,0,.4); --shadow-sm:0 2px 8px rgba(0,0,0,.2);
+}
 html{scroll-behavior:smooth}
-body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.7;padding-top:var(--header-h)}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.7;padding-top:var(--header-h);overflow-x:hidden}
 .container{max-width:var(--max-w);margin:0 auto;padding:0 24px}
 section{padding:80px 0}
 .section-tag{display:inline-block;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--blue);background:var(--blue-light);padding:4px 14px;border-radius:50px;margin-bottom:12px}
-.section-title{font-size:2.2rem;font-weight:800;margin-bottom:8px}
-.section-sub{color:var(--text-light);margin-bottom:40px}
+.section-title{font-size:2.2rem;font-weight:800;margin-bottom:8px;line-height:1.25}
+.section-sub{color:var(--text-light);margin-bottom:40px;font-size:1.05rem;max-width:640px}
 .center{text-align:center;margin-left:auto;margin-right:auto}
 
+/* HEADER */
 header{position:fixed;top:0;left:0;right:0;height:var(--header-h);background:var(--surface);border-bottom:1px solid var(--border);z-index:1000}
 header .container{display:flex;align-items:center;justify-content:space-between;height:100%}
 .logo{display:flex;align-items:center;gap:10px;font-size:1.5rem;font-weight:800;color:var(--pink)}
 .logo span{color:var(--blue)}
 nav{display:flex;align-items:center;gap:4px}
-nav a{padding:8px 14px;border-radius:8px;font-weight:500;font-size:.85rem;color:var(--text-light);text-decoration:none;transition:.3s}
+nav a{padding:8px 12px;border-radius:8px;font-weight:500;font-size:.85rem;color:var(--text-light);text-decoration:none;transition:.3s}
 nav a:hover,nav a.active{background:var(--blue);color:var(--yellow)}
 .menu-toggle{display:none;font-size:1.4rem;cursor:pointer;color:var(--blue);background:none;border:none}
 .theme-toggle{width:40px;height:40px;border-radius:50%;border:1px solid var(--pink);background:var(--surface);color:var(--blue);cursor:pointer;font-size:1rem;margin-left:8px}
+.theme-toggle:hover{background:var(--pink)}
 
+/* HERO */
 .hero{min-height:calc(100vh - var(--header-h));display:flex;align-items:center;justify-content:center;text-align:center;padding:60px 24px;background:linear-gradient(135deg,var(--blue-dark),var(--blue) 55%,#2a4fd6);color:#fff;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 15% 85%,rgba(255,150,215,.25),transparent 55%),radial-gradient(ellipse at 85% 10%,rgba(242,240,143,.18),transparent 50%);pointer-events:none}
 .hero-content{position:relative;z-index:2;max-width:800px}
-.hero h1{font-size:3.5rem;font-weight:900;line-height:1.15;color:var(--yellow);margin-bottom:16px}
+.hero-badge{display:inline-block;background:rgba(255,150,215,.18);border:1px solid var(--pink);color:var(--yellow);font-size:.8rem;font-weight:600;padding:6px 20px;border-radius:50px;margin-bottom:24px}
+.hero h1{font-size:3.5rem;font-weight:900;line-height:1.15;color:var(--yellow);text-shadow:0 4px 24px rgba(255,150,215,.35);margin-bottom:16px}
+.hero h1 i{margin-right:12px}
+.hero p{font-size:1.15rem;opacity:.92;margin:0 auto 36px;max-width:560px}
 .hero-buttons{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
 .btn{display:inline-flex;align-items:center;gap:8px;padding:14px 34px;border-radius:50px;font-weight:600;font-size:.95rem;border:none;cursor:pointer;background:var(--yellow);color:var(--blue);font-family:var(--font);transition:.25s;text-decoration:none}
 .btn:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(255,150,215,.45)}
 .btn-outline{background:transparent;border:2px solid var(--pink);color:var(--pink)}
 .btn-outline:hover{background:var(--pink);color:var(--blue)}
+.btn-sm{padding:8px 18px;font-size:.8rem;background:var(--blue);color:var(--yellow)}
+.btn-sm:hover{box-shadow:0 6px 16px rgba(20,50,179,.3)}
 
+/* SOBRE */
 .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+.about-text h2{font-size:1.8rem;margin-bottom:12px}
+.about-text p{color:var(--text-light);margin-bottom:12px}
 .about-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:28px}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 12px;text-align:center}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px 12px;text-align:center}
 .stat-card .number{font-size:1.4rem;font-weight:800;color:var(--blue)}
-.about-image{border-radius:16px;background:linear-gradient(135deg,var(--blue-light),var(--surface));aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;margin-top:30px}
+.stat-card .label{font-size:.75rem;color:var(--text-light)}
+.about-image{border-radius:var(--radius);background:linear-gradient(135deg,var(--blue-light),var(--surface));aspect-ratio:4/3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--blue);border:1px solid var(--border);box-shadow:var(--shadow)}
 .about-image i{font-size:5rem}
+.about-image span{font-size:.85rem;color:var(--text-light)}
 
+/* HISTORIA */
 #historia{background:linear-gradient(160deg,var(--blue),var(--blue-dark));border-bottom:4px solid var(--pink)}
 #historia .section-tag{background:var(--yellow);color:var(--blue)}
 #historia .section-title{color:var(--yellow)}
+#historia .section-sub{color:#dde3ff}
 .history-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px}
 .history-text h3{font-size:1.3rem;margin:20px 0 8px;color:var(--pink)}
+.history-text h3:first-child{margin-top:0}
 .history-text p{color:#dde3ff}
+.history-text strong{color:var(--yellow)}
 .culture-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.culture-card{background:rgba(255,150,215,.12);border:1px solid var(--pink);border-radius:10px;padding:20px;text-align:center}
+.culture-card{background:rgba(255,150,215,.12);border:1px solid var(--pink);border-radius:var(--radius-sm);padding:20px;text-align:center;transition:.3s}
+.culture-card:hover{transform:translateY(-3px);background:rgba(255,150,215,.22);box-shadow:0 8px 24px rgba(255,150,215,.3)}
 .culture-card i{font-size:1.8rem;color:var(--yellow)}
+.culture-card h4{font-size:.9rem;color:var(--yellow);margin:8px 0 4px}
+.culture-card p{font-size:.8rem;color:#e8dbf5}
 
+/* EVENTOS */
 .events-filters{display:flex;gap:10px;margin-bottom:32px;flex-wrap:wrap}
 .filter-btn{padding:8px 20px;border-radius:50px;border:1.5px solid var(--pink);background:var(--surface);color:var(--blue);font-weight:500;font-size:.85rem;cursor:pointer;font-family:var(--font);transition:.3s}
-.filter-btn.active,.filter-btn:hover{background:var(--pink);color:var(--blue)}
+.filter-btn.active,.filter-btn:hover{background:var(--pink);color:#0d2483}
 .events-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px}
-.event-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:.3s}
-.event-card:hover{transform:translateY(-4px);box-shadow:var(--shadow);border-color:var(--pink)}
-.event-img{height:160px;background-size:cover;background-position:center}
-.event-card-body{padding:20px}
-.event-date{font-size:.75rem;font-weight:700;color:var(--pink);margin-bottom:8px}
-.event-card-body h4{font-size:1.1rem;font-weight:600;margin-bottom:8px}
+.event-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);transition:.3s}
+.event-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+.event-card-header{padding:20px 20px 12px;display:flex;gap:16px}
+.event-date-badge{min-width:56px;text-align:center;background:var(--pink);border-radius:8px;padding:8px 4px;height:fit-content;color:#0d2483}
+.event-date-badge .day{font-size:1.2rem;font-weight:800;line-height:1}
+.event-date-badge .month{font-size:.65rem;font-weight:600;text-transform:uppercase}
+.event-date-badge .year{font-size:.6rem;opacity:.75}
+.event-card-header h4{font-size:1rem;font-weight:600}
+.event-when{font-size:.75rem;font-weight:600;color:var(--blue)}
+.event-card-body{padding:0 20px 20px}
+.event-card-body p{font-size:.85rem;color:var(--text-light);margin-bottom:4px}
+.event-card-body p i{width:18px;color:var(--blue)}
+.event-tag{display:inline-block;font-size:.7rem;font-weight:600;text-transform:uppercase;background:var(--yellow);color:#0d2483;padding:2px 10px;border-radius:50px;margin-top:8px;margin-right:6px}
+.event-tag.warn{background:var(--pink)}
+.events-note{margin-top:20px;font-size:.8rem;color:var(--text-light)}
+.empty{grid-column:1/-1;text-align:center;color:var(--text-light);padding:30px 0}
 
+/* LOCAIS */
 #locais{background:var(--blue-light)}
-.places-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px}
-.place-card{background:var(--surface);border:1.5px solid var(--border);border-radius:16px;overflow:hidden;transition:.3s}
+.places-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:24px}
+.place-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:.3s;display:flex;flex-direction:column}
 .place-card:hover{transform:translateY(-5px);box-shadow:var(--shadow);border-color:var(--pink)}
-.place-image{height:180px;background-size:cover;background-position:center;position:relative}
-.place-image .verified-badge{position:absolute;top:10px;right:10px;background:var(--yellow);color:var(--blue);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:0.85rem;z-index:2;border:2px solid white}
-.place-overlay{position:absolute;bottom:0;left:0;right:0;padding:12px 16px;background:linear-gradient(transparent,rgba(13,36,131,.9));color:#fff;font-weight:600}
-.place-info{padding:16px}
-.place-info p{font-size:.85rem;color:var(--text-light);margin-bottom:6px}
+.place-image{height:190px;display:flex;align-items:center;justify-content:center;font-size:3.5rem;color:#fff;position:relative;overflow:hidden}
+.place-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.place-cat{position:absolute;top:10px;left:10px;background:var(--yellow);color:#0d2483;font-size:.7rem;font-weight:700;padding:2px 10px;border-radius:50px;z-index:2}
+.place-info{padding:16px;display:flex;flex-direction:column;gap:6px;flex:1}
+.place-info h4{font-size:1.05rem;line-height:1.3}
+.place-info p{font-size:.85rem;color:var(--text-light)}
+.place-info p i{width:18px;color:var(--blue)}
+.place-status{font-size:.75rem;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.place-status.ok{color:#2e7d32}
+.place-status.wait{color:#b26a00}
+.place-actions{margin-top:auto;padding-top:10px}
+.place-bg-1{background:linear-gradient(135deg,var(--blue),#4a6fe0)}
+.place-bg-2{background:linear-gradient(135deg,#e0559f,#ff96d7)}
+.place-bg-3{background:linear-gradient(135deg,#2e7d32,#66bb6a)}
+.place-bg-4{background:linear-gradient(135deg,#6a1b9a,#ab47bc)}
+.place-bg-5{background:linear-gradient(135deg,#c62828,#ef5350)}
 
-.nature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;margin-top:20px}
-.nature-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:var(--shadow-sm)}
-.nature-card h3{color:var(--blue);margin-bottom:12px;font-size:1.1rem}
-.nature-card p{font-size:.88rem;color:var(--text-light);margin-bottom:8px}
+/* NATUREZA */
+#natureza{background:var(--bg)}
+.nature-intro{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:36px}
+.nature-box{background:var(--surface);border:1px solid var(--border);border-left:5px solid #2e7d32;border-radius:var(--radius-sm);padding:20px}
+.nature-box h4{font-size:1rem;margin-bottom:6px;color:var(--blue)}
+.nature-box h4 i{color:#2e7d32;margin-right:6px}
+.nature-box p{font-size:.88rem;color:var(--text-light)}
+.nature-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;margin-bottom:36px}
+.nature-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.nature-card-head{background:linear-gradient(135deg,#2e7d32,#66bb6a);color:#fff;padding:18px 20px}
+.nature-card-head h4{font-size:1.05rem}
+.nature-card-head span{font-size:.78rem;opacity:.92}
+.nature-card-body{padding:18px 20px}
+.nature-row{margin-bottom:10px}
+.nature-row strong{display:block;font-size:.78rem;color:var(--blue);text-transform:uppercase;letter-spacing:1px}
+.nature-row span{font-size:.88rem;color:var(--text-light)}
+.nature-tips{background:var(--yellow);color:#0d2483;border:2px solid var(--blue);border-radius:var(--radius);padding:24px}
+.nature-tips h4{margin-bottom:10px}
+.nature-tips ul{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:6px 24px;list-style:none}
+.nature-tips li{font-size:.88rem}
+.nature-tips li i{color:#2e7d32;margin-right:8px}
 
+/* MAPA */
 #mapa-section{background:linear-gradient(160deg,var(--blue),var(--blue-dark));border-top:4px solid var(--yellow)}
 #mapa-section .section-tag{background:var(--yellow);color:var(--blue)}
 #mapa-section .section-title{color:var(--yellow)}
 #mapa-section .section-sub{color:#cdd6ff}
-#map{height:480px;border-radius:16px;border:3px solid var(--pink);z-index:1}
+#map{height:480px;border-radius:var(--radius);border:3px solid var(--pink);z-index:1;background:#e9edff}
+.map-note{margin-top:12px;font-size:.8rem;color:#cdd6ff;text-align:center}
+.map-fail{display:flex;align-items:center;justify-content:center;height:100%;padding:20px;text-align:center;color:#0d2483;font-weight:600}
 
+/* CURIOSIDADES */
 #curiosidades{background:var(--yellow);border-top:4px solid var(--blue);border-bottom:4px solid var(--pink)}
+#curiosidades .section-tag{background:var(--blue);color:var(--yellow)}
+#curiosidades .section-title{color:var(--blue)}
+#curiosidades .section-sub{color:#3a4a8a}
 .curio-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px}
-.curio-card{background:#fff;border:2px solid var(--blue);border-radius:10px;padding:24px}
+.curio-card{background:#fff;border:2px solid var(--blue);border-radius:var(--radius-sm);padding:24px;transition:.3s}
+.curio-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(20,50,179,.2)}
 .curio-card i{font-size:1.8rem;color:var(--pink)}
+.curio-card h4{color:#1432B3;margin:10px 0 6px}
+.curio-card p{color:#4a5578;font-size:.88rem}
 
-.footer{background:var(--blue-dark);border-top:4px solid var(--pink);color:#dde3ff;padding:60px 0 24px}
+/* ROTEIRO */
+.route-timeline{position:relative;padding-left:40px;max-width:600px;margin:0 auto}
+.route-timeline::before{content:'';position:absolute;left:15px;top:0;bottom:0;width:3px;background:var(--pink);border-radius:10px}
+.route-item{position:relative;margin-bottom:28px}
+.route-item::before{content:'';position:absolute;left:-29px;top:4px;width:14px;height:14px;border-radius:50%;background:var(--blue);border:3px solid var(--yellow);box-shadow:0 0 0 2px var(--pink)}
+.route-item .time{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#d6409f}
+.route-item h4{margin:2px 0 4px}
+.route-item p{font-size:.85rem;color:var(--text-light)}
+
+/* FOOTER */
+footer{background:var(--blue-dark);border-top:4px solid var(--pink);color:#dde3ff;padding:60px 0 24px}
+.dark footer{background:#0a1030;color:#dde3ff}
 .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:32px}
-.footer-col h4{font-size:.9rem;margin-bottom:16px;text-transform:uppercase;color:var(--yellow)}
+.footer-brand p{font-size:.85rem;color:#a9b4e8;margin:12px 0 16px}
+footer .logo span{color:var(--yellow)}
+.footer-social{display:flex;gap:12px}
+.footer-social a{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(255,150,215,.4);color:var(--yellow);display:flex;align-items:center;justify-content:center;transition:.3s;text-decoration:none}
+.footer-social a:hover{background:var(--pink);color:var(--blue)}
+.footer-col h4{font-size:.9rem;margin-bottom:16px;text-transform:uppercase;letter-spacing:1px;color:var(--yellow)}
 .footer-col a{display:block;font-size:.85rem;color:#a9b4e8;margin-bottom:8px;text-decoration:none}
-.footer-bottom{text-align:center;padding-top:32px;margin-top:32px;border-top:1px solid rgba(255,150,215,.3);font-size:.8rem}
+.footer-col a:hover{color:var(--pink)}
+.footer-bottom{text-align:center;padding-top:32px;margin-top:32px;border-top:1px solid rgba(255,150,215,.3);font-size:.8rem;color:#8a97d0}
 
-@media(max-width:768px){.about-grid,.history-grid,.nature-grid{grid-template-columns:1fr}.footer-grid{grid-template-columns:1fr;text-align:center}.menu-toggle{display:block}}
+/* CHAT */
+.chat-chips{display:flex;flex-wrap:wrap;gap:6px;align-self:flex-start;max-width:95%}
+.chat-chip{background:var(--surface);border:1.5px solid var(--pink);color:var(--blue);border-radius:50px;padding:4px 12px;font-size:.75rem;font-family:var(--font);cursor:pointer}
+.chat-chip:hover{background:var(--pink);color:#0d2483}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .6s ease,transform .6s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* RESPONSIVE */
+@media(max-width:1000px){
+  nav a{padding:8px 8px;font-size:.8rem}
+}
+@media(max-width:900px){
+  .about-grid,.history-grid{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .hero h1{font-size:2.5rem}
+  .nature-intro{grid-template-columns:1fr}
+}
+@media(max-width:860px){
+  .menu-toggle{display:block}
+  nav{position:fixed;top:var(--header-h);left:0;right:0;background:var(--surface);border-bottom:1px solid var(--border);box-shadow:var(--shadow);flex-direction:column;align-items:stretch;padding:12px;transform:translateY(-120%);opacity:0;transition:.4s;pointer-events:none;z-index:999}
+  nav.open{transform:translateY(0);opacity:1;pointer-events:all}
+  nav a{padding:12px 16px;width:100%}
+  .theme-toggle{align-self:flex-start;margin:8px 0 0 8px}
+}
+@media(max-width:768px){
+  section{padding:56px 0}
+  .section-title{font-size:1.6rem}
+  .hero h1{font-size:2rem}
+  .about-stats{grid-template-columns:1fr 1fr}
+  .culture-cards{grid-template-columns:1fr}
+  .events-grid{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr;text-align:center}
+  .footer-social{justify-content:center}
+}
+@media(max-width:480px){
+  .about-stats{grid-template-columns:1fr}
+  .hero-buttons{flex-direction:column;align-items:center}
+  .hero h1{font-size:1.7rem}
+  .container{padding:0 16px}
+}
 </style>
 </head>
 <body>
 
-<header><div class="container"><div class="logo"><i class="fa-solid fa-location-dot"></i><span>Turis</span>tou</div><button class="menu-toggle" id="menuToggle"><i class="fa-solid fa-bars"></i></button><nav id="nav"><a href="#home" class="active">Home</a><a href="#sobre">Sobre</a><a href="#historia">História</a><a href="#eventos">Eventos</a><a href="#locais">Locais</a><a href="#natureza">Trilhas</a><a href="#mapa-section">Mapa</a><button class="theme-toggle" id="themeToggle"><i class="fa-solid fa-moon"></i></button></nav></div></header>
+<header>
+  <div class="container">
+    <div class="logo"><i class="fa-solid fa-location-dot"></i><span>Turis</span>tou</div>
+    <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu"><i class="fa-solid fa-bars"></i></button>
+    <nav id="nav">
+      <a href="#home" class="active">Home</a>
+      <a href="#sobre">Sobre</a>
+      <a href="#historia">História</a>
+      <a href="#eventos">Eventos</a>
+      <a href="#locais">Locais</a>
+      <a href="#natureza">Natureza</a>
+      <a href="#mapa-section">Mapa</a>
+      <a href="#curiosidades">Curiosidades</a>
+      <button class="theme-toggle" id="themeToggle" aria-label="Alternar tema"><i class="fa-solid fa-moon"></i></button>
+    </nav>
+  </div>
+</header>
 
 <section class="hero" id="home">
   <div class="hero-content">
-    <div style="background:rgba(255,150,215,.18);border:1px solid var(--pink);color:var(--yellow);font-size:.8rem;font-weight:600;padding:6px 20px;border-radius:50px;margin-bottom:24px;display:inline-block"><i class="fa-solid fa-star"></i> Portal de turismo</div>
-    <h1>Presidente Prudente · SP</h1>
-    <p style="margin:0 auto 36px;max-width:600px">Capital do Oeste Paulista com cultura, trilhas, gastronomia e momentos marcantes. Cadastre-se e explore!</p>
+    <div class="hero-badge"><i class="fa-solid fa-star"></i> Portal colaborativo de turismo</div>
+    <h1><i class="fa-solid fa-location-dot"></i>Turistou</h1>
+    <p>Descubra o melhor de Presidente Prudente: eventos, locais, natureza e um mapa completo para não se perder. Cadastre-se e contribua com pontos turísticos!</p>
     <div class="hero-buttons">
-      <a href="#eventos" class="btn">Ver Agendamentos</a><a href="#locais" class="btn btn-outline">Explorar Locais</a>
+      <a href="#eventos" class="btn"><i class="fa-solid fa-calendar"></i> Ver Eventos</a>
+      <a href="#locais" class="btn btn-outline"><i class="fa-solid fa-map-location-dot"></i> Explorar Locais</a>
     </div>
   </div>
 </section>
@@ -129,15 +279,18 @@ nav a:hover,nav a.active{background:var(--blue);color:var(--yellow)}
 <section id="sobre">
   <div class="container">
     <div class="about-grid">
-      <div class="about-text">
-        <div class="section-tag">Sobre a Cidade</div>
-        <h2>Presidente Prudente</h2>
-        <p>Com cerca de 230 mil habitantes, é polo de saúde, educação e comércio no Oeste Paulista. Dista 562 km da capital e fundação em 1917.</p>
+      <div class="about-text reveal">
+        <div class="section-tag">Sobre a cidade</div>
+        <h2>Presidente Prudente, SP</h2>
+        <p>Conhecida como a <strong>"Capital do Oeste Paulista"</strong>, Presidente Prudente é um polo regional de saúde, educação e comércio, com aproximadamente 230 mil habitantes.</p>
+        <p>A cidade oferece parques, cultura, gastronomia e uma vida universitária movimentada, sendo porta de entrada para o turismo rural da região.</p>
         <div class="about-stats">
-          <div class="stat-card"><div class="number">230 mil</div><div class="label" style="font-size:.75rem;margin-top:4px">População</div></div><div class="stat-card"><div class="number">562 km</div><div class="label" style="font-size:.75rem;margin-top:4px">da capital</div></div><div class="stat-card"><div class="number">1917</div><div class="label" style="font-size:.75rem;margin-top:4px">Fundação</div></div>
+          <div class="stat-card"><div class="number">230 mil</div><div class="label">Habitantes</div></div>
+          <div class="stat-card"><div class="number">~560 km</div><div class="label">Da capital</div></div>
+          <div class="stat-card"><div class="number">1917</div><div class="label">Fundação</div></div>
         </div>
       </div>
-      <div class="about-image"><i class="fa-solid fa-city"></i></div>
+      <div class="about-image reveal"><i class="fa-solid fa-city"></i><span>Presidente Prudente · Oeste Paulista</span></div>
     </div>
   </div>
 </section>
@@ -146,184 +299,777 @@ nav a:hover,nav a.active{background:var(--blue);color:var(--yellow)}
   <div class="container">
     <div class="section-tag center">Raízes</div>
     <h2 class="section-title center">História &amp; Cultura</h2>
+    <p class="section-sub center">Um pouco da trajetória e da identidade prudentina.</p>
     <div class="history-grid">
-      <div class="history-text">
-        <h3><i class="fa-solid fa-landmark"></i>Fundação</h3>
-        <p>14 de setembro de 1917 - Cresceu com a Estrada de Ferro Sorocabana e colonização do Oeste Paulista.</p>
-        <h3><i class="fa-solid fa-university"></i>Polos Educacionais</h3>
-        <p>UNEPL, UNOESTE e outras instituições tornam a cidade busca de estudantes de todo o Brasil.</p>
+      <div class="history-text reveal">
+        <h3><i class="fa-solid fa-landmark"></i> Fundação</h3>
+        <p>Fundada em <strong>14 de setembro de 1917</strong>, a cidade cresceu impulsionada pela Estrada de Ferro Sorocabana e pela colonização do oeste paulista, tornando-se rapidamente o centro da região.</p>
+        <h3><i class="fa-solid fa-graduation-cap"></i> Cidade do Conhecimento</h3>
+        <p>Sediada por instituições como <strong>UNESP, UNOESTE e SENAC</strong>, Prudente é um polo educacional que atrai estudantes de todo o Brasil.</p>
       </div>
-      <div class="culture-cards">
-        <div class="culture-card"><i class="fa-solid fa-music"></i><h4>Sertanejo</h4><p>Berço de grandes talentos da música sertaneja.</p></div><div class="culture-card"><i class="fa-solid fa-utensils"></i><h4>Comidada</h4><p>Churrascos e pratos típicos do interior paulista.</p></div>
+      <div class="culture-cards reveal">
+        <div class="culture-card"><i class="fa-solid fa-music"></i><h4>Música Sertaneja</h4><p>Berço de talentos e palcos tradicionais do interior.</p></div>
+        <div class="culture-card"><i class="fa-solid fa-utensils"></i><h4>Gastronomia</h4><p>Churrasco, peixes de rio e pratos do interior paulista.</p></div>
+        <div class="culture-card"><i class="fa-solid fa-horse"></i><h4>Cultura Caipira</h4><p>Festas juninas, viola e tradições do rodeio.</p></div>
+        <div class="culture-card"><i class="fa-solid fa-tree"></i><h4>Parques</h4><p>Espaços verdes como o Parque do Povo e os parques ecológicos.</p></div>
       </div>
     </div>
   </div>
 </section>
 
 <section id="eventos">
-  <div class="container"><div class="section-tag">Agenda</div><h2 class="section-title">Eventos da Cidade</h2><p class="section-sub">Agendamentos e produções culturais.</p>
+  <div class="container">
+    <div class="section-tag">Agenda</div>
+    <h2 class="section-title">Próximos Eventos</h2>
+    <p class="section-sub">Mostramos só o que ainda vai acontecer, do mais próximo para o mais distante.</p>
     <div class="events-filters">
-      <button class="filter-btn active" data-filter="todos">Todos</button><button class="filter-btn" data-filter="cultura">Cultura</button><button class="filter-btn" data-filter="musica">Música</button><button class="filter-btn" data-filter="esporte">Esporte</button>
+      <button class="filter-btn active" data-filter="todos">Todos</button>
+      <button class="filter-btn" data-filter="cultura">Cultura</button>
+      <button class="filter-btn" data-filter="musica">Música</button>
+      <button class="filter-btn" data-filter="esporte">Esporte</button>
+      <button class="filter-btn" data-filter="gastronomia">Gastronomia</button>
+    </div>
+    <div class="events-grid" id="eventsGrid"></div>
+    <p class="events-note"><i class="fa-solid fa-circle-info"></i> Eventos marcados com "Data a confirmar" repetem todo ano em época parecida. Confirme dia e horário nos canais oficiais da Prefeitura antes de ir.</p>
+  </div>
+</section>
+
+<section id="locais">
+  <div class="container">
+    <div class="section-tag">Pontos turísticos</div>
+    <h2 class="section-title">Locais</h2>
+    <p class="section-sub">Cada cartão mostra a categoria, o endereço e se o local já foi verificado pela equipe Turistou. Faça login para adicionar o seu!</p>
+    <div class="events-filters" id="placeFilters">
+      <button class="filter-btn active" data-pfilter="todos">Todos</button>
+      <button class="filter-btn" data-pfilter="parque">Parques</button>
+      <button class="filter-btn" data-pfilter="natureza">Natureza</button>
+      <button class="filter-btn" data-pfilter="educacao">Educação</button>
+      <button class="filter-btn" data-pfilter="religioso">Religioso</button>
+      <button class="filter-btn" data-pfilter="compras">Compras</button>
+      <button class="filter-btn" data-pfilter="outro">Outros</button>
+    </div>
+    <div class="places-grid" id="placesGrid"></div>
+    <div style="text-align:center;margin-top:32px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <button class="btn" id="openAddPlace"><i class="fa-solid fa-plus"></i> Adicionar Local</button>
+      <button class="btn btn-outline" id="openNotes" style="color:var(--blue);border-color:var(--blue)"><i class="fa-solid fa-comments"></i> Notas da Comunidade</button>
     </div>
   </div>
 </section>
 
-<span id="locais" style="background:var(--blue-light);padding:10px 0"><div class="container"><div class="section-tag">Pontos Turísticos</div><h2 class="section-title">Locais Verificados</h2><p class="section-sub">Pontos turísticos com selo de qualidade. Tosa do projeto colaborativo!</p>
-    <div class="places-grid" id="placesGrid"></div>
-  </div>
-</span>
-
-<section class="footer" id="natureza" style="padding:60px 0 60px 0;position:relative">
+<section id="natureza">
   <div class="container">
-    <div class="section-tag">Ecoturismo</div><h2 class="section-title">Parques e Trilhas</h2><div class="nature-grid">
+    <div class="section-tag">Ar livre</div>
+    <h2 class="section-title">Natureza &amp; Trilhas</h2>
+    <p class="section-sub">Para quem quer sair do asfalto: o que são os parques ecológicos da cidade, o que esperar de cada um e como se preparar.</p>
+
+    <div class="nature-intro">
+      <div class="nature-box"><h4><i class="fa-solid fa-leaf"></i>O que são os parques ecológicos?</h4><p>Áreas verdes com mata, lagos e animais da fauna local, pensadas para passeio, descanso e educação ambiental. São diferentes do Parque do Povo, que é um parque urbano de lazer.</p></div>
+      <div class="nature-box"><h4><i class="fa-solid fa-person-hiking"></i>O que é uma trilha aqui?</h4><p>São caminhos de caminhada leve entre a vegetação e ao redor dos lagos, nada de escalada ou percurso longo. Nem todo parque tem trilha sinalizada, então olhe os mapas e placas na entrada.</p></div>
+      <div class="nature-box"><h4><i class="fa-solid fa-clipboard-check"></i>Antes de ir</h4><p>Horários, entrada e regras podem mudar. Confirme com a Prefeitura de Presidente Prudente antes de sair de casa.</p></div>
+    </div>
+
+    <div class="nature-grid">
       <div class="nature-card">
-        <h3><i class="fa-solid fa-tree"></i>Parque Natural Municipal</h3>
-        <p><strong>Status:</strong> Parque Público | <strong>Perfil:</strong> Fácil a Moderado</p>
-        <p>Diversa-compose com trilhas sinalizadas entre matas nativas. Ideal para observação de aves e reciclagem ambiental, contando piquete ecológico e educativo.</p>
-        <p style="color:var(--blue);font-size:.88rem"><i class="fa-solid fa-info-circle"></i> Dica: Use calçados fechados e repelente.</p>
+        <div class="nature-card-head"><h4>Parque Ecológico Cidade da Criança</h4><span>Passeio em família</span></div>
+        <div class="nature-card-body">
+          <div class="nature-row"><strong>O que tem</strong><span>Matas, lagos e áreas de lazer. Algumas atrações funcionam em horários específicos.</span></div>
+          <div class="nature-row"><strong>Entrada</strong><span>Gratuita, segundo as últimas informações divulgadas.</span></div>
+          <div class="nature-row"><strong>Bom para</strong><span>Famílias com crianças e quem quer um passeio tranquilo.</span></div>
+          <button class="btn btn-sm" onclick="goPlace('Parque Ecológico Cidade da Criança')"><i class="fa-solid fa-map-pin"></i> Ver no mapa</button>
+        </div>
       </div>
       <div class="nature-card">
-        <h3><i class="fa-solid fa-water"></i>Balneário da Amizade</h3>
-        <p><strong>Status:</strong> Lazer público | <strong>Perfil:</strong> Leve</p>
-        <p>Margens do lago com áreas de convívio, camiados e disposição de contemplação. Localizada no centro, acessível e segura para famílias.</p>
-        <p style="color:var(--blue);font-size:.88rem"><i class="fa-solid fa-info-circle"></i> Dica: Ótimo para finais de tarde com a família.</p>
+        <div class="nature-card-head"><h4>Parque Ecológico Chico Mendes</h4><span>Conhecido como Mata do Furquim</span></div>
+        <div class="nature-card-body">
+          <div class="nature-row"><strong>O que tem</strong><span>Área de mata nativa dentro da cidade, importante para a preservação ambiental.</span></div>
+          <div class="nature-row"><strong>Bom para</strong><span>Observar a vegetação e aprender sobre a mata local.</span></div>
+          <div class="nature-row"><strong>Confirme antes</strong><span>Se há visitação aberta e em quais dias e horários.</span></div>
+          <button class="btn btn-sm" onclick="goPlace('Parque Ecológico Chico Mendes')"><i class="fa-solid fa-map-pin"></i> Ver no mapa</button>
+        </div>
       </div>
+      <div class="nature-card">
+        <div class="nature-card-head"><h4>Parque Ecológico Nelson Bugalho</h4><span>Trilhas, lagos e fauna</span></div>
+        <div class="nature-card-body">
+          <div class="nature-row"><strong>O que tem</strong><span>Área de preservação com trilhas, lagos e animais da fauna local.</span></div>
+          <div class="nature-row"><strong>Bom para</strong><span>Passeios educativos e caminhadas leves.</span></div>
+          <div class="nature-row"><strong>Confirme antes</strong><span>Horário de funcionamento e quais trilhas estão abertas.</span></div>
+          <button class="btn btn-sm" onclick="goPlace('Parque Ecológico Nelson Bugalho')"><i class="fa-solid fa-map-pin"></i> Ver no mapa</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="nature-tips">
+      <h4><i class="fa-solid fa-suitcase-rolling"></i> Checklist para o passeio</h4>
+      <ul>
+        <li><i class="fa-solid fa-check"></i>Tênis ou sapato fechado</li>
+        <li><i class="fa-solid fa-check"></i>Água e protetor solar</li>
+        <li><i class="fa-solid fa-check"></i>Repelente de insetos</li>
+        <li><i class="fa-solid fa-check"></i>Vá de manhã cedo ou fim de tarde (a cidade é quente)</li>
+        <li><i class="fa-solid fa-check"></i>Não alimente os animais</li>
+        <li><i class="fa-solid fa-check"></i>Leve seu lixo embora</li>
+      </ul>
     </div>
   </div>
 </section>
 
 <section id="mapa-section">
-  <div class="container"><div class="section-tag center">Mapa</div><h2 class="section-title center">Pontos de Referência</h2>
+  <div class="container">
+    <div class="section-tag center">Navegue</div>
+    <h2 class="section-title center">Mapa da Cidade</h2>
+    <p class="section-sub center">Cada cartão de Locais tem um botão "Ver no mapa". Toque num marcador para ver o endereço e abrir a rota.</p>
     <div id="map"></div>
+    <p class="map-note" id="mapNote"></p>
   </div>
 </section>
 
-<footer class="footer">
+<section id="curiosidades">
+  <div class="container">
+    <div class="section-tag center">Você sabia?</div>
+    <h2 class="section-title center">Curiosidades</h2>
+    <p class="section-sub center">Fatos interessantes sobre Presidente Prudente.</p>
+    <div class="curio-grid">
+      <div class="curio-card"><i class="fa-solid fa-sun"></i><h4>Cidade quente</h4><p>Prudente é conhecida pelo clima quente, com verões frequentemente acima de 35°C.</p></div>
+      <div class="curio-card"><i class="fa-solid fa-train"></i><h4>Cidade da ferrovia</h4><p>A Estrada de Ferro Sorocabana foi essencial para o crescimento da cidade.</p></div>
+      <div class="curio-card"><i class="fa-solid fa-landmark"></i><h4>Nome presidencial</h4><p>Homenageia o presidente <strong>Prudente de Morais</strong>, terceiro presidente do Brasil.</p></div>
+      <div class="curio-card"><i class="fa-solid fa-graduation-cap"></i><h4>Polo universitário</h4><p>Recebe estudantes de várias cidades da região.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="roteiro">
+  <div class="container">
+    <div class="section-tag center">Um dia em Prudente</div>
+    <h2 class="section-title center">Roteiro Sugerido</h2>
+    <div class="route-timeline">
+      <div class="route-item"><span class="time">08:00</span><h4>Café no centro</h4><p>Comece o dia com um café em uma padaria tradicional do centro.</p></div>
+      <div class="route-item"><span class="time">10:00</span><h4>Parque do Povo</h4><p>Caminhada, lago e áreas verdes no coração da cidade.</p></div>
+      <div class="route-item"><span class="time">12:30</span><h4>Almoço</h4><p>Prove o churrasco ou peixe de rio em um restaurante regional.</p></div>
+      <div class="route-item"><span class="time">15:00</span><h4>Parque Ecológico Cidade da Criança</h4><p>Passeio leve entre matas e lagos. Veja a seção Natureza para dicas.</p></div>
+      <div class="route-item"><span class="time">19:00</span><h4>Jantar e cultura</h4><p>Teatro, bares e música ao vivo na região central.</p></div>
+    </div>
+  </div>
+</section>
+
+<footer>
   <div class="container">
     <div class="footer-grid">
-      <div class="footer-brand"><h3><i class="fa-solid fa-location-dot"></i> Turistou</h3><p>Plataforma colaborativa de turismo de Presidente Prudente.</p></div><div class="footer-col"><h4>Menu</h4><a href="#home">Home</a><a href="#eventos">Eventos</a><a href="#locais">Locais</a><a href="#mapa-section">Mapa</a></div><div class="footer-col"><h4>Contato</h4><a href="#natureza">Trilhas</a><a href="#historia">História</a><a href="#curiosidades">Curiosidades</a></div>
+      <div class="footer-brand">
+        <div class="logo"><i class="fa-solid fa-location-dot"></i><span>Turis</span>tou</div>
+        <p>Plataforma colaborativa de turismo de Presidente Prudente, criada por estudantes da formação técnica.</p>
+        <div class="footer-social">
+          <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+          <a href="#" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+        </div>
+      </div>
+      <div class="footer-col"><h4>Navegação</h4><a href="#home">Home</a><a href="#sobre">Sobre</a><a href="#eventos">Eventos</a><a href="#locais">Locais</a></div>
+      <div class="footer-col"><h4>Cidade</h4><a href="#historia">História</a><a href="#natureza">Natureza</a><a href="#mapa-section">Mapa</a><a href="#roteiro">Roteiro</a></div>
+      <div class="footer-col"><h4>Conta</h4><a href="#" onclick="openAuth();return false">Entrar</a><a href="#" onclick="openAuth();return false">Cadastrar</a><a href="#" onclick="toggleChat();return false">Chatbot</a></div>
     </div>
-    <div class="footer-bottom">© 2026 Turistou · Presidente Prudente</div>
+    <div class="footer-bottom">© 2026 Turistou · Feito com 💛 para Presidente Prudente</div>
   </div>
 </footer>
 
-<!-- CHATBOT -->
-<div id="chatWidget" style="display:none;position:fixed;bottom:24px;right:24px;width:340px;height:440px;background:#fff;border:2px solid var(--blue);border-radius:16px;z-index:2000;flex-direction:column;box-shadow:var(--shadow)">
-  <div style="background:var(--blue);color:white;padding:14px;border-radius:14px 14px 0 0;font-weight:700"><i class="fa-solid fa-robot"></i> Turi · Assistente</div>
-  <div id="chatMessages" style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px"></div>
-  <div style="padding:12px;border-top:1px solid var(--border);display:flex;gap:8px"><input id="chatInput" placeholder="Pergunte..." style="flex:1;padding:10px;border:1px solid var(--border);border-radius:50px" onkeydown="if(event.key==='Enter')sendChat()"><button onclick="sendChat()" style="background:var(--pink);color:var(--blue);border:none;border-radius:50%;width:42px;height:42px;cursor:pointer"><i class="fa-solid fa-paper-plane"></i></button></div>
+<!-- MODAL LOGIN/CADASTRO -->
+<div id="authModal" style="display:none;position:fixed;inset:0;background:rgba(13,36,131,.7);z-index:2000;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--surface);border-radius:16px;max-width:420px;width:100%;padding:32px;border:2px solid var(--pink)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="color:var(--blue)" id="authTitle">Entrar</h3>
+      <button onclick="closeAuth()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--blue)"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <input id="authName" placeholder="Nome (cadastro)" style="width:100%;padding:12px;margin-bottom:10px;border:1px solid var(--border);border-radius:8px;font-family:var(--font);display:none" />
+    <input id="authEmail" placeholder="E-mail" style="width:100%;padding:12px;margin-bottom:10px;border:1px solid var(--border);border-radius:8px;font-family:var(--font)" />
+    <input id="authPass" type="password" placeholder="Senha" style="width:100%;padding:12px;margin-bottom:16px;border:1px solid var(--border);border-radius:8px;font-family:var(--font)" />
+    <button class="btn" style="width:100%;justify-content:center" id="authBtn" onclick="doAuth()">Entrar</button>
+    <p style="text-align:center;margin-top:12px;font-size:.85rem;color:var(--text-light)">
+      <span id="authSwitchText">Não tem conta?</span>
+      <a href="#" onclick="switchAuth();return false" style="color:var(--blue);font-weight:600" id="authSwitch">Cadastre-se</a>
+    </p>
+    <div id="authMsg" style="margin-top:10px;font-size:.85rem;text-align:center"></div>
+  </div>
 </div>
-<button id="chatFab" onclick="toggleChat()" style="position:fixed;bottom:24px;right:24px;width:60px;height:60px;border-radius:50%;background:var(--pink);color:var(--blue);border:none;font-size:1.4rem;cursor:pointer;z-index:1999;box-shadow:var(--shadow)"><i class="fa-solid fa-robot"></i></button>
+
+<!-- MODAL ADICIONAR LOCAL -->
+<div id="placeModal" style="display:none;position:fixed;inset:0;background:rgba(13,36,131,.7);z-index:2000;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--surface);border-radius:16px;max-width:460px;width:100%;padding:32px;border:2px solid var(--yellow);max-height:90vh;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="color:var(--blue)">Adicionar Local</h3>
+      <button onclick="closePlace()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--blue)"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <input id="pName" placeholder="Nome do local" style="width:100%;padding:12px;margin-bottom:10px;border:1px solid var(--border);border-radius:8px;font-family:var(--font)" />
+    <select id="pCat" style="width:100%;padding:12px;margin-bottom:10px;border:1px solid var(--border);border-radius:8px;font-family:var(--font)">
+      <option value="parque">Parque</option>
+      <option value="natureza">Natureza / trilha</option>
+      <option value="educacao">Educação</option>
+      <option value="religioso">Religioso</option>
+      <option value="compras">Compras</option>
+      <option value="outro">Outro</option>
+    </select>
+    <input id="pDesc" placeholder="Descrição curta" style="width:100%;padding:12px;margin-bottom:10px;border:1px solid var(--border);border-radius:8px;font-family:var(--font)" />
+    <input id="pAddr" placeholder="Endereço (rua e número)" style="width:100%;padding:12px;margin-bottom:10px;border:1px solid var(--border);border-radius:8px;font-family:var(--font)" />
+    <label style="font-size:.8rem;color:var(--text-light)">Foto do local (opcional, mas ajuda muito)</label>
+    <input id="pImg" type="file" accept="image/*" style="width:100%;padding:8px 0;margin-bottom:16px;font-family:var(--font)" />
+    <button class="btn" style="width:100%;justify-content:center" onclick="addPlace()">Enviar para verificação</button>
+    <div id="placeMsg" style="margin-top:10px;font-size:.85rem;text-align:center"></div>
+  </div>
+</div>
+
+<!-- MODAL NOTAS DA COMUNIDADE -->
+<div id="notesModal" style="display:none;position:fixed;inset:0;background:rgba(13,36,131,.7);z-index:2000;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--surface);border-radius:16px;max-width:520px;width:100%;max-height:80vh;display:flex;flex-direction:column;padding:32px;border:2px solid var(--pink)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="color:var(--blue)"><i class="fa-solid fa-comments"></i> Notas da Comunidade</h3>
+      <button onclick="closeNotes()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--blue)"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="notesList" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px;margin-bottom:16px"></div>
+    <div id="noteForm">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <span style="font-size:.85rem;font-weight:600;color:var(--blue)">Sua nota:</span>
+        <span id="starPick">
+          <i class="fa-solid fa-star" style="color:#ccc;cursor:pointer;font-size:1.2rem" data-v="1"></i>
+          <i class="fa-solid fa-star" style="color:#ccc;cursor:pointer;font-size:1.2rem" data-v="2"></i>
+          <i class="fa-solid fa-star" style="color:#ccc;cursor:pointer;font-size:1.2rem" data-v="3"></i>
+          <i class="fa-solid fa-star" style="color:#ccc;cursor:pointer;font-size:1.2rem" data-v="4"></i>
+          <i class="fa-solid fa-star" style="color:#ccc;cursor:pointer;font-size:1.2rem" data-v="5"></i>
+        </span>
+      </div>
+      <textarea id="noteText" placeholder="Escreva sua nota sobre Prudente ou algum local..." style="width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;font-family:var(--font);min-height:70px;resize:vertical;margin-bottom:10px"></textarea>
+      <button class="btn" style="width:100%;justify-content:center" onclick="addNote()">Publicar Nota</button>
+      <div id="noteMsg" style="margin-top:8px;font-size:.85rem;text-align:center"></div>
+    </div>
+  </div>
+</div>
+
+<!-- CHATBOT -->
+<div id="chatWidget" style="display:none;position:fixed;bottom:24px;right:24px;width:340px;max-width:calc(100vw - 32px);height:460px;max-height:calc(100vh - 100px);background:var(--surface);border:2px solid var(--blue);border-radius:16px;z-index:2000;flex-direction:column;box-shadow:var(--shadow)">
+  <div style="background:var(--blue);color:var(--yellow);padding:14px 18px;border-radius:14px 14px 0 0;display:flex;justify-content:space-between;align-items:center;font-weight:700">
+    <span><i class="fa-solid fa-robot"></i> Turi · Assistente</span>
+    <button onclick="toggleChat()" style="background:none;border:none;color:var(--yellow);cursor:pointer;font-size:1rem" aria-label="Fechar chat"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div id="chatMessages" style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px"></div>
+  <div style="padding:12px;border-top:1px solid var(--border);display:flex;gap:8px">
+    <input id="chatInput" placeholder="Pergunte sobre Prudente..." style="flex:1;min-width:0;padding:10px;border:1px solid var(--border);border-radius:50px;font-family:var(--font);background:var(--surface);color:var(--text)" />
+    <button id="chatSend" style="background:var(--pink);color:#0d2483;border:none;border-radius:50%;width:42px;height:42px;cursor:pointer" aria-label="Enviar"><i class="fa-solid fa-paper-plane"></i></button>
+  </div>
+</div>
+<button id="chatFab" onclick="toggleChat()" style="position:fixed;bottom:24px;right:24px;width:60px;height:60px;border-radius:50%;background:var(--pink);color:#0d2483;border:none;font-size:1.4rem;cursor:pointer;z-index:1999;box-shadow:var(--shadow)" aria-label="Abrir chat"><i class="fa-solid fa-robot"></i></button>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-// === DADOS CORRIDOS PARA PRESIDENTE PRUDENTE ===
+/* ===== UTILITÁRIOS ===== */
+function esc(s){
+  return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function norm(s){
+  return String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+}
+function lsGet(key,fallback){
+  try{var v=JSON.parse(localStorage.getItem(key));return v==null?fallback:v;}catch(e){return fallback;}
+}
+function lsSet(key,val){
+  try{localStorage.setItem(key,JSON.stringify(val));return true;}catch(e){return false;}
+}
+var MESES=['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
+
+/* ===== DADOS =====
+   EVENTOS: use m (mês 1-12) e d (dia). Se o evento acontece só uma vez, informe y (ano).
+   Sem y, o site assume que repete todo ano e mostra a próxima data.
+   approx:true = data típica, ainda não confirmada.                              */
 var EVENTS=[
- {day:'14',month:'SET',title:'Aniversário da Cidade',local:'Parque do Povo',hora:'19:00',cat:'cultura',desc:'Show e festa oficial da cidade com shows musicais.',img:'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?w=500&auto=format'},
- {day:'15',month:'AGO',title:'Festa do Peão',local:'Parque de Exposições',hora:'20:00',cat:'musica',desc:'Rodeio com shows sertanejos e gastronomia típica.',img:'https://images.unsplash.com/photo-1506157786151-b849153114a6?w=500&auto=format'},
- {day:'08',month:'NOV',title:'Expo Prudente',local:'Recinto de Exposições',hora:'09:00',cat:'cultura',desc:'Feira agropecuária, negócios e entretenimento.',img:'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=500&auto=format'}
+ {m:9,d:14,title:'Aniversário da Cidade',local:'Programação a confirmar',hora:'A confirmar',cat:'cultura',desc:'Presidente Prudente foi fundada em 14 de setembro de 1917. A cidade costuma ter programação especial na data.',approx:false},
+ {m:7,d:20,title:'Festa do Peão',local:'Parque de Exposições',hora:'A confirmar',cat:'musica',desc:'Rodeio, shows sertanejos e gastronomia.',approx:true},
+ {m:9,d:7,title:'Copa Oeste de Futebol',local:'Estádio Prudentão',hora:'A confirmar',cat:'esporte',desc:'Campeonato regional amador.',approx:true},
+ {m:5,d:30,title:'Festival Gastronômico',local:'Praça Roberto Kuppel',hora:'A confirmar',cat:'gastronomia',desc:'Comidas típicas do interior paulista.',approx:true},
+ {m:8,d:15,title:'Expo Prudente',local:'Recinto de Exposições',hora:'A confirmar',cat:'cultura',desc:'Feira de negócios, agro e entretenimento.',approx:true}
 ];
 
+/* LOCAIS: lat/lng só quando verificados. Sem coordenadas, o mapa procura pelo nome/endereço.
+   cat: parque | natureza | educacao | religioso | compras | outro
+   img: caminho de uma foto, ex. 'fotos/parque-do-povo.jpg' (se não existir, aparece o ícone) */
+var CATS={parque:'Parque',natureza:'Natureza',educacao:'Educação',religioso:'Religioso',compras:'Compras',outro:'Outro'};
+var CAT_ICON={parque:'fa-tree',natureza:'fa-leaf',educacao:'fa-graduation-cap',religioso:'fa-church',compras:'fa-bag-shopping',outro:'fa-map-pin'};
 var PLACES=[
- {name:'Parque do Povo',desc:'Principal parque urbano com áreas de lazer e lago.',addr:'Av. Brasil, Centro',img:'https://images.unsplash.com/photo-1519331379826-f10be5486c6f?w=500&auto=format',verified:true},
- {name:'Parque Natural Municipal',desc:'Trilhas ecológicas e preservação ambiental.',addr:'Zona Leste',img:'https://images.unsplash.com/photo-1448375240586-882707db888b?w=500&auto=format',verified:true},
- {name:'Catedral Nra. da Luz',desc:'Principal templo religioso da cidade.',addr:'Praça da Matriz',img:'https://images.unsplash.com/photo-1548625149-fc4a29cf7092?w=500&auto=format',verified:true},
- {name:'Shopping Prudente',desc:'Centro de compras e entretenimento.',addr:'Av. Cel. Silva Júnior',img:'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=500&auto=format',verified:true},
- {name:'Matarazzo Park',desc:'Parque com trilhas e áreas verdes.',addr:'Jardim Matarazzo',img:'https://images.unsplash.com/photo-1550439062-aa593ad4175d?w=500&auto=format',verified:true}
+ {id:'d1',name:'Parque do Povo',cat:'parque',desc:'Principal parque urbano, com lago, quadras e áreas verdes.',addr:'Av. Quatorze de Setembro, Vila Formosa',bg:'place-bg-1',verified:true,img:'',lat:-22.1324,lng:-51.3973},
+ {id:'d2',name:'Parque Ecológico Cidade da Criança',cat:'natureza',desc:'Parque com matas, lagos e áreas de lazer. Ótimo para passeio em família.',addr:'Presidente Prudente - SP',bg:'place-bg-3',verified:true,img:''},
+ {id:'d3',name:'Parque Ecológico Chico Mendes',cat:'natureza',desc:'Conhecido como Mata do Furquim, área de mata nativa dentro da cidade.',addr:'Presidente Prudente - SP',bg:'place-bg-3',verified:true,img:''},
+ {id:'d4',name:'Parque Ecológico Nelson Bugalho',cat:'natureza',desc:'Área de preservação com trilhas, lagos e fauna local.',addr:'Presidente Prudente - SP',bg:'place-bg-3',verified:true,img:''},
+ {id:'d5',name:'SENAC Presidente Prudente',cat:'educacao',desc:'Instituição de educação profissional.',addr:'Rua Santo Antônio, 2111',bg:'place-bg-2',verified:true,img:''},
+ {id:'d6',name:'Catedral de São Sebastião',cat:'religioso',desc:'Catedral da Diocese de Presidente Prudente, no centro.',addr:'Centro, Presidente Prudente - SP',bg:'place-bg-4',verified:true,img:''},
+ {id:'d7',name:'Prudenshopping',cat:'compras',desc:'Centro de compras e lazer.',addr:'Presidente Prudente - SP',bg:'place-bg-5',verified:true,img:''}
 ];
 
-// === COORDENADAS REAIS CORREDOSTAS ===
-var MAP_POINTS=[
- {name:'Parque do Povo',coords:[-22.1222,-51.3860]},
- {name:'Catedral Nra. da Luz',coords:[-22.1214,-51.3837]},
- {name:'Shopping Prudente',coords:[-22.1315,-51.3910]},
- {name:'Parque Natural Municipal',coords:[-22.1070,-51.3550]}
-];
-
+/* ===== EVENTOS ===== */
+function startOfToday(){var t=new Date();return new Date(t.getFullYear(),t.getMonth(),t.getDate());}
+function nextDate(e){
+  var today=startOfToday();
+  if(e.y)return new Date(e.y,e.m-1,e.d);
+  var dt=new Date(today.getFullYear(),e.m-1,e.d);
+  if(dt<today)dt=new Date(today.getFullYear()+1,e.m-1,e.d);
+  return dt;
+}
+function upcomingEvents(){
+  var today=startOfToday();
+  return EVENTS.map(function(e){return {e:e,date:nextDate(e)};})
+    .filter(function(x){return x.date>=today;})
+    .sort(function(a,b){return a.date-b.date;});
+}
+function whenText(date){
+  var n=Math.round((date-startOfToday())/86400000);
+  if(n===0)return 'Hoje';
+  if(n===1)return 'Amanhã';
+  if(n<31)return 'Em '+n+' dias';
+  var meses=Math.round(n/30);
+  return 'Em cerca de '+meses+(meses===1?' mês':' meses');
+}
 function renderEvents(filter){
   filter=filter||'todos';
-  var g=document.getElementById('eventGrid');if(!g)return;
-  g.innerHTML='';
-  EVENTS.filter(function(e){return filter==='todos'||e.cat===filter;}).forEach(function(e){
-    g.innerHTML+='<div class="event-card"><div class="event-img" style="background-image:url(\''+e.img+'\')"></div><div class="event-card-body"><div class="event-date">'+e.day+'/'+e.month+' · '+e.hora+'</div><h4>'+e.title+'</h4><p><small>&#8738; '+e.local+'</small><p>'+e.desc+'</p><span class="event-tag">'+e.cat+'</span></div></div>';
-  });
+  var g=document.getElementById('eventsGrid');
+  var list=upcomingEvents().filter(function(x){return filter==='todos'||x.e.cat===filter;});
+  if(!list.length){g.innerHTML='<p class="empty">Nenhum evento próximo nesta categoria.</p>';return;}
+  g.innerHTML=list.map(function(x){
+    var e=x.e,d=x.date;
+    return '<div class="event-card">'
+      +'<div class="event-card-header"><div class="event-date-badge"><div class="day">'+d.getDate()+'</div><div class="month">'+MESES[d.getMonth()]+'</div><div class="year">'+d.getFullYear()+'</div></div>'
+      +'<div><h4>'+esc(e.title)+'</h4><div class="event-when">'+whenText(d)+'</div></div></div>'
+      +'<div class="event-card-body"><p><i class="fa-solid fa-location-dot"></i>'+esc(e.local)+'</p><p><i class="fa-solid fa-clock"></i>'+esc(e.hora)+'</p><p>'+esc(e.desc)+'</p>'
+      +'<span class="event-tag">'+esc(e.cat)+'</span>'+(e.approx?'<span class="event-tag warn">Data a confirmar</span>':'')+'</div></div>';
+  }).join('');
 }
-document.querySelectorAll('.filter-btn').forEach(function(b){
-  b.onclick=function(){
-    document.querySelectorAll('.filter-btn').forEach(function(x){x.classList.remove('active');});
+document.querySelectorAll('.filter-btn[data-filter]').forEach(function(b){
+  b.addEventListener('click',function(){
+    document.querySelectorAll('.filter-btn[data-filter]').forEach(function(x){x.classList.remove('active');});
     b.classList.add('active');
     renderEvents(b.getAttribute('data-filter'));
-  };
+  });
 });
 
+/* ===== LOCAIS ===== */
+// migra locais enviados na versão antiga (que sobrescrevia a lista inteira)
+(function migrate(){
+  var old=lsGet('turistou_places',null);
+  if(old&&old.length){
+    var mine=lsGet('turistou_user_places',[]);
+    old.forEach(function(p){
+      if(p.by&&!mine.some(function(m){return m.name===p.name&&m.addr===p.addr;})){
+        p.id='u'+Date.now()+Math.floor(Math.random()*1000);p.cat=p.cat||'outro';p.img=p.img||'';mine.push(p);
+      }
+    });
+    lsSet('turistou_user_places',mine);
+  }
+  try{localStorage.removeItem('turistou_places');}catch(e){}
+})();
+function userPlaces(){return lsGet('turistou_user_places',[]);}
+function allPlaces(){return PLACES.concat(userPlaces());}
+var placeFilter='todos';
 function renderPlaces(){
-  var g=document.getElementById('placesGrid');if(!g)return;
-  g.innerHTML='';
-  PLACES.forEach(function(p){
-    g.innerHTML+='<div class="place-card"><div class="place-image" style="background-image:url(\''+(p.img||'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=500&auto=format')+'\')><div class="verified-badge"><i class="fa-solid fa-check"></i></div></div><div class="place-overlay">'+p.name+'</div><div class="place-info"><p><small>&#8738; '+p.desc+'</small><p><small>&#10149; '+p.addr+'</small></div></div>';
+  var g=document.getElementById('placesGrid');
+  var list=allPlaces().filter(function(p){return placeFilter==='todos'||p.cat===placeFilter;});
+  if(!list.length){g.innerHTML='<p class="empty">Nenhum local nesta categoria ainda. Seja o primeiro a adicionar!</p>';return;}
+  g.innerHTML=list.map(function(p){
+    var cat=p.cat||'outro';
+    var img=p.img?'<img class="place-photo" src="'+esc(p.img)+'" alt="'+esc(p.name)+'" loading="lazy" onerror="this.remove()">':'';
+    var status=p.verified
+      ?'<span class="place-status ok"><i class="fa-solid fa-circle-check"></i> Verificado pela equipe</span>'
+      :'<span class="place-status wait"><i class="fa-solid fa-hourglass-half"></i> Aguardando verificação'+(p.by?' · enviado por '+esc(p.by):'')+'</span>';
+    return '<div class="place-card">'
+      +'<div class="place-image '+esc(p.bg||'place-bg-1')+'"><span class="place-cat">'+esc(CATS[cat]||'Outro')+'</span><i class="fa-solid '+(CAT_ICON[cat]||'fa-map-pin')+'"></i>'+img+'</div>'
+      +'<div class="place-info"><h4>'+esc(p.name)+'</h4>'+status
+      +'<p>'+esc(p.desc)+'</p><p><i class="fa-solid fa-location-dot"></i>'+esc(p.addr)+'</p>'
+      +'<div class="place-actions"><button class="btn btn-sm" onclick="focusOnMap(\''+esc(p.id)+'\')"><i class="fa-solid fa-map-pin"></i> Ver no mapa</button></div></div></div>';
+  }).join('');
+}
+document.querySelectorAll('.filter-btn[data-pfilter]').forEach(function(b){
+  b.addEventListener('click',function(){
+    document.querySelectorAll('.filter-btn[data-pfilter]').forEach(function(x){x.classList.remove('active');});
+    b.classList.add('active');
+    placeFilter=b.getAttribute('data-pfilter');
+    renderPlaces();
+  });
+});
+
+/* ===== MAPA ===== */
+var map=null, markers={}, geoQueue=[], geoBusy=false;
+var CITY=[-22.1256,-51.3889];
+function gmapsLink(p){
+  return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(p.name+', '+p.addr+', Presidente Prudente SP');
+}
+function addMarker(p,lat,lng){
+  if(!map||markers[p.id])return;
+  var m=L.marker([lat,lng]).addTo(map);
+  m.bindPopup('<b>'+esc(p.name)+'</b><br>'+esc(p.addr)+'<br><a href="'+gmapsLink(p)+'" target="_blank" rel="noopener">Abrir rota no Google Maps</a>');
+  markers[p.id]=m;
+}
+function geocodeCache(){return lsGet('turistou_geo',{});}
+function processGeoQueue(){
+  if(geoBusy||!geoQueue.length)return;
+  geoBusy=true;
+  var p=geoQueue.shift();
+  var cache=geocodeCache();
+  if(cache[p.id]){addMarker(p,cache[p.id][0],cache[p.id][1]);geoBusy=false;processGeoQueue();return;}
+  var q=(p.addr&&p.addr.indexOf('Presidente Prudente')===-1)?(p.name+', '+p.addr+', Presidente Prudente, SP'):(p.name+', Presidente Prudente, SP');
+  var url='https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=br&viewbox=-51.50,-22.04,-51.30,-22.20&bounded=1&q='+encodeURIComponent(q);
+  fetch(url).then(function(r){return r.json();}).then(function(res){
+    if(res&&res.length){
+      var lat=parseFloat(res[0].lat),lng=parseFloat(res[0].lon);
+      cache[p.id]=[lat,lng];lsSet('turistou_geo',cache);
+      addMarker(p,lat,lng);
+    }else{
+      // tenta só pelo endereço
+      return fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=br&viewbox=-51.50,-22.04,-51.30,-22.20&bounded=1&q='+encodeURIComponent(p.addr+', Presidente Prudente, SP'))
+        .then(function(r){return r.json();}).then(function(r2){
+          if(r2&&r2.length){
+            var lat=parseFloat(r2[0].lat),lng=parseFloat(r2[0].lon);
+            cache[p.id]=[lat,lng];lsSet('turistou_geo',cache);addMarker(p,lat,lng);
+          }else{updateMapNote();}
+        });
+    }
+  }).catch(function(){updateMapNote();}).then(function(){
+    setTimeout(function(){geoBusy=false;processGeoQueue();updateMapNote();},1100);
   });
 }
-renderEvents();
-renderPlaces();
-
-var map=L.map('map').setView([-22.1214,-51.3837],14);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(map);
-MAP_POINTS.forEach(function(p){
-  L.marker(p.coords).addTo(map).bindPopup('<b>'+p.name+'</b>');
-});
-
-var loggedUser=null;
-function openAuth(){document.getElementById('authModal').style.display='flex';}
-function closeAuth(){document.getElementById('authModal').style.display='none';}
-function doAuth(){
-  document.getElementById('authModal').style.display='none';
-  alert('Login simulação - Acesso concedido!');
-  loggedUser={name:'Usuário',email:'teste@example.com'};}
+function updateMapNote(){
+  var n=document.getElementById('mapNote');
+  var missing=allPlaces().filter(function(p){return !markers[p.id];});
+  n.textContent=missing.length?('Sem marcador no mapa por enquanto: '+missing.map(function(p){return p.name;}).join(', ')+'. Use o botão "Ver no mapa" para abrir no Google Maps.'):'';
+}
+function loadMarkers(){
+  allPlaces().forEach(function(p){
+    if(markers[p.id])return;
+    if(typeof p.lat==='number'&&typeof p.lng==='number'){addMarker(p,p.lat,p.lng);}
+    else{
+      var c=geocodeCache()[p.id];
+      if(c)addMarker(p,c[0],c[1]);
+      else if(geoQueue.indexOf(p)===-1)geoQueue.push(p);
+    }
+  });
+  processGeoQueue();
+  updateMapNote();
+}
+function initMap(){
+  var el=document.getElementById('map');
+  if(typeof L==='undefined'){
+    el.innerHTML='<div class="map-fail">Não foi possível carregar o mapa. Verifique sua conexão e recarregue a página.</div>';
+    return;
+  }
+  map=L.map('map').setView(CITY,13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(map);
+  loadMarkers();
+  setTimeout(function(){map.invalidateSize();},300);
+}
+function focusOnMap(id){
+  var p=allPlaces().filter(function(x){return x.id===id;})[0];
+  if(!p)return;
+  document.getElementById('mapa-section').scrollIntoView({behavior:'smooth'});
+  if(!map){window.open(gmapsLink(p),'_blank');return;}
+  setTimeout(function(){
+    map.invalidateSize();
+    if(markers[id]){map.setView(markers[id].getLatLng(),16);markers[id].openPopup();}
+    else{
+      geoQueue.unshift(p);processGeoQueue();
+      var tries=0;var iv=setInterval(function(){
+        tries++;
+        if(markers[id]){clearInterval(iv);map.setView(markers[id].getLatLng(),16);markers[id].openPopup();}
+        else if(tries>12){clearInterval(iv);window.open(gmapsLink(p),'_blank');}
+      },700);
+    }
+  },500);
+}
+function goPlace(name){
+  var p=allPlaces().filter(function(x){return x.name===name;})[0];
+  if(p)focusOnMap(p.id);
 }
 
+renderEvents();
+renderPlaces();
+try{initMap();}catch(err){console.error('Erro no mapa:',err);}
+
+/* ===== LOGIN / CADASTRO ===== */
+var loggedUser=lsGet('turistou_user',null);
+var loginMode=true;
+function openAuth(){document.getElementById('authModal').style.display='flex';}
+function closeAuth(){document.getElementById('authModal').style.display='none';}
+function switchAuth(){loginMode=!loginMode;setAuthUI();}
+function setAuthUI(){
+  document.getElementById('authTitle').textContent=loginMode?'Entrar':'Criar Conta';
+  document.getElementById('authBtn').textContent=loginMode?'Entrar':'Cadastrar';
+  document.getElementById('authName').style.display=loginMode?'none':'block';
+  document.getElementById('authSwitchText').textContent=loginMode?'Não tem conta?':'Já tem conta?';
+  document.getElementById('authSwitch').textContent=loginMode?'Cadastre-se':'Entrar';
+  document.getElementById('authMsg').textContent='';
+}
+setAuthUI();
+function doAuth(){
+  var email=document.getElementById('authEmail').value.trim();
+  var pass=document.getElementById('authPass').value;
+  var msg=document.getElementById('authMsg');
+  var users=lsGet('turistou_users',[]);
+  if(!email||!pass){msg.style.color='#c62828';msg.textContent='Preencha todos os campos.';return;}
+  if(loginMode){
+    var u=null;
+    for(var i=0;i<users.length;i++){if(users[i].email===email&&users[i].pass===pass){u=users[i];break;}}
+    if(u){
+      loggedUser={name:u.name,email:u.email};
+      lsSet('turistou_user',loggedUser);
+      closeAuth();alert('Bem-vindo(a), '+u.name+'!');
+    }else{msg.style.color='#c62828';msg.textContent='E-mail ou senha incorretos.';}
+  }else{
+    var name=document.getElementById('authName').value.trim();
+    if(!name){msg.style.color='#c62828';msg.textContent='Informe seu nome.';return;}
+    for(var j=0;j<users.length;j++){if(users[j].email===email){msg.style.color='#c62828';msg.textContent='E-mail já cadastrado.';return;}}
+    users.push({name:name,email:email,pass:pass});
+    lsSet('turistou_users',users);
+    loggedUser={name:name,email:email};
+    lsSet('turistou_user',loggedUser);
+    closeAuth();alert('Conta criada! Bem-vindo(a), '+name+'!');
+  }
+}
+
+/* ===== ADICIONAR LOCAL ===== */
+document.getElementById('openAddPlace').addEventListener('click',function(){
+  if(!loggedUser){openAuth();return;}
+  document.getElementById('placeModal').style.display='flex';
+});
+function closePlace(){document.getElementById('placeModal').style.display='none';}
+function resizeImage(file,maxSize,cb){
+  var reader=new FileReader();
+  reader.onload=function(){
+    var img=new Image();
+    img.onload=function(){
+      var s=Math.min(1,maxSize/Math.max(img.width,img.height));
+      var c=document.createElement('canvas');
+      c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      cb(c.toDataURL('image/jpeg',0.7));
+    };
+    img.onerror=function(){cb('');};
+    img.src=reader.result;
+  };
+  reader.onerror=function(){cb('');};
+  reader.readAsDataURL(file);
+}
+function addPlace(){
+  var name=document.getElementById('pName').value.trim();
+  var desc=document.getElementById('pDesc').value.trim();
+  var addr=document.getElementById('pAddr').value.trim();
+  var cat=document.getElementById('pCat').value;
+  var file=document.getElementById('pImg').files[0];
+  var msg=document.getElementById('placeMsg');
+  if(!name||!desc||!addr){msg.style.color='#c62828';msg.textContent='Preencha nome, descrição e endereço.';return;}
+  function finish(imgData){
+    var list=userPlaces();
+    var p={id:'u'+Date.now(),name:name,desc:desc,addr:addr,cat:cat,bg:'place-bg-'+(1+(list.length%5)),verified:false,by:loggedUser.name,img:imgData||''};
+    list.push(p);
+    if(!lsSet('turistou_user_places',list)){
+      list.pop();
+      msg.style.color='#c62828';msg.textContent='Sem espaço para salvar. Tente uma foto menor ou sem foto.';return;
+    }
+    ['pName','pDesc','pAddr'].forEach(function(id){document.getElementById(id).value='';});
+    document.getElementById('pImg').value='';
+    msg.textContent='';
+    renderPlaces();
+    loadMarkers();
+    closePlace();
+    alert('Local enviado! Ele aparece como "Aguardando verificação" até a equipe Turistou confirmar.');
+  }
+  if(file)resizeImage(file,800,finish);else finish('');
+}
+
+/* ===== NOTAS DA COMUNIDADE ===== */
+var noteRating=0;
+function getNotes(){return lsGet('turistou_notes',[]);}
+function openNotes(){
+  document.getElementById('notesModal').style.display='flex';
+  renderNotes();
+}
+function closeNotes(){document.getElementById('notesModal').style.display='none';}
+function renderNotes(){
+  var l=document.getElementById('notesList');
+  var notes=getNotes();
+  if(notes.length===0){
+    l.innerHTML='<p style="text-align:center;color:var(--text-light);font-size:.85rem;padding:20px 0">Ainda não há notas. Seja o primeiro a publicar! ✨</p>';
+    return;
+  }
+  l.innerHTML='';
+  notes.slice().reverse().forEach(function(n){
+    var stars='';
+    for(var s=1;s<=5;s++)stars+='<i class="fa-solid fa-star" style="color:'+(s<=n.rating?'#f5b301':'#ccc')+';font-size:.8rem"></i>';
+    var d=document.createElement('div');
+    d.style.cssText='background:var(--blue-light);border-radius:10px;padding:12px 14px';
+    d.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><strong style="color:var(--blue);font-size:.85rem">'+esc(n.name)+'</strong><span>'+stars+'</span></div><p style="font-size:.85rem;color:var(--text)">'+esc(n.text)+'</p>';
+    l.appendChild(d);
+  });
+}
+document.getElementById('openNotes').addEventListener('click',openNotes);
+document.getElementById('starPick').addEventListener('click',function(e){
+  var st=e.target.closest('.fa-star');
+  if(!st)return;
+  noteRating=parseInt(st.getAttribute('data-v'));
+  document.querySelectorAll('#starPick .fa-star').forEach(function(s){
+    s.style.color=(parseInt(s.getAttribute('data-v'))<=noteRating)?'#f5b301':'#ccc';
+  });
+});
+function addNote(){
+  var text=document.getElementById('noteText').value.trim();
+  var msg=document.getElementById('noteMsg');
+  if(!loggedUser){closeNotes();openAuth();return;}
+  if(noteRating===0){msg.style.color='#c62828';msg.textContent='Escolha as estrelas!';return;}
+  if(!text){msg.style.color='#c62828';msg.textContent='Escreva sua nota!';return;}
+  var notes=getNotes();
+  notes.push({name:loggedUser.name,rating:noteRating,text:text,when:new Date().toLocaleDateString('pt-BR')});
+  lsSet('turistou_notes',notes);
+  document.getElementById('noteText').value='';
+  noteRating=0;
+  document.querySelectorAll('#starPick .fa-star').forEach(function(s){s.style.color='#ccc';});
+  msg.style.color='#2e7d32';msg.textContent='Nota publicada! ✓';
+  renderNotes();
+}
+
+/* ===== CHATBOT ===== */
+var CHIPS=['Próximos eventos','Parques e trilhas','Como chegar','Como adicionar um local'];
+function has(t,kw){
+  // palavras curtas só casam como palavra inteira, para "oi" não casar com "foi"
+  if(kw.length<=3)return new RegExp('(^|[^a-z])'+kw+'([^a-z]|$)').test(t);
+  return t.indexOf(kw)>-1;
+}
+var INTENTS=[
+ {k:['evento','agenda','festa','show','acontece','programacao','rodeio','expo','festival'],r:function(){
+   var up=upcomingEvents().slice(0,3);
+   if(!up.length)return 'Não há eventos cadastrados por enquanto. Volte em breve!';
+   return 'Próximos eventos: '+up.map(function(x){var d=x.date;return x.e.title+' ('+('0'+d.getDate()).slice(-2)+'/'+('0'+(d.getMonth()+1)).slice(-2)+(x.e.approx?', data a confirmar':'')+')';}).join('; ')+'. Veja a seção Próximos Eventos para os detalhes.';
+ }},
+ {k:['trilha','natureza','ecologic','mata','caminhada','ecoturismo','trilhas','bicho','animais'],r:function(){
+   return 'Temos três parques ecológicos: Cidade da Criança (matas, lagos e lazer, entrada gratuita), Chico Mendes (a Mata do Furquim) e Nelson Bugalho (trilhas, lagos e fauna). Leve tênis fechado, água e repelente, e confirme horários com a Prefeitura. Detalhes na seção Natureza.';
+ }},
+ {k:['parque','povo','lago','passear','passeio'],r:function(){
+   return 'O Parque do Povo é o grande parque urbano da cidade, com lago, quadras e áreas verdes, perto da Av. Quatorze de Setembro. Para natureza mais selvagem, veja a seção Natureza com os parques ecológicos.';
+ }},
+ {k:['mapa','onde fica','localiza','endereco','rota','gps'],r:function(){
+   return 'No cartão de cada local tem o botão "Ver no mapa". No mapa, toque no marcador para ver o endereço e abrir a rota no Google Maps.';
+ }},
+ {k:['adicionar','cadastrar local','novo local','sugerir','enviar local','contribuir'],r:function(){
+   return 'Para adicionar um local: entre na sua conta, clique em "Adicionar Local" na seção Locais, preencha nome, categoria, descrição e endereço e, se puder, envie uma foto. Ele aparece como "Aguardando verificação" até a equipe confirmar.';
+ }},
+ {k:['verific','selo','confirmado'],r:function(){
+   return 'A verificação é feita pela equipe Turistou. Locais verificados mostram "Verificado pela equipe"; os enviados pela comunidade aparecem como "Aguardando verificação" até serem conferidos.';
+ }},
+ {k:['local','locais','turistic','visitar','conhecer','ponto'],r:function(){
+   var n=allPlaces().length;
+   return 'Temos '+n+' locais na seção Locais, organizados por categoria (parques, natureza, educação, religioso, compras). Use os filtros para achar o que procura.';
+ }},
+ {k:['historia','fundacao','fundada','origem','ferrovia','sorocabana'],r:function(){
+   return 'Presidente Prudente foi fundada em 14 de setembro de 1917 e cresceu com a Estrada de Ferro Sorocabana. O nome homenageia o presidente Prudente de Morais.';
+ }},
+ {k:['nota','avaliar','avaliacao','comentario','estrela'],r:function(){
+   return 'As Notas da Comunidade ficam na seção Locais. Clique em "Notas da Comunidade", escolha as estrelas e escreva seu comentário (é preciso estar logado).';
+ }},
+ {k:['comida','comer','restaurante','churrasco','peixe','gastronomia','almoco','jantar','fome'],r:function(){
+   return 'Prudente é conhecida pelo churrasco e pelos peixes de rio. Veja o Roteiro Sugerido para uma ideia de almoço e jantar, e o Festival Gastronômico na agenda de eventos.';
+ }},
+ {k:['chegar','onibus','rodoviaria','estrada','viajar','distancia','capital','aviao','aeroporto'],r:function(){
+   return 'Presidente Prudente fica a cerca de 560 km da capital paulista, com acesso pela Rodovia Raposo Tavares. A cidade tem rodoviária e há opções de ônibus para outras cidades.';
+ }},
+ {k:['calor','clima','temperatura','tempo','chuva','quente'],r:function(){
+   return 'A cidade é quente, com verões frequentemente acima de 35°C. Para passeios ao ar livre, prefira manhã cedo ou fim de tarde, e leve água e protetor solar.';
+ }},
+ {k:['roteiro','um dia','itinerario','o que fazer'],r:function(){
+   return 'Sugestão de um dia: café no centro, Parque do Povo, almoço regional, Parque Ecológico Cidade da Criança à tarde e jantar com cultura no centro. Veja o Roteiro Sugerido na página.';
+ }},
+ {k:['login','entrar','conta','senha','cadastro','registrar'],r:function(){
+   return 'Para criar conta ou entrar, use "Entrar" no rodapé ou tente adicionar um local ou nota: o site abre a janela de login automaticamente.';
+ }},
+ {k:['obrigado','obrigada','valeu','brigado'],r:function(){return 'De nada! Se precisar de mais alguma coisa sobre Prudente, é só perguntar. 😊';}},
+ {k:['oi','ola','eai','bom dia','boa tarde','boa noite','hello','hey'],r:function(){return 'Olá! Como posso te ajudar a conhecer Prudente?';}},
+ {k:['ajuda','help','o que voce faz','quem e voce','quem voce'],r:function(){return 'Sou o Turi, assistente do Turistou. Respondo sobre eventos, locais, natureza e trilhas, mapa, história e como contribuir com o site.';}}
+];
+function answer(text){
+  var t=norm(text);
+  var best=null,bestScore=0;
+  INTENTS.forEach(function(it){
+    var s=0;
+    it.k.forEach(function(kw){if(has(t,kw))s+=kw.length>3?2:1;});
+    if(s>bestScore){bestScore=s;best=it;}
+  });
+  if(best)return {text:best.r(),chips:null};
+  return {text:'Ainda não sei responder isso. Posso ajudar com eventos, locais, natureza e trilhas, mapa, história ou como adicionar um local. Escolha uma opção:',chips:CHIPS};
+}
 function toggleChat(){
   var w=document.getElementById('chatWidget'),f=document.getElementById('chatFab');
   var open=(w.style.display==='flex');
   w.style.display=open?'none':'flex';
   f.style.display=open?'block':'none';
-  if(!open&&document.getElementById('chatMessages').children.length===0){
-    botSay('Olá! Sou o Turi 🤖Como posso ajudar com Presidente Prudente hoje?');
-  }}
+  if(!open){
+    if(document.getElementById('chatMessages').children.length===0){
+      botSay('Oi! Sou o Turi 🤖 Posso te ajudar com Prudente: eventos, locais, trilhas e mapa. O que você quer saber?',CHIPS);
+    }
+    setTimeout(function(){document.getElementById('chatInput').focus();},50);
+  }
 }
-function botSay(t){
+function clearChips(){
+  document.querySelectorAll('.chat-chips').forEach(function(c){c.remove();});
+}
+function botSay(t,chips){
   var m=document.getElementById('chatMessages');
   var d=document.createElement('div');
-  d.style.cssText='align-self:flex-start;background:var(--blue-light);color:var(--blue);padding:10px 14px;border-radius:12px;max-width:85%;font-size:.85rem';
-  d.textContent=t;m.appendChild(d);m.scrollTop=m.scrollHeight;
+  d.style.cssText='align-self:flex-start;background:var(--blue-light);color:var(--text);padding:10px 14px;border-radius:12px 12px 12px 4px;max-width:85%;font-size:.85rem';
+  d.textContent=t;m.appendChild(d);
+  if(chips){
+    var c=document.createElement('div');c.className='chat-chips';
+    chips.forEach(function(label){
+      var b=document.createElement('button');b.className='chat-chip';b.textContent=label;
+      b.addEventListener('click',function(){sendChat(label);});
+      c.appendChild(b);
+    });
+    m.appendChild(c);
+  }
+  m.scrollTop=m.scrollHeight;
 }
 function userSay(t){
   var m=document.getElementById('chatMessages');
   var d=document.createElement('div');
-  d.style.cssText='align-self:flex-end;background:var(--pink);color:var(--blue);padding:10px 14px;border-radius:12px;max-width:85%;font-size:.85rem';
+  d.style.cssText='align-self:flex-end;background:var(--pink);color:#0d2483;padding:10px 14px;border-radius:12px 12px 4px 12px;max-width:85%;font-size:.85rem';
   d.textContent=t;m.appendChild(d);m.scrollTop=m.scrollHeight;
 }
-function sendChat(){
+function sendChat(forced){
   var i=document.getElementById('chatInput');
-  var t=i.value.trim();
+  var t=(typeof forced==='string'?forced:i.value).trim();
   if(!t)return;
+  clearChips();
   userSay(t);i.value='';
   setTimeout(function(){
-    var l=t.toLowerCase();
-    var r='Não entendi. Tente: eventos, trilhas, locais, ou curiosidades.';
-    if(l.indexOf('evento')>-1)r='Eventos: Aniversário da Cidade (14/SET), Festa do Peão (15/AGO) e Expo Prudente (08/NOV).';
-    else if(l.indexOf('trilha')>-1||l.indexOf('parque')>-1)r='Trilhas: Parque Natural Municipal e Balneário da Amizade. Verifique na seção de Ecoturismo.';
-    else if(l.indexOf('local')>-1)r='Locais: Parque do Povo, Catedral, Shopping Prudente e Matarazzo Park estão verificados no mapa.';
-    else if(l.indexOf('oi')>-1||l.indexOf('olá')>-1)r='Olá! Sou o Turi. O que você quer saber?';
-    botSay(r);
-  },400);
+    var a;
+    try{a=answer(t);}catch(e){a={text:'Tive um problema para responder. Tente de novo!',chips:CHIPS};}
+    botSay(a.text,a.chips);
+  },350);
 }
-document.getElementById('menuToggle').onclick=function(){document.getElementById('nav').classList.toggle('open');};
-document.getElementById('themeToggle').onclick=function(){document.body.classList.toggle('dark');};
+document.getElementById('chatSend').addEventListener('click',function(){sendChat();});
+document.getElementById('chatInput').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();sendChat();}});
 
-function getPlaces(){try{return JSON.parse(localStorage.getItem('turistou_places'))||PLACES;}catch(e){return PLACES;}},
-function savePlaces(p){localStorage.setItem('turistou_places',JSON.stringify(p));}
-function getNotes(){try{return JSON.parse(localStorage.getItem('turistou_notes'))||[];}catch(e){return[];}},
-function saveNotes(p){localStorage.setItem('turistou_notes',JSON.stringify(p));},
+/* ===== UI EXTRAS ===== */
+document.getElementById('menuToggle').addEventListener('click',function(){
+  document.getElementById('nav').classList.toggle('open');
+});
+document.querySelectorAll('nav a').forEach(function(a){
+  a.addEventListener('click',function(){document.getElementById('nav').classList.remove('open');});
+});
+document.getElementById('themeToggle').addEventListener('click',function(){
+  document.body.classList.toggle('dark');
+  var d=document.body.classList.contains('dark');
+  this.innerHTML='<i class="fa-solid fa-'+(d?'sun':'moon')+'"></i>';
+  try{localStorage.setItem('turistou_dark',d?'true':'false');}catch(e){}
+});
+try{
+  if(localStorage.getItem('turistou_dark')==='true'){
+    document.body.classList.add('dark');
+    document.getElementById('themeToggle').innerHTML='<i class="fa-solid fa-sun"></i>';
+  }
+}catch(e){}
+function checkReveal(){
+  document.querySelectorAll('.reveal').forEach(function(el){
+    if(el.getBoundingClientRect().top<window.innerHeight-100)el.classList.add('visible');
+  });
+}
+window.addEventListener('scroll',checkReveal);
+checkReveal();
 </script>
 </body>
 </html>
